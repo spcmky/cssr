@@ -1,0 +1,270 @@
+<?xml version="1.0"?>
+<orm-designer version="2.1.12.719">
+  <module name="Entity" import-format="Doctrine2Php" import-path="." uuid="7fc7ea9e-e1d2-497d-988d-e782c0fb04f0">
+    <entity name="Area" uuid="b8adc3ba-9e6f-4a74-82fa-12b68324a056">
+      <field name="id" type="integer" required="true" primary="true" uuid="408620b0-cfba-466b-8f23-fb80909fbfdd">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="name" type="string" size="100" required="true" uuid="66dc75bb-d44c-4d1e-8269-eae10004e624"/>
+      <orm-attributes>
+        <attribute name="table">cssr_area</attribute>
+        <attribute name="export-file-name">Area.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="Center" uuid="72cfaf8b-d530-4d57-bf0a-6c1eba02e614">
+      <field name="id" type="integer" required="true" primary="true" uuid="13042169-abcc-4f3f-84e9-89c55b1eaaae">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="name" type="string" size="100" uuid="6dab0db1-b46a-4fd4-a1e1-28852d286743"/>
+      <field name="description" type="text" uuid="746fc3da-055f-4767-a6e4-81542b31dce5"/>
+      <field name="address" type="string" size="250" uuid="9d7549e5-0b79-4486-8497-53059b975c04"/>
+      <field name="city" type="string" size="100" uuid="195fd477-c5d2-4f8c-906a-6b0e4f8fd187"/>
+      <field name="state" type="string" size="100" uuid="60f75693-5ac4-476b-a082-1e9d4b4a3bf1"/>
+      <field name="postcode" type="string" size="20" uuid="2b618a88-7d44-4e73-8207-edad93423500"/>
+      <field name="phone" type="string" size="20" uuid="49dcb77b-c888-4165-84fd-22286d3e447a"/>
+      <orm-attributes>
+        <attribute name="table">cssr_center</attribute>
+        <attribute name="export-file-name">Center.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="cssr_center_dorm" uuid="8dc0ab8e-ad50-410d-a23e-c2d0c902f8b1">
+      <field name="id" type="integer" required="true" unique="true" primary="true" uuid="5bea8703-9d5e-4e13-a908-148a94c808a7"/>
+      <field name="center_id" uuid="d38554d9-c8e7-4357-aa60-6a08c3b9e19a"/>
+      <field name="dorm_id" unique="true" uuid="4e3b1a49-be93-438f-81d0-472b4cff7e24"/>
+    </entity>
+    <many-to-many mn-entity="cssr_center_dorm" uuid="b9f15cb5-8a8a-4bd2-9570-4ac07096ebfd">
+      <many-to-many-entity name="Center" owning-side="true" uuid="48b203ea-3d1a-44be-816b-99aed84f8123">
+        <many-to-many-field from="center_id" to="id"/>
+      </many-to-many-entity>
+      <many-to-many-entity name="Dorm" owning-side="false" alias="dorms" uuid="fc24fa67-098c-46e9-a83b-656bb9e23bae">
+        <many-to-many-field from="dorm_id" to="id"/>
+      </many-to-many-entity>
+    </many-to-many>
+    <entity name="cssr_center_vocation" uuid="dc38d030-4efc-45ea-86dd-4f857210c2a9">
+      <field name="id" type="integer" required="true" unique="true" primary="true" uuid="92763150-ea89-4890-8c8a-34ae7bda3a22"/>
+      <field name="center_id" uuid="05acfb1f-ceca-488b-8701-1893646b8964"/>
+      <field name="vocation_id" unique="true" uuid="b560d8d5-2aed-48b8-9a64-e8a67f318432"/>
+    </entity>
+    <many-to-many mn-entity="cssr_center_vocation" uuid="57576504-55fb-4a03-82ad-e15ec5f39341">
+      <many-to-many-entity name="Center" owning-side="true" uuid="a52853b2-3aed-4d44-bc11-d9ec3171a972">
+        <many-to-many-field from="center_id" to="id"/>
+      </many-to-many-entity>
+      <many-to-many-entity name="Vocation" owning-side="false" alias="vocations" uuid="4f5e0aef-8fdc-48c3-bc1c-79fa95bc002f">
+        <many-to-many-field from="vocation_id" to="id"/>
+      </many-to-many-entity>
+    </many-to-many>
+    <entity name="Course" uuid="a34771f3-c91f-4b6b-97b6-0653d49a0d27">
+      <field name="id" type="integer" required="true" primary="true" uuid="63d203f6-532c-427d-8ccd-fec4ce87a772">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="area_id" unique="true" uuid="bf8d4935-ffc5-4153-bfab-ed6571c73675"/>
+      <field name="staff_id" uuid="18c8fcc8-31d7-4513-a559-f9217ee1c419"/>
+      <orm-attributes>
+        <attribute name="table">cssr_course</attribute>
+        <attribute name="export-file-name">Course.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="Course" to="Area" owner-alias="" inverse-alias="area" uuid="3edffa3b-4f2a-4811-9ea3-3bffd0375a2a">
+      <association-field from="area_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <association from="Course" to="Staff" owner-alias="courses" inverse-alias="staff" uuid="52acd71c-5629-4f73-9e20-6f119374caa1">
+      <association-field from="staff_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <entity name="Dorm" uuid="45bf2d81-7614-4a33-9d82-84abe53990a0">
+      <field name="id" type="integer" required="true" primary="true" uuid="dc39d885-622a-4e17-a001-afd7ef63b3f2">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="name" type="string" size="100" required="true" uuid="774fe478-1bc8-448e-b9d3-3f1721a7e905"/>
+      <orm-attributes>
+        <attribute name="table">cssr_dorm</attribute>
+        <attribute name="export-file-name">Dorm.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="Score" uuid="a096ee17-1482-4d87-9d51-a85ccd0a1cad">
+      <field name="id" type="integer" required="true" primary="true" uuid="c687db94-d694-4d00-9bc6-26a5562ec53a">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="value" type="integer" uuid="6e120a61-53bf-464a-87a0-df3d2ebd6f69"/>
+      <field name="comment" type="text" uuid="b05d794d-ae52-42fc-8dcf-d1c54749a970"/>
+      <field name="created" type="datetime" uuid="e1bdd236-69b6-4627-b464-e64fbc3f5781"/>
+      <field name="modified" type="datetime" uuid="d585a6de-7086-4984-9527-2e560cc198a3"/>
+      <field name="course_id" unique="true" uuid="898bcb18-74a8-47c2-a4ef-2ccb8e84b87f"/>
+      <field name="student_id" uuid="a10e14bc-7331-4e88-bf1a-db9ab449a0eb"/>
+      <field name="modifier_id" unique="true" uuid="175aa5e3-e6c8-42af-9a6b-4db65e1393a9"/>
+      <orm-attributes>
+        <attribute name="table">cssr_score</attribute>
+        <attribute name="export-file-name">Score.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="Score" to="Course" owner-alias="" inverse-alias="course" uuid="722e5b5e-aa99-4843-8bb2-2628162406bd">
+      <association-field from="course_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <association from="Score" to="Student" inverse-alias="student" uuid="5fbc188b-6abc-4c83-9d14-6e6ec8f4d866">
+      <association-field from="student_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <association from="Score" to="Staff" owner-alias="" inverse-alias="modifier" uuid="7a443ba7-898f-4d21-8935-79302fd31f60">
+      <association-field from="modifier_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <entity name="cssr_score_standard" uuid="2d5b9d84-bd98-4bde-b840-83b647a8fd3f">
+      <field name="id" type="integer" required="true" unique="true" primary="true" uuid="9f657030-77a0-4b4b-8be2-ad3bddb63d69"/>
+      <field name="score_id" uuid="8e62a3bb-799c-4842-8717-25a051fd46e6"/>
+      <field name="standard_id" unique="true" uuid="6adaffe5-a3ee-4782-a4ff-2279fe7ec3fb"/>
+    </entity>
+    <many-to-many mn-entity="cssr_score_standard" uuid="5c7cc440-47b5-4f8a-9f63-65dbd93f5bb3">
+      <many-to-many-entity name="Score" owning-side="true" uuid="3e6faad5-e345-4f1f-a708-c2cc215b2506">
+        <many-to-many-field from="score_id" to="id"/>
+      </many-to-many-entity>
+      <many-to-many-entity name="Standard" owning-side="false" alias="standards" uuid="fa01b6f1-7605-4eba-96db-8bdd6ee4e746">
+        <many-to-many-field from="standard_id" to="id"/>
+      </many-to-many-entity>
+    </many-to-many>
+    <entity name="Staff" uuid="37035c8b-0106-4b41-89db-c19f7d22d184">
+      <field name="id" type="integer" required="true" primary="true" uuid="2bff653d-803d-4bcb-9bf9-98dc3aba536e">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="firstname" type="string" size="100" required="true" uuid="2576a323-963a-4077-b6d9-7afae2c9fad7"/>
+      <field name="middlename" type="string" size="100" uuid="bea8810c-c25d-4377-b3b6-3833120febcd"/>
+      <field name="lastname" type="string" size="100" required="true" uuid="952919ba-8cf5-4de3-9fa2-e353ebb19b4e"/>
+      <orm-attributes>
+        <attribute name="table">cssr_staff</attribute>
+        <attribute name="export-file-name">Staff.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="Standard" uuid="0b1cd13f-0248-41e0-b1d2-2f74ce0cce89">
+      <field name="id" type="integer" required="true" primary="true" uuid="5f5c5cf5-daad-4dd4-a893-651883836784">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <orm-attributes>
+        <attribute name="table">cssr_standard</attribute>
+        <attribute name="export-file-name">Standard.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="Student" uuid="c312b68e-467a-48d4-aac5-0a87f76653db">
+      <field name="id" type="integer" required="true" primary="true" uuid="19bf4b3a-8442-4ac1-9b4c-fce968814226">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="firstname" type="string" size="100" required="true" uuid="143f9709-cfb0-4dd7-91df-722c42b8e8b0"/>
+      <field name="middlename" type="string" size="100" uuid="8696d89a-585d-471a-8793-c713add61db4"/>
+      <field name="lastname" type="string" size="100" required="true" uuid="50828c1b-a39b-4e9f-92f2-0337849c65eb"/>
+      <field name="entry" type="datetime" uuid="53ac8022-34a7-49d9-915a-9949315dec73"/>
+      <field name="dorm_id" unique="true" uuid="4a5e4319-1cf6-4cf2-be8e-f739a6143fae"/>
+      <field name="course_id" uuid="f0e61912-fcf8-40f4-b801-6fff17235372"/>
+      <orm-attributes>
+        <attribute name="table">cssr_student</attribute>
+        <attribute name="export-file-name">Student.php</attribute>
+      </orm-attributes>
+    </entity>
+    <association from="Student" to="Dorm" owner-alias="" inverse-alias="dorm" uuid="430ff06a-3a4b-4085-b84d-e7c23e2b1716">
+      <association-field from="dorm_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <association from="Student" to="Course" owner-alias="" inverse-alias="courses" uuid="d6a3de04-48fe-4fe6-bdd3-9f8682127842">
+      <association-field from="course_id" to="id"/>
+      <orm-attributes>
+        <attribute name="side-owning"/>
+        <attribute name="side-inverse"/>
+      </orm-attributes>
+    </association>
+    <entity name="User" uuid="aa6a3a4b-1f9b-4411-92fa-acfa9699fdc5">
+      <field name="id" type="integer" required="true" primary="true" uuid="5fb197de-19c6-4375-af26-8c4106fd331d">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <orm-attributes>
+        <attribute name="table">cssr_user</attribute>
+        <attribute name="export-file-name">User.php</attribute>
+      </orm-attributes>
+    </entity>
+    <entity name="Vocation" uuid="0730abab-3fe5-4040-981d-766a417ea745">
+      <field name="id" type="integer" required="true" primary="true" uuid="b0bb6ddc-801d-4f7e-9a19-249867474ff3">
+        <orm-attributes>
+          <attribute name="generator">
+            <attribute name="strategy">AUTO</attribute>
+          </attribute>
+        </orm-attributes>
+      </field>
+      <field name="name" type="string" size="100" required="true" uuid="02943e35-4238-401f-8c53-34afabef4d70"/>
+      <orm-attributes>
+        <attribute name="table">cssr_vocation</attribute>
+        <attribute name="export-file-name">Vocation.php</attribute>
+      </orm-attributes>
+    </entity>
+    <orm-attributes>
+      <attribute name="namespace">Cssr\MainBundle\Entity</attribute>
+    </orm-attributes>
+  </module>
+  <visual-data>
+    <entity uuid="0730abab-3fe5-4040-981d-766a417ea745" position-x="33" position-y="547" size-x="0" size-x2="98" size-y="0" size-y2="45"/>
+    <entity uuid="0b1cd13f-0248-41e0-b1d2-2f74ce0cce89" position-x="212" position-y="378" size-x="0" size-x2="67" size-y="0" size-y2="31"/>
+    <entity uuid="2d5b9d84-bd98-4bde-b840-83b647a8fd3f" position-x="521" position-y="209" size-x="0" size-x2="106" size-y="0" size-y2="74"/>
+    <entity uuid="37035c8b-0106-4b41-89db-c19f7d22d184" position-x="20" position-y="378" size-x="0" size-x2="124" size-y="0" size-y2="73"/>
+    <entity uuid="45bf2d81-7614-4a33-9d82-84abe53990a0" position-x="197" position-y="209" size-x="0" size-x2="98" size-y="0" size-y2="45"/>
+    <entity uuid="72cfaf8b-d530-4d57-bf0a-6c1eba02e614" position-x="192" position-y="40" size-x="0" size-x2="107" size-y="0" size-y2="129"/>
+    <module uuid="7fc7ea9e-e1d2-497d-988d-e782c0fb04f0" bk-color="4294638066" position-x="50" position-y="50" size-x="0" size-x2="656" size-y="0" size-y2="696"/>
+    <entity uuid="8dc0ab8e-ad50-410d-a23e-c2d0c902f8b1" position-x="362" position-y="40" size-x="0" size-x2="95" size-y="0" size-y2="74"/>
+    <entity uuid="a096ee17-1482-4d87-9d51-a85ccd0a1cad" position-x="359" position-y="209" size-x="0" size-x2="101" size-y="0" size-y2="129"/>
+    <entity uuid="a34771f3-c91f-4b6b-97b6-0653d49a0d27" position-x="48" position-y="209" size-x="0" size-x2="67" size-y="0" size-y2="59"/>
+    <entity uuid="aa6a3a4b-1f9b-4411-92fa-acfa9699fdc5" position-x="540" position-y="378" size-x="0" size-x2="67" size-y="0" size-y2="31"/>
+    <entity uuid="b8adc3ba-9e6f-4a74-82fa-12b68324a056" position-x="33" position-y="40" size-x="0" size-x2="98" size-y="0" size-y2="45"/>
+    <entity uuid="c312b68e-467a-48d4-aac5-0a87f76653db" position-x="348" position-y="378" size-x="0" size-x2="124" size-y="0" size-y2="115"/>
+    <entity uuid="dc38d030-4efc-45ea-86dd-4f857210c2a9" position-x="520" position-y="40" size-x="0" size-x2="108" size-y="0" size-y2="74"/>
+  </visual-data>
+</orm-designer>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Career Success Standards <Rating></Rating></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    {% stylesheets '@css_bootstrap' %}
+    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
+    {% endstylesheets %}
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+    </style>
+    {% stylesheets '@css_bootstrap_responsive' %}
+    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
+    {% endstylesheets %}
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">Career Success Standards Rating</a>
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                    {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
+                    <a class="navbar-link" href="{{ path('fos_user_security_logout') }}">
+                        {{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
+                    </a>
+                {% else %}
+                    <a class="navbar-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
+                {% endif %}
+                </p>
+                <ul class="nav">
+                    <li class="dropdpwn">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Center 2 <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-header">Centers</li>
+                            <li><a href="#">Center 1</a></li>
+                            <li><a href="#"><i class="icon-ok"></i> Center 2</a></li>
+                            <li><a href="#">Center 3</a></li>
+                            <li class="divider"></li>
+                            <li><a href="{{ path('center_new') }}">Add Center</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+
+    <div class="row-fluid">
+        {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+        <div class="span2">
+            <div class="well sidebar-nav">
+                <ul class="nav nav-list">
+                    {% block sidebar %}
+                        <li class="nav-header">Center</li>
+                        <li><a href="{{ path('center') }}">Edit</a></li>
+                        <li><a href="{{ path('dorm') }}">Dorms</a></li>
+                        <li><a href="{{ path('vocation') }}">Vocations</a></li>
+                        <li><a href="#">Messages</a></li>
+                        <li class="nav-header">Users</li>
+                        <li><a href="{{ path('user') }}">Admins</a></li>
+                        <li><a href="{{ path('staff') }}">Staff</a></li>
+                        <li><a href="{{ path('student') }}">Students</a></li>
+                        <li class="nav-header">Scores</li>
+                        <li><a href="{{ path('score') }}">List</a></li>
+                        <li><a href="#">Staff</a></li>
+                        <li><a href="#">Student</a></li>
+                        <li class="nav-header">Reports</li>
+                        <li><a href="#">List</a></li>
+                        <li><a href="#">Staff</a></li>
+                        <li><a href="#">Student</a></li>
+                    {% endblock %}
+                </ul>
+            </div><!--/.well -->
+        </div><!--/span-->
+        {% endif %}
+
+        <div class="span10 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}offset2{% endif %}">
+            {% for type, messages in app.session.flashbag.all() %}
+                {% for message in messages %}
+                    <div class="flash-{{ type }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            <div class="row-fluid">
+                <div class="span12">
+                    {% block body %}{% endblock %}
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+    <hr>
+
+    <footer>
+        <p>&copy; Adams &amp; Associates 2013</p>
+    </footer>
+
+</div><!--/.fluid-container-->
+
+{% javascripts '../vendor/jquery/jquery-1.10.1.min.js' %}
+<script src="{{ asset_url }}" type="text/javascript"></script>
+{% endjavascripts %}
+
+{% javascripts '@js_bootstrap' %}
+<script src="{{ asset_url }}" type="text/javascript"></script>
+{% endjavascripts %}
+
+</body>
+</html>
