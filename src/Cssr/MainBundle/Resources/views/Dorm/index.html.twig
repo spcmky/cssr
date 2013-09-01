@@ -3,7 +3,7 @@
 {% block body -%}
     <h1>Dorm list</h1>
 
-    <table class="records_list table">
+    <table class="records_list">
         <thead>
             <tr>
                 <th>Id</th>
@@ -19,10 +19,10 @@
                 <td>
                 <ul>
                     <li>
-                        <a class="btn" href="{{ path('dorm_show', { 'id': entity.id }) }}">show</a>
+                        <a href="{{ path('dorm_show', { 'id': entity.id }) }}">show</a>
                     </li>
                     <li>
-                        <a class="btn" href="{{ path('dorm_edit', { 'id': entity.id }) }}">edit</a>
+                        <a href="{{ path('dorm_edit', { 'id': entity.id }) }}">edit</a>
                     </li>
                 </ul>
                 </td>

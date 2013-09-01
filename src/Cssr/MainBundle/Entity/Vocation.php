@@ -22,6 +22,12 @@ class Vocation
      */
     protected $name;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Center", inversedBy="vocations")
+     * @ORM\JoinColumn(name="center_id", referencedColumnName="id")
+     */
+    protected $center;
+
 
     /**
      * Get id
@@ -58,5 +64,28 @@ class Vocation
 
     public function __toString() {
         return $this->getName();
+    }
+
+    /**
+     * Set center
+     *
+     * @param \Cssr\MainBundle\Entity\Center $center
+     * @return Center
+     */
+    public function setCenter(\Cssr\MainBundle\Entity\Center $center)
+    {
+        $this->center = $center;
+    
+        return $this;
+    }
+
+    /**
+     * Get center
+     *
+     * @return \Cssr\MainBundle\Entity\Center 
+     */
+    public function getCenter()
+    {
+        return $this->center;
     }
 }

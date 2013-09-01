@@ -1,53 +1,23 @@
 {% extends '::base.html.twig' %}
 
 {% block body -%}
-    <h1>Center list</h1>
+    <h1>Center List</h1>
 
-    <table class="records_list table">
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>Id</th>
                 <th>Name</th>
-                <th>Description</th>
-                <th>Address</th>
-                <th>City</th>
-                <th>State</th>
-                <th>Postcode</th>
-                <th>Phone</th>
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for entity in entities %}
             <tr>
-                <td><a href="{{ path('center_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
-                <td>{{ entity.name }}</td>
-                <td>{{ entity.description }}</td>
-                <td>{{ entity.address }}</td>
-                <td>{{ entity.city }}</td>
-                <td>{{ entity.state }}</td>
-                <td>{{ entity.postcode }}</td>
-                <td>{{ entity.phone }}</td>
-                <td>
-                <ul>
-                    <li>
-                        <a href="{{ path('center_show', { 'id': entity.id }) }}">show</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('center_edit', { 'id': entity.id }) }}">edit</a>
-                    </li>
-                </ul>
-                </td>
+                <td><a href="{{ path('center_edit', { 'id': entity.id }) }}">{{ entity.name }}</a></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-        <ul>
-        <li>
-            <a href="{{ path('center_new') }}">
-                Create a new entry
-            </a>
-        </li>
-    </ul>
+    <a href="{{ path('center_new') }}" class="btn btn-primary">Create a new center</a>
+
     {% endblock %}

@@ -3,6 +3,8 @@
 namespace Cssr\MainBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -50,6 +52,10 @@ class CenterController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+
+            $entity->setCreatedBy($this->getUser());
+            $entity->setUpdatedBy($this->getUser());
+
             $em->persist($entity);
             $em->flush();
 
@@ -149,11 +155,56 @@ class CenterController extends Controller
             throw $this->createNotFoundException('Unable to find Center entity.');
         }
 
+        $entity->setUpdatedBy($this->getUser());
+
+        // Create an array of the current Dorm objects in the database
+        $originalDorms = array();
+        foreach ($entity->getDorms() as $dorm) {
+            $originalDorms[] = $dorm;
+        }
+
+        // Create an array of the current Vocation objects in the database
+        $originalVocations = array();
+        foreach ($entity->getVocations() as $vocation) {
+            $originalVocations[] = $vocation;
+        }
+
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new CenterType(), $entity);
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
+
+            // filter $originalDorms to contain Dorms no longer present
+            $removedDorms = array();
+            foreach ($entity->getDorms() as $dorm) {
+                foreach ($originalDorms as $key => $toDel) {
+                    if ($toDel->getId() === $dorm->getId()) {
+                        $removedDorms[] = $originalDorms[$key];
+                    }
+                }
+            }
+
+            // remove the relationship between the Dorm and the Center
+            foreach ($removedDorms as $dorm) {
+                $em->remove($dorm);
+            }
+
+            // filter $originalVocations to contain Vocations no longer present
+            $removedVocations = array();
+            foreach ($entity->getVocations() as $vocation) {
+                foreach ($originalVocations as $key => $toDel) {
+                    if ($toDel->getId() === $vocation->getId()) {
+                        $removedVocations[] = $originalVocations[$key];
+                    }
+                }
+            }
+
+            // remove the relationship between the Vocation and the Center
+            foreach ($removedVocations as $vocation) {
+                $em->remove($vocation);
+            }
+
             $em->persist($entity);
             $em->flush();
 
@@ -205,5 +256,56 @@ class CenterController extends Controller
             ->add('id', 'hidden')
             ->getForm()
         ;
+    }
+
+    /**
+     * Get center list for global menu
+     *
+     * @Route("/menu", name="center_menu")
+     * @Method("GET")
+     * @Template("CssrMainBundle:Center:menu.html.twig")
+     */
+    public function showMenuAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+        $entities = $em->getRepository('CssrMainBundle:Center')->findAll();
+
+        return array(
+            'entities' => $entities,
+        );
+    }
+
+    /**
+     * Set active center ajax call
+     *
+     * @Route("/setactive", name="center_activate")
+     * @Method("POST")
+     */
+    public function setActiveAction()
+    {
+        $request = $this->getRequest();
+        $id = $request->request->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+        $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Center entity.');
+        }
+
+        $session = $this->getRequest()->getSession();
+
+        $sess_center = new stdClass();
+        $sess_center->id = $entity->getId();
+        $sess_center->name = $entity->getId();
+
+        $session->set('center', $sess_center);
+
+        $api_response = new stdClass();
+        $api_response->status = 'success';
+
+        // create a JSON-response with a 200 status code
+        $response = new Response(json_encode($api_response));
+        $response->headers->set('Content-Type', 'application/json');
     }
 }

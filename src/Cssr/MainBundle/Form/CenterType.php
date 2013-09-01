@@ -12,23 +12,32 @@ class CenterType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('description')
             ->add('address')
             ->add('city')
             ->add('state')
             ->add('postcode')
-            ->add('phone')
-            ->add('dorms')
-            ->add('vocations');
+            ->add('phone');
 
-        //$builder->add('dorms', 'collection', array('type' => new DormType(),'allow_add' => true));
-        //$builder->add('vocations', 'collection', array('type' => new VocationType(),'allow_add' => true));
+        $builder->add('dorms', 'collection', array(
+            'type' => new DormType(),
+            'allow_add' => true,
+            'by_reference' => false,
+            'required' => false
+        ));
+
+        $builder->add('vocations', 'collection', array(
+            'type' => new VocationType(),
+            'allow_add' => true,
+            'by_reference' => false,
+            'required' => false
+        ));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\Center'
+            'data_class' => 'Cssr\MainBundle\Entity\Center',
+            'cascade_validation' => true
         ));
     }
 

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @ORM\Entity
  * @ORM\Table(name="cssr_center")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Center
 {
@@ -21,11 +22,6 @@ class Center
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     protected $name;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    protected $description;
 
     /**
      * @ORM\Column(type="string", length=250, nullable=true)
@@ -53,27 +49,62 @@ class Center
     protected $phone;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Dorm")
-     * @ORM\JoinTable(name="cssr_center_dorm",
-     *      joinColumns={@ORM\JoinColumn(name="center_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="dorm_id", referencedColumnName="id", unique=true)}
-     *      )
+     * @ORM\OneToMany(targetEntity="Dorm", mappedBy="center", cascade={"persist"})
      **/
     protected $dorms;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Vocation")
-     * @ORM\JoinTable(name="cssr_center_vocation",
-     *      joinColumns={@ORM\JoinColumn(name="center_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="vocation_id", referencedColumnName="id", unique=true)}
-     *      )
+     * @ORM\OneToMany(targetEntity="Vocation", mappedBy="center", cascade={"persist"})
      **/
     protected $vocations;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $updated;
+
+    /**
+     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="created_by", referencedColumnName="id")
+     **/
+    private $createdBy;
+
+    /**
+     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="updated_by", referencedColumnName="id")
+     **/
+    private $updatedBy;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $active;
 
     public function __construct()
     {
         $this->dorms = new ArrayCollection();
         $this->vocations = new ArrayCollection();
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        $this->created = $this->updated = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function preUpdate()
+    {
+        $this->updated = new \DateTime();
     }
 
     /**
@@ -107,29 +138,6 @@ class Center
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * Set description
-     *
-     * @param string $description
-     * @return Center
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    
-        return $this;
-    }
-
-    /**
-     * Get description
-     *
-     * @return string 
-     */
-    public function getDescription()
-    {
-        return $this->description;
     }
 
     /**
@@ -255,7 +263,8 @@ class Center
      */
     public function addDorm(\Cssr\MainBundle\Entity\Dorm $dorm)
     {
-        $this->dorms[] = $dorm;
+        $dorm->setCenter($this);
+        $this->dorms->add($dorm);
     
         return $this;
     }
@@ -281,6 +290,16 @@ class Center
     }
 
     /**
+     * Set dorms
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $dorms
+     */
+    public function setDorms(ArrayCollection $dorms)
+    {
+        $this->dorms = $dorms;
+    }
+
+    /**
      * Add vocations
      *
      * @param \Cssr\MainBundle\Entity\Vocation $vocation
@@ -288,7 +307,8 @@ class Center
      */
     public function addVocation(\Cssr\MainBundle\Entity\Vocation $vocation)
     {
-        $this->vocations[] = $vocation;
+        $vocation->setCenter($this);
+        $this->vocations->add($vocation);
     
         return $this;
     }
@@ -311,5 +331,65 @@ class Center
     public function getVocations()
     {
         return $this->vocations;
+    }
+
+    /**
+     * Set vocations
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $vocations
+     */
+    public function setVocations(ArrayCollection $vocations)
+    {
+        $this->vocations = $vocations;
+    }
+
+    /**
+     * Set createdBy
+     *
+     * @param \Cssr\MainBundle\Entity\User $user
+     * @return User
+     */
+    public function setCreatedBy(\Cssr\MainBundle\Entity\User $user)
+    {
+        $this->createdBy = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get createdBy
+     *
+     * @return \Cssr\MainBundle\Entity\User
+     */
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
+
+    /**
+     * Set updatedBy
+     *
+     * @param \Cssr\MainBundle\Entity\User $user
+     * @return User
+     */
+    public function setUpdatedBy(\Cssr\MainBundle\Entity\User $user)
+    {
+        $this->updatedBy = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get updatedBy
+     *
+     * @return \Cssr\MainBundle\Entity\User
+     */
+    public function getUpdatedBy()
+    {
+        return $this->updatedBy;
+    }
+
+    public function __toString() {
+        return $this->getName();
     }
 }

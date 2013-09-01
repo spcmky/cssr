@@ -1,28 +1,89 @@
 {% extends '::base.html.twig' %}
 
 {% block body -%}
-    <h1>Center edit</h1>
 
-    <form action="{{ path('center_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
+
+
+            $(function() {
+                initSubForm($('#cssr_mainbundle_centertype_dorms'));
+                initSubForm($('#cssr_mainbundle_centertype_vocations'));
+            });
+
+            function initSubForm(collectionHolder) {
+
+                // count the current form inputs we have (e.g. 2), use that as the new
+                // index when inserting a new item (e.g. 2)
+                collectionHolder.data('index', collectionHolder.find('ul').children.length);
+
+                var addLink = collectionHolder.parent().find('a.add');
+
+                addLink.on('click', function(e) {
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+
+                    // add a new tag form (see next code block)
+                    addSubForm(collectionHolder);
+                });
+
+                collectionHolder.find('ul li a.remove').on('click', function(e){
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+                    $(this).parent().remove();
+                });
+
+            }
+
+            function addSubForm(collectionHolder) {
+                // Get the data-prototype explained earlier
+                var prototype = collectionHolder.data('prototype');
+
+                // get the new index
+                var index = collectionHolder.data('index');
+
+                // Replace '__name__' in the prototype's HTML to
+                // instead be a number based on how many items we have
+                var newForm = $(prototype.replace(/__name__/g, index));
+
+                // increase the index with one for the next item
+                collectionHolder.data('index', index + 1);
+
+                newForm.find('a.remove').on('click', function(e){
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+                    $(this).parent().remove();
+                });
+
+                // Display the form in the page in an li, before the "Add a tag" link li
+                //var newFormLi = $('<li></li>').append(newForm);
+                collectionHolder.find('ul').append(newForm);
+            }
+
+        })();
+    </script>
+
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('center') }}">Centers</a></li>
+        <li class="active">Edit</li>
+    </ol>
+
+    <h1>Center Edit</h1>
+
+    <form role="form" action="{{ path('center_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
         <input type="hidden" name="_method" value="PUT" />
         {{ form_widget(edit_form) }}
         <p>
-            <button type="submit">Edit</button>
+            <button class="btn btn-primary" type="submit">Save</button>
         </p>
     </form>
 
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('center') }}">
-            Back to the list
-        </a>
-    </li>
-    <li>
-        <form action="{{ path('center_delete', { 'id': entity.id }) }}" method="post">
-            <input type="hidden" name="_method" value="DELETE" />
-            {{ form_widget(delete_form) }}
-            <button type="submit">Delete</button>
-        </form>
-    </li>
-</ul>
+    <form action="{{ path('center_delete', { 'id': entity.id }) }}" method="post">
+        <input type="hidden" name="_method" value="DELETE" />
+        {{ form_widget(delete_form) }}
+        <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+
 {% endblock %}

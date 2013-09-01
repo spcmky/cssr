@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset={{ _charset }}"/>
+    <meta name="robots" content="noindex,nofollow" />
     <title>Career Success Standards <Rating></Rating></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+
 
     {% stylesheets '@css_bootstrap' %}
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
+    {% stylesheets '@css_bootstrap_theme' %}
+    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
+    {% endstylesheets %}
+
     <style type="text/css">
         body {
-            padding-top: 60px;
-            padding-bottom: 40px;
+            padding-top: 50px; /* Account for fixed navbar */
         }
         .sidebar-nav {
             padding: 9px 0;
@@ -27,26 +30,49 @@
                 padding-right: 5px;
             }
         }
+
+        .dropdown-menu > li.disabled.nav-header > a {
+            cursor: default;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .nav > li.disabled.nav-header > a {
+            cursor: default;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .breadcrumb {
+            margin-top: 10px;
+        }
     </style>
-    {% stylesheets '@css_bootstrap_responsive' %}
-    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
-    {% endstylesheets %}
+
+    {% javascripts '@js_jquery' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
 
 </head>
 
 <body>
 
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<a class="sr-only" href="#content">Skip navigation</a>
+
+<header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+    <div class="container">
+        <div class="navbar-header">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">Career Success Standards Rating</a>
-            <div class="nav-collapse collapse">
-                <p class="navbar-text pull-right">
+            <a href="{{ path('cssr_main_default_index') }}" class="navbar-brand">Career Success Standards Rating</a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+            <p class="navbar-text pull-right">
                 {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
                     {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
                     <a class="navbar-link" href="{{ path('fos_user_security_logout') }}">
@@ -55,57 +81,62 @@
                 {% else %}
                     <a class="navbar-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
                 {% endif %}
-                </p>
-                <ul class="nav">
-                    <li class="dropdpwn">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Center 2 <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li class="nav-header">Centers</li>
-                            <li><a href="#">Center 1</a></li>
-                            <li><a href="#"><i class="icon-ok"></i> Center 2</a></li>
-                            <li><a href="#">Center 3</a></li>
-                            <li class="divider"></li>
-                            <li><a href="{{ path('center_new') }}">Add Center</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div>
+            </p>
+            <ul class="nav navbar-nav">
+                <li class="dropdpwn">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Center 2 <b class="caret"></b></a>
+                    {{ render(controller('CssrMainBundle:Center:showMenu')) }}
+
+                </li>
+            </ul>
+        </nav>
     </div>
-</div>
+</header>
 
-<div class="container-fluid">
+<div class="container">
+    <div class="row">
 
-    <div class="row-fluid">
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-        <div class="span2">
-            <div class="well sidebar-nav">
-                <ul class="nav nav-list">
-                    {% block sidebar %}
-                        <li class="nav-header">Center</li>
-                        <li><a href="{{ path('center') }}">Edit</a></li>
-                        <li><a href="{{ path('dorm') }}">Dorms</a></li>
-                        <li><a href="{{ path('vocation') }}">Vocations</a></li>
-                        <li><a href="#">Messages</a></li>
-                        <li class="nav-header">Users</li>
-                        <li><a href="{{ path('user') }}">Admins</a></li>
-                        <li><a href="{{ path('staff') }}">Staff</a></li>
-                        <li><a href="{{ path('student') }}">Students</a></li>
-                        <li class="nav-header">Scores</li>
-                        <li><a href="{{ path('score') }}">List</a></li>
-                        <li><a href="#">Staff</a></li>
-                        <li><a href="#">Student</a></li>
-                        <li class="nav-header">Reports</li>
-                        <li><a href="#">List</a></li>
-                        <li><a href="#">Staff</a></li>
-                        <li><a href="#">Student</a></li>
-                    {% endblock %}
-                </ul>
-            </div><!--/.well -->
-        </div><!--/span-->
+        <div class="col-md-3">
+
+            <div class="sidebar-nav">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Menu</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="nav nav-pills nav-stacked">
+
+                            {% block sidebar %}
+                                <li class="nav-header disabled"><a>Current Center</a></li>
+                                <li><a href="{{ path('center') }}">Update</a></li>
+                                <li class="nav-header disabled"><a>Centers</a></li>
+                                <li><a href="{{ path('center') }}">List</a></li>
+                                <li><a href="{{ path('center') }}">Reports</a></li>
+                                <li><a href="#">Messages</a></li>
+                                <li class="nav-header disabled"><a>Users</a></li>
+                                <li><a href="{{ path('user') }}">Admins</a></li>
+                                <li><a href="{{ path('staff') }}">Staff</a></li>
+                                <li><a href="{{ path('student') }}">Students</a></li>
+                                <li class="nav-header disabled"><a>Scores</a></li>
+                                <li><a href="{{ path('score') }}">List</a></li>
+                                <li><a href="#">Staff</a></li>
+                                <li><a href="#">Student</a></li>
+                                <li class="nav-header disabled"><a>Reports</a></li>
+                                <li><a href="#">List</a></li>
+                                <li><a href="#">Staff</a></li>
+                                <li><a href="#">Student</a></li>
+                            {% endblock %}
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endif %}
 
-        <div class="span10 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}offset2{% endif %}">
+        <div class="col-md-9 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}col-md-offset-3{% endif %}" role="main">
+
             {% for type, messages in app.session.flashbag.all() %}
                 {% for message in messages %}
                     <div class="flash-{{ type }}">
@@ -113,26 +144,22 @@
                     </div>
                 {% endfor %}
             {% endfor %}
-            <div class="row-fluid">
-                <div class="span12">
-                    {% block body %}{% endblock %}
-                    {% block content %}{% endblock %}
-                </div>
-            </div>
-        </div><!--/span-->
-    </div><!--/row-->
 
-    <hr>
+            {% block body %}{% endblock %}
+            {% block content %}{% endblock %}
 
-    <footer>
+        </div>
+    </div>
+</div>
+
+
+<footer role="contentinfo">
+    <div class="container">
         <p>&copy; Adams &amp; Associates 2013</p>
-    </footer>
+    </div>
+</footer>
 
-</div><!--/.fluid-container-->
 
-{% javascripts '../vendor/jquery/jquery-1.10.1.min.js' %}
-<script src="{{ asset_url }}" type="text/javascript"></script>
-{% endjavascripts %}
 
 {% javascripts '@js_bootstrap' %}
 <script src="{{ asset_url }}" type="text/javascript"></script>
