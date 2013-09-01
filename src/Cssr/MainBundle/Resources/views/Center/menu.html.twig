@@ -1,9 +1,54 @@
-<ul class="dropdown-menu">
-    <li class="nav-header disabled"><a>Centers</a></li>
-    {% for entity in entities %}
-        <li><a href="javascript:void(0)">{{ entity.name }}</a></li>
-    {% endfor %}
-    <li><a href="#"><span class="glyphicon glyphicon-ok"></span> Example Checked</a></li>
-    <li class="divider"></li>
-    <li><a href="{{ path('center_new') }}">Add Center</a></li>
+<ul class="nav navbar-nav">
+    <li class="dropdpwn">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ current_center.name }} <b class="caret"></b></a>
+
+        <ul class="dropdown-menu center-menu">
+            <li class="nav-header disabled"><a>Centers</a></li>
+            {% for entity in entities %}
+                <li>
+                    <a class="selectable-center" rel="{{ entity.id }}" href="javascript:void(0)">
+                    {% if current_center and current_center.id == entity.id %}
+                    <span class="glyphicon glyphicon-ok"></span>
+                    {% endif %}
+                    {{ entity.name }}
+                    </a>
+                </li>
+            {% endfor %}
+            <li class="divider"></li>
+            <li><a href="{{ path('center_new') }}">Add Center</a></li>
+        </ul>
+
+    </li>
 </ul>
+
+<script type="text/javascript">
+// Get the ul that holds the collection of tags
+(function() {
+
+    $(function() {
+
+        $('ul.center-menu a.selectable-center').on('click', function(e) {
+            // prevent the link from creating a "#" on the URL
+            e.preventDefault();
+            var data = {
+                center: $(this).attr("rel")
+            };
+            $.ajax({
+                type: "POST",
+                url: "{{ path('center_activate') }}",
+                data: data,
+                success: function(data,textStatus){
+                    if ( textStatus == 'success' ) {
+                        // reload page
+                        location.href = location.href;
+                    }
+                },
+                dataType: 'json'
+            });
+        });
+
+
+    });
+
+})();
+</script>

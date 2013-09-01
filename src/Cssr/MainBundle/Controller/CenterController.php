@@ -31,7 +31,10 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:Center')->findAll();
+        $entities = $em->getRepository('CssrMainBundle:Center')->findBy(
+            array('active' => 1),
+            array('name' => 'ASC')
+        );
 
         return array(
             'entities' => $entities,
@@ -48,7 +51,7 @@ class CenterController extends Controller
     {
         $entity  = new Center();
         $form = $this->createForm(new CenterType(), $entity);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -171,7 +174,7 @@ class CenterController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new CenterType(), $entity);
-        $editForm->bind($request);
+        $editForm->submit($request);
 
         if ($editForm->isValid()) {
 
@@ -226,7 +229,7 @@ class CenterController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -236,7 +239,9 @@ class CenterController extends Controller
                 throw $this->createNotFoundException('Unable to find Center entity.');
             }
 
-            $em->remove($entity);
+            $entity->setActive(0); // logical delete
+
+            $em->persist($entity);
             $em->flush();
         }
 
@@ -268,10 +273,22 @@ class CenterController extends Controller
     public function showMenuAction()
     {
         $em = $this->getDoctrine()->getManager();
-        $entities = $em->getRepository('CssrMainBundle:Center')->findAll();
+        $entities = $em->getRepository('CssrMainBundle:Center')->findBy(
+            array('active' => 1),
+            array('name' => 'ASC')
+        );
+
+        $session = $this->getRequest()->getSession();
+        $current = $session->get('center');
+        if (!$current) {
+            $current = new \stdClass();
+            $current->id = null;
+            $current->name = 'Select Center';
+        }
 
         return array(
-            'entities' => $entities,
+            'current_center' => $current,
+            'entities' => $entities
         );
     }
 
@@ -295,17 +312,19 @@ class CenterController extends Controller
 
         $session = $this->getRequest()->getSession();
 
-        $sess_center = new stdClass();
+        $sess_center = new \stdClass();
         $sess_center->id = $entity->getId();
-        $sess_center->name = $entity->getId();
+        $sess_center->name = $entity->getName();
 
         $session->set('center', $sess_center);
 
-        $api_response = new stdClass();
+        $api_response = new \stdClass();
         $api_response->status = 'success';
 
         // create a JSON-response with a 200 status code
         $response = new Response(json_encode($api_response));
         $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }

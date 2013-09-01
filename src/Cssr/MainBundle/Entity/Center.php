@@ -96,6 +96,7 @@ class Center
      */
     public function prePersist()
     {
+        $this->active = 1;
         $this->created = $this->updated = new \DateTime();
     }
 
@@ -387,6 +388,29 @@ class Center
     public function getUpdatedBy()
     {
         return $this->updatedBy;
+    }
+
+    /**
+     * Get active
+     *
+     * @return integer
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set active
+     *
+     * @param integer $active
+     * @return Center
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
     }
 
     public function __toString() {
