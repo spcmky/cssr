@@ -6,8 +6,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\HasLifecycleCallbacks()
  * @ORM\Table(name="cssr_score")
+ * @ORM\HasLifecycleCallbacks()
+
  */
 class Score
 {
@@ -36,34 +37,32 @@ class Score
     protected $student;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Standard")
-     * @ORM\JoinTable(name="cssr_score_standard",
-     *      joinColumns={@ORM\JoinColumn(name="score_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="standard_id", referencedColumnName="id", unique=true)}
-     *      )
-     **/
-    protected $standards;
-
-    /**
-     * @ORM\Column(type="text")
+     * @ORM\OneToOne(targetEntity="Comment")
+     * @ORM\JoinColumn(name="comment_id", referencedColumnName="id")
      */
     protected $comment;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     protected $created;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    protected $modified;
+    protected $updated;
 
     /**
-     * @ORM\OneToOne(targetEntity="Staff")
-     * @ORM\JoinColumn(name="modifier_id", referencedColumnName="id")
-     */
-    protected $modifier;
+     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="created_by", referencedColumnName="id")
+     **/
+    private $createdBy;
+
+    /**
+     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="updated_by", referencedColumnName="id")
+     **/
+    private $updatedBy;
 
     /**
      * @ORM\PrePersist
@@ -76,9 +75,9 @@ class Score
     /**
      * @ORM\preUpdate
      */
-    public function setModifiedValue()
+    public function setUpdatedValue()
     {
-        $this->modified = new \DateTime();
+        $this->updated = new \DateTime();
     }
 
     /**
@@ -113,36 +112,6 @@ class Score
     {
         return $this->value;
     }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->standards = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-    
-    /**
-     * Set comment
-     *
-     * @param string $comment
-     * @return Score
-     */
-    public function setComment($comment)
-    {
-        $this->comment = $comment;
-    
-        return $this;
-    }
-
-    /**
-     * Get comment
-     *
-     * @return string 
-     */
-    public function getComment()
-    {
-        return $this->comment;
-    }
 
     /**
      * Set created
@@ -168,26 +137,26 @@ class Score
     }
 
     /**
-     * Set modified
+     * Set updated
      *
-     * @param \DateTime $modified
+     * @param \DateTime $updated
      * @return Score
      */
-    public function setModified($modified)
+    public function setUpdated($updated)
     {
-        $this->modified = $modified;
+        $this->updated = $updated;
     
         return $this;
     }
 
     /**
-     * Get modified
+     * Get updated
      *
      * @return \DateTime 
      */
-    public function getModified()
+    public function getUpdated()
     {
-        return $this->modified;
+        return $this->updated;
     }
 
     /**
@@ -237,58 +206,73 @@ class Score
     }
 
     /**
-     * Add standards
+     * Set createdBy
      *
-     * @param \Cssr\MainBundle\Entity\Standard $standards
+     * @param \Cssr\MainBundle\Entity\User $user
      * @return Score
      */
-    public function addStandard(\Cssr\MainBundle\Entity\Standard $standards)
+    public function setCreatedBy(\Cssr\MainBundle\Entity\User $user)
     {
-        $this->standards[] = $standards;
-    
+        $this->createdBy = $user;
+
         return $this;
     }
 
     /**
-     * Remove standards
+     * Get createdBy
      *
-     * @param \Cssr\MainBundle\Entity\Standard $standards
+     * @return \Cssr\MainBundle\Entity\User
      */
-    public function removeStandard(\Cssr\MainBundle\Entity\Standard $standards)
+    public function getCreatedBy()
     {
-        $this->standards->removeElement($standards);
+        return $this->createdBy;
     }
 
     /**
-     * Get standards
+     * Set updatedBy
      *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getStandards()
-    {
-        return $this->standards;
-    }
-
-    /**
-     * Set modifier
-     *
-     * @param \Cssr\MainBundle\Entity\Staff $modifier
+     * @param \Cssr\MainBundle\Entity\User $user
      * @return Score
      */
-    public function setModifier(\Cssr\MainBundle\Entity\Staff $modifier = null)
+    public function setUpdatedBy(\Cssr\MainBundle\Entity\User $user)
     {
-        $this->modifier = $modifier;
-    
+        $this->updatedBy = $user;
+
         return $this;
     }
 
     /**
-     * Get modifier
+     * Get updatedBy
      *
-     * @return \Cssr\MainBundle\Entity\Staff 
+     * @return \Cssr\MainBundle\Entity\User
      */
-    public function getModifier()
+    public function getUpdatedBy()
     {
-        return $this->modifier;
+        return $this->updatedBy;
     }
+
+    /**
+     * Add comment
+     *
+     * @param \Cssr\MainBundle\Entity\Comment $comment
+     * @return Score
+     */
+    public function setComment(\Cssr\MainBundle\Entity\Comment $comment)
+    {
+        $comment->setScore($this);
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    /**
+     * Get comment
+     *
+     * @return \Cssr\MainBundle\Entity\Comment
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
 }

@@ -350,7 +350,7 @@ class Center
      * Set createdBy
      *
      * @param \Cssr\MainBundle\Entity\User $user
-     * @return User
+     * @return Center
      */
     public function setCreatedBy(\Cssr\MainBundle\Entity\User $user)
     {
@@ -373,7 +373,7 @@ class Center
      * Set updatedBy
      *
      * @param \Cssr\MainBundle\Entity\User $user
-     * @return User
+     * @return Center
      */
     public function setUpdatedBy(\Cssr\MainBundle\Entity\User $user)
     {

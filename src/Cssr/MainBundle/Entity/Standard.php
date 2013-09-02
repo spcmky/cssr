@@ -17,7 +17,10 @@ class Standard
      */
     protected $id;
 
-
+    /**
+     * @ORM\Column(type="string", length=100, nullable=false)
+     */
+    protected $name;
 
     /**
      * Get id
