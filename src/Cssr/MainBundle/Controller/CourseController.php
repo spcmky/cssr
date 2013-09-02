@@ -7,21 +7,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Cssr\MainBundle\Entity\User;
-use Cssr\MainBundle\Form\StaffType;
+use Cssr\MainBundle\Entity\Course;
+use Cssr\MainBundle\Form\CourseType;
 
 /**
- * Staff controller.
+ * Course controller.
  *
- * @Route("/staff")
+ * @Route("/course")
  */
-class StaffController extends Controller
+class CourseController extends Controller
 {
 
     /**
-     * Lists all Staff entities.
+     * Lists all Course entities.
      *
-     * @Route("/", name="staff")
+     * @Route("/", name="course")
      * @Method("GET")
      * @Template()
      */
@@ -29,33 +29,31 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-
-        $entities = $em->getRepository('CssrMainBundle:Group')->findByName('Admin');
+        $entities = $em->getRepository('CssrMainBundle:Course')->findAll();
 
         return array(
-            'entities' => $entities[0]->getUsers()
+            'entities' => $entities,
         );
     }
-
     /**
-     * Creates a new Staff entity.
+     * Creates a new Course entity.
      *
-     * @Route("/", name="staff_create")
+     * @Route("/", name="course_create")
      * @Method("POST")
-     * @Template("CssrMainBundle:Staff:new.html.twig")
+     * @Template("CssrMainBundle:Course:new.html.twig")
      */
     public function createAction(Request $request)
     {
-        $entity = new User();
-        $form = $this->createForm(new StaffType(), $entity);
-        $form->submit($request);
+        $entity  = new Course();
+        $form = $this->createForm(new CourseType(), $entity);
+        $form->bind($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($entity);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('staff_show', array('id' => $entity->getId())));
+            return $this->redirect($this->generateUrl('course_show', array('id' => $entity->getId())));
         }
 
         return array(
@@ -65,16 +63,16 @@ class StaffController extends Controller
     }
 
     /**
-     * Displays a form to create a new Staff entity.
+     * Displays a form to create a new Course entity.
      *
-     * @Route("/new", name="staff_new")
+     * @Route("/new", name="course_new")
      * @Method("GET")
      * @Template()
      */
     public function newAction()
     {
-        $entity = new User();
-        $form = $this->createForm(new StaffType(), $entity);
+        $entity = new Course();
+        $form   = $this->createForm(new CourseType(), $entity);
 
         return array(
             'entity' => $entity,
@@ -83,9 +81,9 @@ class StaffController extends Controller
     }
 
     /**
-     * Finds and displays a Staff entity.
+     * Finds and displays a Course entity.
      *
-     * @Route("/{id}", name="staff_show")
+     * @Route("/{id}", name="course_show")
      * @Method("GET")
      * @Template()
      */
@@ -93,10 +91,10 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:Course')->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
+            throw $this->createNotFoundException('Unable to find Course entity.');
         }
 
         $deleteForm = $this->createDeleteForm($id);
@@ -108,9 +106,9 @@ class StaffController extends Controller
     }
 
     /**
-     * Displays a form to edit an existing Staff entity.
+     * Displays a form to edit an existing Course entity.
      *
-     * @Route("/{id}/edit", name="staff_edit")
+     * @Route("/{id}/edit", name="course_edit")
      * @Method("GET")
      * @Template()
      */
@@ -118,13 +116,13 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:Course')->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
+            throw $this->createNotFoundException('Unable to find Course entity.');
         }
 
-        $editForm = $this->createForm(new StaffType(), $entity);
+        $editForm = $this->createForm(new CourseType(), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
@@ -135,31 +133,31 @@ class StaffController extends Controller
     }
 
     /**
-     * Edits an existing Staff entity.
+     * Edits an existing Course entity.
      *
-     * @Route("/{id}", name="staff_update")
+     * @Route("/{id}", name="course_update")
      * @Method("PUT")
-     * @Template("CssrMainBundle:Staff:edit.html.twig")
+     * @Template("CssrMainBundle:Course:edit.html.twig")
      */
     public function updateAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:Course')->find($id);
 
         if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
+            throw $this->createNotFoundException('Unable to find Course entity.');
         }
 
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new StaffType(), $entity);
+        $editForm = $this->createForm(new CourseType(), $entity);
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
             $em->persist($entity);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('staff_edit', array('id' => $id)));
+            return $this->redirect($this->generateUrl('course_edit', array('id' => $id)));
         }
 
         return array(
@@ -169,9 +167,9 @@ class StaffController extends Controller
         );
     }
     /**
-     * Deletes a Staff entity.
+     * Deletes a Course entity.
      *
-     * @Route("/{id}", name="staff_delete")
+     * @Route("/{id}", name="course_delete")
      * @Method("DELETE")
      */
     public function deleteAction(Request $request, $id)
@@ -181,21 +179,21 @@ class StaffController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+            $entity = $em->getRepository('CssrMainBundle:Course')->find($id);
 
             if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Staff entity.');
+                throw $this->createNotFoundException('Unable to find Course entity.');
             }
 
             $em->remove($entity);
             $em->flush();
         }
 
-        return $this->redirect($this->generateUrl('staff'));
+        return $this->redirect($this->generateUrl('course'));
     }
 
     /**
-     * Creates a form to delete a Staff entity by id.
+     * Creates a form to delete a Course entity by id.
      *
      * @param mixed $id The entity id
      *

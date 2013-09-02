@@ -1,45 +1,33 @@
 {% extends '::base.html.twig' %}
 
-{% block body -%}
-    <h1>Staff list</h1>
+{% block page_header %}
+    <h1>Staff List</h1>
+{% endblock %}
 
-    <table class="records_list">
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Staff</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <table class="table table-striped">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Firstname</th>
-                <th>Middlename</th>
-                <th>Lastname</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+        </tr>
         </thead>
         <tbody>
         {% for entity in entities %}
             <tr>
-                <td><a href="{{ path('staff_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
-                <td>{{ entity.firstname }}</td>
-                <td>{{ entity.middlename }}</td>
-                <td>{{ entity.lastname }}</td>
-                <td>
-                <ul>
-                    <li>
-                        <a href="{{ path('staff_show', { 'id': entity.id }) }}">show</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('staff_edit', { 'id': entity.id }) }}">edit</a>
-                    </li>
-                </ul>
-                </td>
+                <td><a href="{{ path('staff_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-        <ul>
-        <li>
-            <a href="{{ path('staff_new') }}">
-                Create a new entry
-            </a>
-        </li>
-    </ul>
-    {% endblock %}
+    <a href="{{ path('staff_new') }}" class="btn btn-primary">Add Staff</a>
+
+{% endblock %}

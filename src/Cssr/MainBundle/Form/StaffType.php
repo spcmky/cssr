@@ -11,16 +11,19 @@ class StaffType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('username')
+            ->add('password')
             ->add('firstname')
             ->add('middlename')
             ->add('lastname')
-        ;
+            ->add('email')
+            ->add('phone');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\Staff'
+            'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
     }
 
