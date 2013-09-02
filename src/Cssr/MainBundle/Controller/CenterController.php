@@ -62,6 +62,11 @@ class CenterController extends Controller
             $em->persist($entity);
             $em->flush();
 
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Center created successfully!'
+            );
+
             return $this->redirect($this->generateUrl('center_show', array('id' => $entity->getId())));
         }
 
@@ -210,6 +215,11 @@ class CenterController extends Controller
 
             $em->persist($entity);
             $em->flush();
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Center updated successfully!'
+            );
 
             return $this->redirect($this->generateUrl('center_edit', array('id' => $id)));
         }

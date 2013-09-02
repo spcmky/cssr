@@ -9,51 +9,24 @@
     {% stylesheets '@css_bootstrap' %}
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
+
     {% stylesheets '@css_bootstrap_theme' %}
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
 
-    <style type="text/css">
-        body {
-            padding-top: 50px; /* Account for fixed navbar */
-        }
-        .sidebar-nav {
-            padding: 9px 0;
-        }
-
-        @media (max-width: 980px) {
-            /* Enable use of floated navbar text */
-            .navbar-text.pull-right {
-                float: none;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-        }
-
-        .dropdown-menu > li.disabled.nav-header > a {
-            cursor: default;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .nav > li.disabled.nav-header > a {
-            cursor: default;
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .breadcrumb {
-            margin-top: 10px;
-        }
-    </style>
+    {% stylesheets '@css_cssr' %}
+    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
+    {% endstylesheets %}
 
     {% javascripts '@js_jquery' %}
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 
     {% javascripts '@js_bootstrap' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
+
+    {% javascripts '@js_cssr' %}
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 
@@ -105,8 +78,6 @@
                         <ul class="nav nav-pills nav-stacked">
 
                             {% block sidebar %}
-                                <li class="nav-header disabled"><a>Current Center</a></li>
-                                <li><a href="{{ path('center') }}">Update</a></li>
                                 <li class="nav-header disabled"><a>Centers</a></li>
                                 <li><a href="{{ path('center') }}">List</a></li>
                                 <li><a href="{{ path('center') }}">Reports</a></li>
@@ -116,13 +87,12 @@
                                 <li><a href="{{ path('staff') }}">Staff</a></li>
                                 <li><a href="{{ path('student') }}">Students</a></li>
                                 <li class="nav-header disabled"><a>Scores</a></li>
-                                <li><a href="{{ path('score') }}">List</a></li>
-                                <li><a href="#">Staff</a></li>
-                                <li><a href="#">Student</a></li>
+                                <li><a href="#">View</a></li>
+                                <li><a href="#">Update</a></li>
                                 <li class="nav-header disabled"><a>Reports</a></li>
-                                <li><a href="#">List</a></li>
-                                <li><a href="#">Staff</a></li>
-                                <li><a href="#">Student</a></li>
+                                <li><a href="#">Friday Reports</a></li>
+                                <li><a href="#">Case Load Reports</a></li>
+                                <li><a href="#">Individual History Reports</a></li>
                             {% endblock %}
 
                         </ul>
@@ -134,9 +104,14 @@
 
         <div class="col-md-9 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}col-md-offset-3{% endif %}" role="main">
 
+            {% block breadcrumb %}{% endblock %}
+
+            {% block page_header %}{% endblock %}
+
             {% for type, messages in app.session.flashbag.all() %}
                 {% for message in messages %}
-                    <div class="flash-{{ type }}">
+                    <div class="alert alert-{{ type }} alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                         {{ message }}
                     </div>
                 {% endfor %}

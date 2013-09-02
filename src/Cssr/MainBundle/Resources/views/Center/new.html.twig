@@ -1,80 +1,89 @@
 {% extends '::base.html.twig' %}
 
-{% block body %}
+{% block page_header %}
+    <h1>Center Add</h1>
+{% endblock %}
 
-    <script type="text/javascript">
-        // Get the ul that holds the collection of tags
-    (function() {
-
-
-        $(function() {
-            initSubForm($('#cssr_mainbundle_centertype_dorms'));
-            initSubForm($('#cssr_mainbundle_centertype_vocations'));
-        });
-
-        function initSubForm(collectionHolder) {
-
-            // count the current form inputs we have (e.g. 2), use that as the new
-            // index when inserting a new item (e.g. 2)
-            collectionHolder.data('index', collectionHolder.find('ul').children.length);
-
-            var addLink = collectionHolder.parent().find('a.add');
-
-            addLink.on('click', function(e) {
-                // prevent the link from creating a "#" on the URL
-                e.preventDefault();
-
-                // add a new tag form (see next code block)
-                addSubForm(collectionHolder);
-            });
-        }
-
-        function addSubForm(collectionHolder) {
-            // Get the data-prototype explained earlier
-            var prototype = collectionHolder.data('prototype');
-
-            // get the new index
-            var index = collectionHolder.data('index');
-
-            // Replace '__name__' in the prototype's HTML to
-            // instead be a number based on how many items we have
-            var newForm = $(prototype.replace(/__name__/g, index));
-
-            // increase the index with one for the next item
-            collectionHolder.data('index', index + 1);
-
-            newForm.find('a.remove').on('click', function(e){
-                // prevent the link from creating a "#" on the URL
-                e.preventDefault();
-                $(this).parent().remove();
-            });
-
-            // Display the form in the page in an li, before the "Add a tag" link li
-            //var newFormLi = $('<li></li>').append(newForm);
-            collectionHolder.find('ul').append(newForm);
-        }
-
-    })();
-    </script>
-
+{% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('center') }}">Centers</a></li>
-        <li class="active">Add Center</li>
+        <li class="active">Add</li>
     </ol>
+{% endblock %}
 
-    <h1>Add Center</h1>
+{% block body %}
 
-    <form action="{{ path('center_create') }}" method="post" {{ form_enctype(form) }}>
+    <div class="row">
+        <div class="col-md-8">
+            <form id="form-center-new" name="form-center-new" action="{{ path('center_create') }}" method="post" {{ form_enctype(form) }}>
+                {{ form_widget(form) }}
+            </form>
 
-        {{ form_widget(form) }}
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a class="btn btn-primary btn-center-save" href="javascript:void(0)">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <p>
-            <button class="btn btn-primary" type="submit">Create</button>
-        </p>
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
 
+            $('a.btn-center-save').on('click', function(e){
+                $('form#form-center-new').submit();
+            });
 
-    </form>
+            $(function() {
+                initSubForm($('#cssr_mainbundle_centertype_dorms'));
+                initSubForm($('#cssr_mainbundle_centertype_vocations'));
+            });
 
+            function initSubForm(collectionHolder) {
+
+                // count the current form inputs we have (e.g. 2), use that as the new
+                // index when inserting a new item (e.g. 2)
+                collectionHolder.data('index', collectionHolder.find('ul').children.length);
+
+                var addLink = collectionHolder.parent().find('a.add');
+
+                addLink.on('click', function(e) {
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+
+                    // add a new tag form (see next code block)
+                    addSubForm(collectionHolder);
+                });
+            }
+
+            function addSubForm(collectionHolder) {
+                // Get the data-prototype explained earlier
+                var prototype = collectionHolder.data('prototype');
+
+                // get the new index
+                var index = collectionHolder.data('index');
+
+                // Replace '__name__' in the prototype's HTML to
+                // instead be a number based on how many items we have
+                var newForm = $(prototype.replace(/__name__/g, index));
+
+                // increase the index with one for the next item
+                collectionHolder.data('index', index + 1);
+
+                newForm.find('a.remove').on('click', function(e){
+                    // prevent the link from creating a "#" on the URL
+                    e.preventDefault();
+                    $(this).parent().parent().parent().remove();
+                });
+
+                // Display the form in the page in an li, before the "Add a tag" link li
+                //var newFormLi = $('<li></li>').append(newForm);
+                collectionHolder.find('ul').append(newForm);
+            }
+
+        })();
+    </script>
 
 {% endblock %}

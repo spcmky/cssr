@@ -37,51 +37,60 @@
             {% endif %}
             <div {{ block('widget_container_attributes') }}>
                 {{ form_errors(form) }}
-                <ul>
+                <ul class="list-unstyled">
                     {% for rows in form %}
-                        <li>
-                            {% set fieldNum = 1 %}
+                    <li style="margin-bottom:4px;">
+                        {% set fieldNum = 1 %}
+                        <div class="row">
+                            <div class="col-md-5">
                             {% for row in rows %}
                                 <div class="field{{ fieldNum }}">
                                     {{ form_label(row) }}
-                                    {{ form_widget(row, { 'attr': { 'class': 'test' }}) }}
+                                    {{ form_widget(row) }}
                                 </div>
                                 {% set fieldNum = fieldNum + 1 %}
                             {% endfor %}
-                            <a class="remove" title="Remove" href="javascript:void(0)">
-                                <span>Delete</span>
-                            </a>
-                            <div class="clear"></div>
-                        </li>
+                            </div>
+                            <div class="col-md-1">
+                                <a class="remove btn btn-danger" title="Remove" href="javascript:void(0)">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
                     {% endfor %}
                 </ul>
                 {{ form_rest(form) }}
             </div>
-            <div class="clear"></div>
-            <a class="add" title="Add" href="javascript:void(0)">
-                <div style="display: none;"></div>
-                <span>Add</span>
-            </a>
+            <div class="row">
+                <div class="col-md-4">
+                    <a class="add btn btn-primary" title="Add" href="javascript:void(0)">Add</a>
+                </div>
+            </div>
         </div>
-        <div class="clear"></div>
     {% endspaceless %}
 {% endblock collection_widget %}
 
 {% block collection_item_widget %}
     {% spaceless %}
-        <li>
+        <li style="margin-bottom:4px;">
             {% set fieldNum = 1 %}
-            {% for row in prototype %}
-                <div class="field{{ fieldNum }}">
-                    {{ form_label(row) }}
-                    {{ form_widget(row, { 'attr': { 'class': 'test' }}) }}
+            <div class="row">
+                <div class="col-md-5">
+                    {% for row in prototype %}
+                        <div class="field{{ fieldNum }}">
+                            {{ form_label(row) }}
+                            {{ form_widget(row) }}
+                        </div>
+                        {% set fieldNum = fieldNum + 1 %}
+                    {% endfor %}
                 </div>
-                {% set fieldNum = fieldNum + 1 %}
-            {% endfor %}
-            <a class="remove" title="Remove" href="javascript:void(0)">
-                <span>Delete</span>
-            </a>
-            <div class="clear"></div>
+                <div class="col-md-1">
+                    <a class="remove btn btn-danger" title="Remove" href="javascript:void(0)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
+                </div>
+            </div>
         </li>
     {% endspaceless %}
 {% endblock collection_item_widget %}
@@ -387,11 +396,13 @@
 {% block form_errors %}
 {% spaceless %}
     {% if errors|length > 0 %}
-    <ul>
+    <div class="alert alert-danger">
+        <ul class="list-unstyled">
         {% for error in errors %}
             <li>{{ error.message }}</li>
         {% endfor %}
-    </ul>
+        </ul>
+    </div>
     {% endif %}
 {% endspaceless %}
 {% endblock form_errors %}

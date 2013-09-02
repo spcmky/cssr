@@ -81,6 +81,15 @@ assetic:
             -  "%kernel.root_dir%/../vendor/jquery/jquery-1.10.1.min.js"
             output: "js/jquery.min.js"
 
+        css_cssr:
+            inputs:
+                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/css/cssr.css"
+            output: "css/cssr/cssr.css"
+
+        js_cssr:
+            inputs:
+                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/js/cssr.js"
+            output: "css/cssr/cssr.css"
 
 # Doctrine Configuration
 doctrine:
