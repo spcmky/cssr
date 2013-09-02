@@ -35,3 +35,7 @@ body {
 .required {
     text-decoration: underline;
 }
+
+.report-list li {
+    margin-bottom: 10px;
+}

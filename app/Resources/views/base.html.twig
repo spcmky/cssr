@@ -76,7 +76,6 @@
                     </div>
                     <div class="panel-body">
                         <ul class="nav nav-pills nav-stacked">
-
                             {% block sidebar %}
                                 <li class="nav-header disabled"><a>Centers</a></li>
                                 <li><a href="{{ path('center') }}">List</a></li>
@@ -90,11 +89,8 @@
                                 <li><a href="#">View</a></li>
                                 <li><a href="#">Update</a></li>
                                 <li class="nav-header disabled"><a>Reports</a></li>
-                                <li><a href="#">Friday Reports</a></li>
-                                <li><a href="#">Case Load Reports</a></li>
-                                <li><a href="#">Individual History Reports</a></li>
+                                <li><a href="{{ path('report') }}">List</a></li>
                             {% endblock %}
-
                         </ul>
                     </div>
                 </div>

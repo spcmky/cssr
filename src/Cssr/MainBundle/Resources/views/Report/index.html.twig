@@ -1,0 +1,55 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Reports</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Reports</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <div class="row">
+        <div class="col-md-4">
+            <h3>Friday</h3>
+            <ul class="list-unstyled report-list">
+                <li><a href="">Friday Comments Report</a></li>
+                <li><a href="">4.0 Report</a></li>
+                <li><a href="">4.0 Report w/comments</a></li>
+                <li><a href="">Caution Report</a></li>
+                <li><a href="">Caution Report w/comments</a></li>
+                <li><a href="">Challenge Report</a></li>
+                <li><a href="">Challenge Report w/comments</a></li>
+                <li><a href="">Meets Expectations Report</a></li>
+                <li><a href="">Meets Expectations Report w/comments</a></li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+           <h3>Case Load</h3>
+            <ul class="list-unstyled report-list">
+                <li><a href="">Caseload Scores Report</a></li>
+                <li><a href="">Caseload Comments Report</a></li>
+                <li><a href="">ESP Scores Report</a></li>
+                <li><a href="">Selected Average Report</a></li>
+                <li><a href="">Student Record Report</a></li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h3>Individual History</h3>
+            <ul class="list-unstyled report-list">
+                <li><a href="">Student History - Scores Report</a></li>
+                <li><a href="">Student History - Scores Report</a></li>
+                <li><a href="">Student History - Comments Report</a></li>
+                <li><a href="">Staff History - Scores Report</a></li>
+                <li><a href="">Staff History - Comments Report</a></li>
+                <li><a href="">Staff Exception Report</a></li>
+                <li><a href="">Weekly Statistics Report</a></li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
