@@ -243,9 +243,30 @@ class CenterController extends Controller
 
             $em->persist($entity);
             $em->flush();
+
+            if ($request->isXmlHttpRequest()) {
+                $api_response = new \stdClass();
+                $api_response->status = 'success';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            }
+
         }
 
-        return $this->redirect($this->generateUrl('center'));
+        if ($request->isXmlHttpRequest()) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        } else {
+            return $this->redirect($this->generateUrl('center'));
+        }
     }
 
     /**

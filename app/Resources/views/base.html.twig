@@ -6,7 +6,6 @@
     <title>Career Success Standards <Rating></Rating></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
     {% stylesheets '@css_bootstrap' %}
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
@@ -54,6 +53,10 @@
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 
+    {% javascripts '@js_bootstrap' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
+
 </head>
 
 <body>
@@ -82,13 +85,7 @@
                     <a class="navbar-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
                 {% endif %}
             </p>
-            <ul class="nav navbar-nav">
-                <li class="dropdpwn">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Center 2 <b class="caret"></b></a>
-                    {{ render(controller('CssrMainBundle:Center:showMenu')) }}
-
-                </li>
-            </ul>
+            {{ render(controller('CssrMainBundle:Center:showMenu')) }}
         </nav>
     </div>
 </header>
@@ -158,12 +155,6 @@
         <p>&copy; Adams &amp; Associates 2013</p>
     </div>
 </footer>
-
-
-
-{% javascripts '@js_bootstrap' %}
-<script src="{{ asset_url }}" type="text/javascript"></script>
-{% endjavascripts %}
 
 </body>
 </html>

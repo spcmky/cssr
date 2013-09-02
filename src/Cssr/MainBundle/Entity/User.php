@@ -33,14 +33,4 @@ class User extends BaseUser
         return $this->id;
     }
 
-    public function postPersist(LifecycleEventArgs $args)
-    {
-        $entity = $args->getEntity();
-        $entityManager = $args->getEntityManager();
-
-        // perhaps you only want to act on some "Product" entity
-        if ($entity instanceof Product) {
-            // ... do something with the Product
-        }
-    }
 }

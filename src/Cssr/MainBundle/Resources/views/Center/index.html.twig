@@ -1,6 +1,12 @@
 {% extends '::base.html.twig' %}
 
 {% block body -%}
+
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Centers</li>
+    </ol>
+
     <h1>Center List</h1>
 
     <table class="table table-striped">
@@ -12,7 +18,7 @@
         <tbody>
         {% for entity in entities %}
             <tr>
-                <td><a href="{{ path('center_edit', { 'id': entity.id }) }}">{{ entity.name }}</a></td>
+                <td><a href="{{ path('center_show', { 'id': entity.id }) }}">{{ entity.name }}</a></td>
             </tr>
         {% endfor %}
         </tbody>
@@ -20,4 +26,4 @@
 
     <a href="{{ path('center_new') }}" class="btn btn-primary">Create a new center</a>
 
-    {% endblock %}
+{% endblock %}

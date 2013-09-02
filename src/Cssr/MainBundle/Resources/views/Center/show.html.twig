@@ -2,82 +2,86 @@
 
 {% block body -%}
 
-
-
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('center') }}">Centers</a></li>
-        <li class="active">View</li>
+        <li class="active">{{ entity.name }}</li>
     </ol>
 
     <h1>{{ entity.name }}</h1>
 
-    <table class="record_properties">
-        <tbody>
-            <tr>
-                <th>Name</th>
-                <td>{{ entity.name }}</td>
-            </tr>
-            <tr>
-                <th>Address</th>
-                <td>{{ entity.address }}</td>
-            </tr>
-            <tr>
-                <th>City</th>
-                <td>{{ entity.city }}</td>
-            </tr>
-            <tr>
-                <th>State</th>
-                <td>{{ entity.state }}</td>
-            </tr>
-            <tr>
-                <th>Postcode</th>
-                <td>{{ entity.postcode }}</td>
-            </tr>
-            <tr>
-                <th>Phone</th>
-                <td>{{ entity.phone }}</td>
-            </tr>
-            <tr>
-                <th>Dorms</th>
-                <td>
-                    <ul>
-                        {% for dorm in entity.dorms %}
-                            <li>{{ dorm.name }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <th>Vocations</th>
-                <td>
-                    <ul>
-                        {% for vocation in entity.vocations %}
-                            <li>{{ vocation.name }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <strong>Address</strong>
+    <address>
+        {{ entity.address }}<br />
+        {{ entity.city }}, {{ entity.state }} {{ entity.postcode }}<br />
+        <abbr title="Phone">P:</abbr> {{ entity.phone }}
+    </address>
 
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('center') }}">
-            Back to the list
-        </a>
-    </li>
-    <li>
-        <a href="{{ path('center_edit', { 'id': entity.id }) }}">
-            Edit
-        </a>
-    </li>
-    <li>
-        <form action="{{ path('center_delete', { 'id': entity.id }) }}" method="post">
-            <input type="hidden" name="_method" value="DELETE" />
-            {{ form_widget(delete_form) }}
-            <button type="submit">Delete</button>
-        </form>
-    </li>
-</ul>
+    <div class="row">
+        <div class="col-md-6">
+            <strong>Dorms</strong>
+            <ul class="list-unstyled">
+                {% for dorm in entity.dorms %}
+                    <li>{{ dorm.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-mid-6">
+            <strong>Vocations</strong>
+            <ul class="list-unstyled">
+                {% for vocation in entity.vocations %}
+                    <li>{{ vocation.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <p>Created {{ entity.created | date('Y-m-d H:i:s') }} by {{ entity.createdBy.username }}</p>
+    <p>Last Updated {{ entity.updated | date('Y-m-d H:i:s') }} by {{ entity.updatedBy.username }}</p>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a class="btn btn-default btn-center-edit" href="{{ path('center_edit', { 'id': entity.id }) }}">Edit</a>
+            <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-center-delete" tabindex="-1" role="dialog" aria-labelledby="centerDeleteModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Are you sure you want to delete this center?</h4>
+                </div>
+                <div class="modal-body">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-danger btn-center-delete">Yes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
+            $('button.btn-center-delete').on('click', function(e){
+                // prevent the link from creating a "#" on the URL
+                e.preventDefault();
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ path('center_edit', { 'id': entity.id }) }}"
+                    success: function(data,textStatus){
+                        if ( textStatus == 'success' ) {
+                            // reload page
+                            location.href = '{{ path('center') }}';
+                        }
+                    },
+                    dataType: 'json'
+                });
+            });
+        })();
+    </script>
+
 {% endblock %}

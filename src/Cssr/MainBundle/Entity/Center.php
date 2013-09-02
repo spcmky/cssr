@@ -413,6 +413,52 @@ class Center
         return $this;
     }
 
+    /**
+     * Get created
+     *
+     * @return \DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Center
+     */
+    public function setCreated(\DateTime $created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return \DateTime
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     * @return Center
+     */
+    public function setUpdated(\DateTime $updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
     public function __toString() {
         return $this->getName();
     }
