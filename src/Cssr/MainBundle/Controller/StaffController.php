@@ -93,7 +93,7 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Staff entity.');
@@ -118,7 +118,7 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Staff entity.');
@@ -145,7 +145,7 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Staff entity.');
@@ -153,7 +153,7 @@ class StaffController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new StaffType(), $entity);
-        $editForm->bind($request);
+        $editForm->submit($request);
 
         if ($editForm->isValid()) {
             $em->persist($entity);
@@ -181,7 +181,7 @@ class StaffController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:Staff')->find($id);
+            $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Staff entity.');

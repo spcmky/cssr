@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Cssr\MainBundle\Entity\Student;
+use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StudentType;
 
 /**
@@ -29,10 +29,10 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:Student')->findAll();
+        $entities = $em->getRepository('CssrMainBundle:Group')->findByName('Student');
 
         return array(
-            'entities' => $entities,
+            'entities' => $entities[0]->getUsers()
         );
     }
     /**
@@ -44,9 +44,9 @@ class StudentController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity  = new Student();
+        $entity = new User();
         $form = $this->createForm(new StudentType(), $entity);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -71,7 +71,7 @@ class StudentController extends Controller
      */
     public function newAction()
     {
-        $entity = new Student();
+        $entity = new User();
         $form   = $this->createForm(new StudentType(), $entity);
 
         return array(
@@ -91,7 +91,7 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Student')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Student entity.');
@@ -116,7 +116,7 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Student')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Student entity.');
@@ -143,7 +143,7 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Student')->find($id);
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Student entity.');
@@ -151,7 +151,7 @@ class StudentController extends Controller
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createForm(new StudentType(), $entity);
-        $editForm->bind($request);
+        $editForm->submit($request);
 
         if ($editForm->isValid()) {
             $em->persist($entity);
@@ -179,7 +179,7 @@ class StudentController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:Student')->find($id);
+            $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
             if (!$entity) {
                 throw $this->createNotFoundException('Unable to find Student entity.');
