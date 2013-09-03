@@ -31,7 +31,7 @@ class Score
     protected $course;
 
     /**
-     * @ORM\OneToOne(targetEntity="Student")
+     * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="student_id", referencedColumnName="id")
      */
     protected $student;
