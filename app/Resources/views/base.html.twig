@@ -79,15 +79,15 @@
                             {% block sidebar %}
                                 <li class="nav-header disabled"><a>Centers</a></li>
                                 <li><a href="{{ path('center') }}">List</a></li>
-                                <li><a href="{{ path('center') }}">Reports</a></li>
-                                <li><a href="#">Messages</a></li>
+                                <li><a href="{{ path('message') }}">Messages</a></li>
                                 <li class="nav-header disabled"><a>Users</a></li>
                                 <li><a href="{{ path('user') }}">Admins</a></li>
                                 <li><a href="{{ path('staff') }}">Staff</a></li>
                                 <li><a href="{{ path('student') }}">Students</a></li>
                                 <li class="nav-header disabled"><a>Scores</a></li>
-                                <li><a href="#">View</a></li>
-                                <li><a href="#">Update</a></li>
+                                <li><a href="{{ path('score') }}">View</a></li>
+                                <li><a href="{{ path('score_student') }}">Update Student</a></li>
+                                <li><a href="{{ path('score_staff') }}">Update Staff</a></li>
                                 <li class="nav-header disabled"><a>Reports</a></li>
                                 <li><a href="{{ path('report') }}">List</a></li>
                             {% endblock %}

@@ -1,47 +1,45 @@
 {% extends '::base.html.twig' %}
 
-{% block body -%}
-    <h1>Score list</h1>
+{% block page_header %}
+    <h1>Scores</h1>
+{% endblock %}
 
-    <table class="records_list table">
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Scores</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <table class="table table-hover table-bordered" style="font-size:11px;">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>Value</th>
-                <th>Comment</th>
-                <th>Created</th>
-                <th>Modified</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+            {% for area in areas %}
+                <th style="font-size:9px;">{{ area.name }}</th>
+            {% endfor %}
+            <th>Total</th>
+            <th>Units</th>
+            <th>Final</th>
+            <th>Merit Status</th>
+        </tr>
         </thead>
         <tbody>
-        {% for entity in entities %}
+        {% for row in scores %}
             <tr>
-                <td><a href="{{ path('score_show', { 'id': entity.id }) }}">{{ entity.id }}</a></td>
-                <td>{{ entity.value }}</td>
-                <td>{{ entity.comment }}</td>
-                <td>{% if entity.created %}{{ entity.created|date('Y-m-d H:i:s') }}{% endif %}</td>
-                <td>{% if entity.modified %}{{ entity.modified|date('Y-m-d H:i:s') }}{% endif %}</td>
-                <td>
-                <ul>
-                    <li>
-                        <a href="{{ path('score_show', { 'id': entity.id }) }}">show</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('score_edit', { 'id': entity.id }) }}">edit</a>
-                    </li>
-                </ul>
-                </td>
+                {% for col in row %}
+                    {% if loop.index > 1 and loop.index < 20 %}
+                        <td style="font-size:9px;">{{ col }}</td>
+                    {% else %}
+                        <td>{{ col }}</td>
+                    {% endif %}
+                {% endfor %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-        <ul>
-        <li>
-            <a href="{{ path('score_new') }}">
-                Create a new entry
-            </a>
-        </li>
-    </ul>
-    {% endblock %}
+
+{% endblock %}

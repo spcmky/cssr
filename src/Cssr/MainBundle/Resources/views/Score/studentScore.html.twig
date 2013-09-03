@@ -1,0 +1,82 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Update Scores</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('score') }}">Scores</a></li>
+        <li><a href="{{ path('score_student') }}">Students</a></li>
+        <li class="active">Firstname Lastname</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <p>Scores for the week of 8/31/2013-9/6/2013</p>
+
+    <select>
+        <option>9/1/2013</option>
+        <option>9/1/2013</option>
+    </select>
+
+    <h3>Firstname Lastname</h3>
+    <form>
+    <table class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th style="text-align: center;">Area</th>
+            <th style="text-align: center;">Score</th>
+            <th style="text-align: center;">Career Success Standards</th>
+            <th style="width: 300px; text-align: center;">Comments</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for area in areas %}
+            <tr>
+                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ area.name }}</td>
+                <td style="text-align: center;">
+                    <select class="">
+                        <option selected="selected">N/A</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                </td>
+                <td style="font-size: 10px;">
+                    <div class="row">
+                    {% for standard in standards %}
+                        {% if loop.index0 % 4 == 0 %}
+                        <div class="col-lg-6">
+                        {% endif %}
+
+                        <label class="checkbox">
+                            <input type="checkbox" name="standards[]" value="{{ standard.id }}"> {{ standard.name }}
+                        </label>
+
+                        {% if loop.index0 % 4 == 3 %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                </td>
+                <td>
+                    <textarea class="form-control" rows="5"></textarea>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </form>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a class="btn btn-primary btn-score-save" href="javascript:void(0)">Save</a>
+        </div>
+    </div>
+
+{% endblock %}
