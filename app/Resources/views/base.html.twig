@@ -58,7 +58,9 @@
                     <a class="navbar-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
                 {% endif %}
             </p>
+            {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
             {{ render(controller('CssrMainBundle:Center:showMenu')) }}
+            {% endif %}
         </nav>
     </div>
 </header>
