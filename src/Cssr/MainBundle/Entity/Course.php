@@ -18,7 +18,7 @@ class Course
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Staff", inversedBy="courses")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="courses")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $staff;
