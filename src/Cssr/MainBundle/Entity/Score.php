@@ -185,10 +185,10 @@ class Score
     /**
      * Set student
      *
-     * @param \Cssr\MainBundle\Entity\Student $student
+     * @param \Cssr\MainBundle\Entity\User $student
      * @return Score
      */
-    public function setStudent(\Cssr\MainBundle\Entity\Student $student = null)
+    public function setStudent(\Cssr\MainBundle\Entity\User $student = null)
     {
         $this->student = $student;
     
@@ -198,7 +198,7 @@ class Score
     /**
      * Get student
      *
-     * @return \Cssr\MainBundle\Entity\Student 
+     * @return \Cssr\MainBundle\Entity\User
      */
     public function getStudent()
     {
