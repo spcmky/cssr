@@ -1,20 +1,43 @@
 {% extends '::base.html.twig' %}
 
-{% block body -%}
-    <h1>Student creation</h1>
-
-    <form action="{{ path('student_create') }}" method="post" {{ form_enctype(form) }}>
-        {{ form_widget(form) }}
-        <p>
-            <button type="submit">Create</button>
-        </p>
-    </form>
-
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('student') }}">
-            Back to the list
-        </a>
-    </li>
-</ul>
+{% block page_header %}
+    <h1>Student Add</h1>
 {% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user') }}">Students</a></li>
+        <li class="active">Add</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <form id="form-student-new" name="form-student-new" action="{{ path('student_create') }}" method="post" {{ form_enctype(form) }}>
+                {{ form_widget(form) }}
+            </form>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a class="btn btn-primary btn-student-save" href="javascript:void(0)">Create</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
+
+            $('a.btn-student-save').on('click', function(e){
+                $('form#form-student-new').submit();
+            });
+
+        })();
+    </script>
+
+{% endblock %}
+

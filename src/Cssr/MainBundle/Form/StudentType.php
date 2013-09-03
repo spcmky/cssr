@@ -14,16 +14,16 @@ class StudentType extends AbstractType
             ->add('firstname')
             ->add('middlename')
             ->add('lastname')
-            ->add('entry')
-            ->add('dorm')
-            ->add('courses')
-        ;
+            ->add('username')
+            ->add('email')
+            ->add('password')
+            ->add('phone');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\Student'
+            'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
     }
 

@@ -1,26 +1,36 @@
+
 {% extends '::base.html.twig' %}
 
-{% block body -%}
-    <h1>User list</h1>
+{% block page_header %}
+    <h1>Admin List</h1>
+{% endblock %}
 
-    <table class="records_list table">
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Students</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <table class="table table-striped">
         <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Enabled</th>
-                <th>Lastlogin</th>
-                <th>Locked</th>
-                <th>Expired</th>
-                <th>Roles</th>
-                <th>Credentialsexpired</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Enabled</th>
+            <th>Lastlogin</th>
+            <th>Locked</th>
+            <th>Expired</th>
+            <th>Roles</th>
+            <th>Credentialsexpired</th>
+        </tr>
         </thead>
         <tbody>
         {% for entity in entities %}
             <tr>
-                <td><a href="{{ path('user_show', { 'id': entity.id }) }}">{{ entity.username }}</a></td>
+                <td><a href="{{ path('user_edit', { 'id': entity.id }) }}">{{ entity.username }}</a></td>
                 <td>{{ entity.email }}</td>
                 <td>{{ entity.enabled }}</td>
                 <td>{% if entity.lastLogin %}{{ entity.lastLogin|date('Y-m-d H:i:s') }}{% endif %}</td>
@@ -28,32 +38,17 @@
                 <td>{{ entity.expired }}</td>
                 <td>
                     <ul>
-                    {% for role in entity.roles %}
-                        <li>{{ role|e }}</li>
-                    {% endfor %}
+                        {% for role in entity.roles %}
+                            <li>{{ role|e }}</li>
+                        {% endfor %}
                     </ul>
                 </td>
                 <td>{{ entity.credentialsExpired }}</td>
-                <td>
-                <ul>
-                    <li>
-                        <a href="{{ path('user_show', { 'id': entity.id }) }}">show</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('user_edit', { 'id': entity.id }) }}">edit</a>
-                    </li>
-                </ul>
-                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-        <ul>
-        <li>
-            <a href="{{ path('user_new') }}">
-                Create a new entry
-            </a>
-        </li>
-    </ul>
-    {% endblock %}
+    <a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a>
+
+{% endblock %}

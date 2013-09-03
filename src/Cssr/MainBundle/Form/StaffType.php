@@ -11,12 +11,12 @@ class StaffType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
-            ->add('password')
             ->add('firstname')
             ->add('middlename')
             ->add('lastname')
+            ->add('username')
             ->add('email')
+            ->add('password')
             ->add('phone');
     }
 

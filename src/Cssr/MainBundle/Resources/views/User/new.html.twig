@@ -1,20 +1,43 @@
 {% extends '::base.html.twig' %}
 
-{% block body -%}
-    <h1>User creation</h1>
-
-    <form action="{{ path('user_create') }}" method="post" {{ form_enctype(form) }}>
-        {{ form_widget(form) }}
-        <p>
-            <button type="submit">Create</button>
-        </p>
-    </form>
-
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('user') }}">
-            Back to the list
-        </a>
-    </li>
-</ul>
+{% block page_header %}
+    <h1>Admin Add</h1>
 {% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user') }}">Admins</a></li>
+        <li class="active">Add</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-8">
+        <form id="form-admin-new" name="form-admin-new" action="{{ path('user_create') }}" method="post" {{ form_enctype(form) }}>
+            {{ form_widget(form) }}
+        </form>
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <a class="btn btn-primary btn-admin-save" href="javascript:void(0)">Create</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Get the ul that holds the collection of tags
+    (function() {
+
+        $('a.btn-admin-save').on('click', function(e){
+            $('form#form-admin-new').submit();
+        });
+
+    })();
+</script>
+
+{% endblock %}
+
