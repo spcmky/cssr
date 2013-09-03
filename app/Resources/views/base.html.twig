@@ -67,7 +67,7 @@
     <div class="row">
 
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-        <div class="col-md-3">
+        <div class="col-lg-2">
 
             <div class="sidebar-nav">
                 <div class="panel panel-default">
@@ -98,7 +98,7 @@
         </div>
         {% endif %}
 
-        <div class="col-md-9 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}col-md-offset-3{% endif %}" role="main">
+        <div class="col-lg-10 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}col-lg-offset-3{% endif %}" role="main">
 
             {% block breadcrumb %}{% endblock %}
 
