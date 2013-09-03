@@ -19,7 +19,7 @@ class Course
 
     /**
      * @ORM\ManyToOne(targetEntity="Staff", inversedBy="courses")
-     * @ORM\JoinColumn(name="staff_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $staff;
 
@@ -46,10 +46,10 @@ class Course
     /**
      * Set staff
      *
-     * @param \Cssr\MainBundle\Entity\Staff $staff
+     * @param \Cssr\MainBundle\Entity\User $staff
      * @return Course
      */
-    public function setStaff(\Cssr\MainBundle\Entity\Staff $staff = null)
+    public function setStaff(\Cssr\MainBundle\Entity\User $staff = null)
     {
         $this->staff = $staff;
     
@@ -59,7 +59,7 @@ class Course
     /**
      * Get staff
      *
-     * @return \Cssr\MainBundle\Entity\Staff 
+     * @return \Cssr\MainBundle\Entity\User
      */
     public function getStaff()
     {
