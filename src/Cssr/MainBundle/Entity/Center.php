@@ -146,7 +146,7 @@ class Center
     /**
      * Set address
      *
-     * @param string $address
+     * @param text $address
      * @return Center
      */
     public function setAddress($address)

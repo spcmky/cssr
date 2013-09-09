@@ -29,10 +29,20 @@ class UserController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:User')->findAll();
+        $sql = "SELECT U.*, G.name group_id, G.name group_name, C.id center_id, C.name center_name FROM cssr_user_group UG
+        LEFT JOIN cssr_user U ON U.id = UG.user_id
+        LEFT JOIN cssr_group G ON G.id = UG.group_id
+        LEFT JOIN cssr_center C ON C.id = U.center_id
+        WHERE UG.group_id IN (1,2,3,4)";
+
+        $stmt = $em->getConnection()->prepare($sql);
+
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
 
         return array(
-            'entities' => $entities,
+            'entities' => $result
         );
     }
     /**
@@ -44,20 +54,23 @@ class UserController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity  = new User();
-        $form = $this->createForm(new UserType(), $entity);
-        $form->bind($request);
+        $userManager = $this->container->get('fos_user.user_manager');
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
-            $em->flush();
+        $user = $userManager->createUser();
+        $user->setEnabled(true);
 
-            return $this->redirect($this->generateUrl('user_show', array('id' => $entity->getId())));
+        $form = $this->createForm(new UserType(), $user);
+        $form->submit($request);
+
+        if ( $form->isValid() ) {
+
+            $userManager->updateUser($user);
+
+            return $this->redirect($this->generateUrl('user_show', array('id' => $user->getId())));
         }
 
         return array(
-            'entity' => $entity,
+            'entity' => $user,
             'form'   => $form->createView(),
         );
     }
@@ -71,11 +84,15 @@ class UserController extends Controller
      */
     public function newAction()
     {
-        $entity = new User();
-        $form   = $this->createForm(new UserType(), $entity);
+        $userManager = $this->container->get('fos_user.user_manager');
+
+        $user = $userManager->createUser();
+        $user->setEnabled(true);
+
+        $form   = $this->createForm(new UserType(), $user);
 
         return array(
-            'entity' => $entity,
+            'entity' => $user,
             'form'   => $form->createView(),
         );
     }
@@ -114,19 +131,19 @@ class UserController extends Controller
      */
     public function editAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $userManager = $this->container->get('fos_user.user_manager');
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $user = $userManager->findUserBy(array('id'=>$id));
 
-        if (!$entity) {
+        if (!$user) {
             throw $this->createNotFoundException('Unable to find User entity.');
         }
 
-        $editForm = $this->createForm(new UserType(), $entity);
+        $editForm = $this->createForm(new UserType(), $user);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
-            'entity'      => $entity,
+            'entity'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );
@@ -141,27 +158,26 @@ class UserController extends Controller
      */
     public function updateAction(Request $request, $id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $userManager = $this->container->get('fos_user.user_manager');
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $user = $userManager->findUserBy(array('id'=>$id));
 
-        if (!$entity) {
+        if (!$user) {
             throw $this->createNotFoundException('Unable to find User entity.');
         }
 
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new UserType(), $entity);
-        $editForm->bind($request);
+        $editForm = $this->createForm(new UserType(), $user);
+        $editForm->submit($request);
 
         if ($editForm->isValid()) {
-            $em->persist($entity);
-            $em->flush();
+            $userManager->updateUser($user);
 
             return $this->redirect($this->generateUrl('user_edit', array('id' => $id)));
         }
 
         return array(
-            'entity'      => $entity,
+            'entity'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );

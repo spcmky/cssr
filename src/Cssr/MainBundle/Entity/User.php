@@ -16,12 +16,12 @@ class User extends BaseUser
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     *
      */
     protected $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="Center")
+     * @ORM\ManyToOne(targetEntity="Center")
      * @ORM\JoinColumn(name="center_id", referencedColumnName="id")
      */
     protected $center;
@@ -55,9 +55,24 @@ class User extends BaseUser
      */
     protected $groups;
 
-    public function __construct()
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $entry;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Dorm")
+     * @ORM\JoinColumn(name="dorm_id", referencedColumnName="id")
+     */
+    protected $dorm;
+
+    public function __construct ( $values = array() )
     {
         parent::__construct();
+
+        foreach ( $values as $key => $value ) {
+            $this->$key = $value;
+        }
 
         $this->groups = new ArrayCollection();
     }
@@ -73,10 +88,23 @@ class User extends BaseUser
     }
 
     /**
+     * Set id
+     *
+     * @param integer $id
+     * @return User
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
      * Set firstname
      *
      * @param string $firstname
-     * @return Center
+     * @return User
      */
     public function setFirstname($firstname)
     {
@@ -99,7 +127,7 @@ class User extends BaseUser
      * Set middlename
      *
      * @param string $middlename
-     * @return Center
+     * @return User
      */
     public function setMiddlename($middlename)
     {
@@ -122,7 +150,7 @@ class User extends BaseUser
      * Set lastname
      *
      * @param string $lastname
-     * @return Center
+     * @return User
      */
     public function setLastname($lastname)
     {
@@ -145,7 +173,7 @@ class User extends BaseUser
      * Set phone
      *
      * @param string $phone
-     * @return Center
+     * @return User
      */
     public function setPhone($phone)
     {
@@ -178,10 +206,13 @@ class User extends BaseUser
      * Set center
      *
      * @param Center
+     * @return User
      */
     public function setCenter(Center $center)
     {
         $this->center = $center;
+
+        return $this;
     }
 
     /**
@@ -198,10 +229,58 @@ class User extends BaseUser
      * Set groups
      *
      * @param \Doctrine\Common\Collections\ArrayCollection $groups
+     * @return User
      */
     public function setGroups(ArrayCollection $groups)
     {
         $this->groups = $groups;
+
+        return $this;
     }
 
+    /**
+     * Get entry
+     *
+     * @return \DateTime
+     */
+    public function getEntry()
+    {
+        return $this->entry;
+    }
+
+    /**
+     * Set entry
+     *
+     * @param \DateTime $entry
+     * @return User
+     */
+    public function setEntry(\DateTime $entry)
+    {
+        $this->entry = $entry;
+
+        return $this;
+    }
+
+    /**
+     * Get dorm
+     *
+     * @return Dorm
+     */
+    public function getDorm()
+    {
+        return $this->dorm;
+    }
+
+    /**
+     * Set dorm
+     *
+     * @param Dorm
+     * @return User
+     */
+    public function setDorm(Dorm $dorm)
+    {
+        $this->dorm = $dorm;
+
+        return $this;
+    }
 }
