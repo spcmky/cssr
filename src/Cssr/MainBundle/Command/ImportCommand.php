@@ -43,6 +43,30 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->addUsersToGroups();
 
+        //$this->addCoursesToStudents();
+
+    }
+
+    protected function addCoursesToStudents() {
+        $this->output->writeln('Adding courses to students...');
+
+        $staff = $this->DB_Old->query("SELECT intStudentID, intStaffID, intAreaID FROM sertblstaffstudents WHERE intStaffID > 0",\PDO::FETCH_OBJ);
+
+        foreach ( $staff as $s ) {
+
+            try {
+
+                $sql = "SELECT id FROM cssr_course WHERE user_id = ".$s->intStaffID." AND area_id = ".$s->intAreaID." ";
+                $course_id = $this->DB_New->query($sql)->fetchColumn();
+
+                $sql = 'INSERT INTO cssr_student_course (course_id,student_id)
+                    VALUES ('.$course_id.','.$s->intStudentID.')';
+                $this->DB_New->query($sql);
+            } catch ( \Exception $e ) {
+                $this->output->writeln($e->getMessage());
+            }
+        }
+
     }
 
     protected function createCourses () {

@@ -72,10 +72,37 @@ class ScoreController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:Group')->findByName('Student');
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        if ( $center ) {
+
+            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE U.center_id = :centerId AND UG.group_id = :groupId";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
+            $stmt->bindValue('centerId', $center->id);
+            $stmt->bindValue('groupId', 6);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+
+        } else {
+
+            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
+            $stmt->bindValue('groupId', 6);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+        }
 
         return array(
-            'entities' => $entities[0]->getUsers()
+            'entities' => $result
         );
     }
 
@@ -86,15 +113,37 @@ class ScoreController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function studentScoreAction()
+    public function studentScoreAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $em = $this->getDoctrine()->getManager();
+
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if ( !$student ) {
+            throw $this->createNotFoundException('Unable to find Student entity.');
+        }
+
+        $sql = "
+        SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+        FROM cssr_student_course UC
+        LEFT JOIN cssr_course C ON C.id = UC.course_id
+        LEFT JOIN cssr_area A ON A.id = C.area_id
+        LEFT JOIN cssr_user U ON U.id = C.user_id
+        WHERE UC.student_id = :userId";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('userId', $id);
+        $stmt->execute();
+
+        $courses = $stmt->fetchAll();
+
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
         return array(
-            'areas' => $areas,
+            'student' => $student,
+            'courses' => $courses,
             'standards' => $standards
         );
     }

@@ -29,10 +29,39 @@ class CourseController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:Course')->findAll();
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        if ( $center ) {
+            $sql = "SELECT U.*, A.name area_name
+            FROM cssr_course C
+            LEFT JOIN cssr_user U ON U.id = C.user_id
+            LEFT JOIN cssr_area A ON A.id = C.area_id
+            WHERE U.center_id = :centerId
+            ORDER BY A.id";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('centerId', $center->id);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+        } else {
+            $sql = "SELECT U.*, A.name area_name
+            FROM cssr_course C
+            LEFT JOIN cssr_user U ON U.id = C.user_id
+            LEFT JOIN cssr_area A ON A.id = C.area_id
+            ORDER BY A.id";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+        }
 
         return array(
-            'entities' => $entities,
+            'entities' => $result,
         );
     }
     /**

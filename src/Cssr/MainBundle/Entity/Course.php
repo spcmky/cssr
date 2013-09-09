@@ -24,7 +24,7 @@ class Course
     protected $staff;
 
     /**
-     * @ORM\OneToOne(targetEntity="Area")
+     * @ORM\ManyToOne(targetEntity="Area")
      * @ORM\JoinColumn(name="area_id", referencedColumnName="id")
      */
     protected $area;
@@ -39,9 +39,6 @@ class Course
     {
         return $this->id;
     }
-
-
-
 
     /**
      * Set staff
@@ -87,12 +84,6 @@ class Course
     public function getArea()
     {
         return $this->area;
-    }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
     }
 
 }

@@ -1,0 +1,35 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Course List</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">Courses</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Staff</th>
+            <th>Area</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entity in entities %}
+            <tr>
+                <td><a href="{{ path('staff_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></td>
+                <td>{{ entity.area_name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('course_new') }}" class="btn btn-primary">Add Course</a>
+
+{% endblock %}

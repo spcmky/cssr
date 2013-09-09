@@ -121,15 +121,27 @@ class StudentController extends Controller
 
         $entity = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if (!$entity) {
+        if ( !$entity ) {
             throw $this->createNotFoundException('Unable to find Student entity.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
+        $sql = "
+        SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+        FROM cssr_student_course UC
+        LEFT JOIN cssr_course C ON C.id = UC.course_id
+        LEFT JOIN cssr_area A ON A.id = C.area_id
+        LEFT JOIN cssr_user U ON U.id = C.user_id
+        WHERE UC.student_id = :userId";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('userId', $id);
+        $stmt->execute();
+
+        $courses = $stmt->fetchAll();
 
         return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
+            'entity' => $entity,
+            'courses' => $courses
         );
     }
 

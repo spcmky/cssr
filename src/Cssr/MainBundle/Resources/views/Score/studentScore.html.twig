@@ -9,7 +9,7 @@
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('score') }}">Scores</a></li>
         <li><a href="{{ path('score_student') }}">Students</a></li>
-        <li class="active">Firstname Lastname</li>
+        <li class="active">{{ student.firstname }} {{ student.lastname }}</li>
     </ol>
 {% endblock %}
 
@@ -22,7 +22,7 @@
         <option>9/1/2013</option>
     </select>
 
-    <h3>Firstname Lastname</h3>
+    <h3>{{ student.firstname }} {{ student.lastname }}</h3>
     <form>
     <table class="table table-hover table-bordered">
         <thead>
@@ -34,9 +34,9 @@
         </tr>
         </thead>
         <tbody>
-        {% for area in areas %}
+        {% for course in courses %}
             <tr>
-                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ area.name }}</td>
+                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
                 <td style="text-align: center;">
                     <select class="">
                         <option selected="selected">N/A</option>
