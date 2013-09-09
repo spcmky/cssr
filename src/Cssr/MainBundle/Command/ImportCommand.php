@@ -41,7 +41,7 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->createCourses();
 
-        $this->addUsersToGroups();
+        //$this->addUsersToGroups();
 
     }
 
