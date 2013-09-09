@@ -9,7 +9,7 @@
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('score') }}">Scores</a></li>
         <li><a href="{{ path('score_student') }}">Students</a></li>
-        <li class="active">{{ student.firstname }} {{ student.lastname }}</li>
+        <li class="active">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</li>
     </ol>
 {% endblock %}
 
@@ -17,12 +17,13 @@
 
     <p>Scores for the week of 8/31/2013-9/6/2013</p>
 
-    <select>
-        <option>9/1/2013</option>
-        <option>9/1/2013</option>
+    <select name="periods">
+        {% for period in periods %}
+        <option>{{ period.period | date('Y-m-d') }}</option>
+        {% endfor %}
     </select>
 
-    <h3>{{ student.firstname }} {{ student.lastname }}</h3>
+    <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
     <form>
     <table class="table table-hover table-bordered">
         <thead>
@@ -35,16 +36,22 @@
         </thead>
         <tbody>
         {% for course in courses %}
+
+            {% set value = 'N/A' %}
+            {% for score in scores %}
+                {% if score.course_id == course.id %}
+                    {% set value = score.value %}
+                {% endif %}
+            {% endfor %}
+
             <tr>
                 <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
                 <td style="text-align: center;">
                     <select class="">
-                        <option selected="selected">N/A</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                        <option>N/A</option>
+                    {% for i in 1..5 %}
+                        <option {% if value == i %}selected="selected"{% endif %}>{{ i }}</option>
+                    {% endfor %}}
                     </select>
                 </td>
                 <td style="font-size: 10px;">
@@ -68,6 +75,7 @@
                     <textarea class="form-control" rows="5"></textarea>
                 </td>
             </tr>
+
         {% endfor %}
         </tbody>
     </table>

@@ -117,8 +117,6 @@ class ScoreController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $em = $this->getDoctrine()->getManager();
-
         $student = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if ( !$student ) {
@@ -126,7 +124,7 @@ class ScoreController extends Controller
         }
 
         $sql = "
-        SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+        SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
         FROM cssr_student_course UC
         LEFT JOIN cssr_course C ON C.id = UC.course_id
         LEFT JOIN cssr_area A ON A.id = C.area_id
@@ -136,15 +134,26 @@ class ScoreController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $id);
         $stmt->execute();
-
         $courses = $stmt->fetchAll();
 
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score WHERE student_id = ".$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = $stmt->fetchAll();
+
+        $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$periods[0]['period']."'";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
         return array(
+            'periods' => $periods,
             'student' => $student,
             'courses' => $courses,
-            'standards' => $standards
+            'standards' => $standards,
+            'scores' => $scores
         );
     }
 

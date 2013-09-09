@@ -45,6 +45,67 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->addCoursesToStudents();
 
+        $this->addStudentScores();
+
+    }
+
+    protected function addStudentScores() {
+        $this->output->writeln('Adding student scores...');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+
+        $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('groupId', 6);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        foreach ( $students as $student ) {
+
+            $scores = $this->DB_Old->query("SELECT * FROM sertblscores WHERE intUserID = ".$student['id'],\PDO::FETCH_OBJ);
+
+            $sql = "
+            SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+            FROM cssr_student_course UC
+            LEFT JOIN cssr_course C ON C.id = UC.course_id
+            LEFT JOIN cssr_area A ON A.id = C.area_id
+            LEFT JOIN cssr_user U ON U.id = C.user_id
+            WHERE UC.student_id = :userId";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('userId', $student['id']);
+            $stmt->execute();
+            $courses = $stmt->fetchAll();
+
+            foreach ( $scores as $score ) {
+
+                //$this->output->writeln(print_r($score,true));
+
+                // find the course id
+                foreach ( $areas as $area ) {
+                    $area_name = $area->getName();
+
+                    if ( $score->$area_name ) {
+
+
+
+                        foreach ( $courses as $course ) {
+
+                            if ( $course['area_id'] == $area->getId() ) {
+
+                                //$this->output->writeln($score->$area_name);
+
+                                $sql  = "INSERT INTO cssr_score(course_id,student_id,value,period)";
+                                $sql .= "VALUES(".$course['id'].",".$student['id'].",".$score->$area_name.",'".$score->dtWeekOf."')";
+                                $this->DB_New->query($sql);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     protected function addCoursesToStudents() {
