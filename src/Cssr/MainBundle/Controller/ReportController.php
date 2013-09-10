@@ -63,7 +63,17 @@ class ReportController extends Controller
 
             $scores[$i][23] = $total; // total units
             $scores[$i][24] = (!$units)? 0 : round(($total/$units),1); // average
-            $scores[$i][25] = 'Gold'; // status
+
+            // status
+            if ( $scores[$i][24] >= 4.3 ) {
+                $scores[$i][25] = 'Gold';
+            } else if ( $scores[$i][24] >= 3.5 ) {
+                $scores[$i][25] = 'Green';
+            } else if ( $scores[$i][24] >= 3.0 ) {
+                $scores[$i][25] = 'Blue';
+            } else {
+                $scores[$i][25] = 'None';
+            }
         }
 
         return array(

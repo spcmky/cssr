@@ -4,13 +4,21 @@
 
         <ul class="dropdown-menu center-menu">
             <li class="nav-header disabled"><a>Centers</a></li>
-            {% for entity in entities %}
+            <li>
+                <a class="selectable-center" rel="" href="javascript:void(0)">
+                    {% if current_center and current_center.name == "All Centers" %}
+                        <span class="glyphicon glyphicon-ok"></span>
+                    {% endif %}
+                    All Centers
+                </a>
+            </li>
+            {% for center in centers %}
                 <li>
-                    <a class="selectable-center" rel="{{ entity.id }}" href="javascript:void(0)">
-                    {% if current_center and current_center.id == entity.id %}
+                    <a class="selectable-center" rel="{{ center.id }}" href="javascript:void(0)">
+                    {% if current_center and current_center.id == center.id %}
                     <span class="glyphicon glyphicon-ok"></span>
                     {% endif %}
-                    {{ entity.name }}
+                    {{ center.name }}
                     </a>
                 </li>
             {% endfor %}

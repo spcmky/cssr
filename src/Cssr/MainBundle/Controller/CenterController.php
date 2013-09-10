@@ -304,7 +304,7 @@ class CenterController extends Controller
     public function showMenuAction()
     {
         $em = $this->getDoctrine()->getManager();
-        $entities = $em->getRepository('CssrMainBundle:Center')->findBy(
+        $centers = $em->getRepository('CssrMainBundle:Center')->findBy(
             array('active' => 1),
             array('name' => 'ASC')
         );
@@ -314,12 +314,12 @@ class CenterController extends Controller
         if (!$current) {
             $current = new \stdClass();
             $current->id = null;
-            $current->name = 'Select Center';
+            $current->name = 'All Centers';
         }
 
         return array(
             'current_center' => $current,
-            'entities' => $entities
+            'centers' => $centers
         );
     }
 
@@ -334,19 +334,25 @@ class CenterController extends Controller
         $request = $this->getRequest();
         $id = $request->request->get('center');
 
-        $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+        if ( !empty($id) ) {
+            $em = $this->getDoctrine()->getManager();
+            $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Center entity.');
+            if (!$center) {
+                throw $this->createNotFoundException('Unable to find Center entity.');
+            }
+
+            $sess_center = new \stdClass();
+            $sess_center->id = $center->getId();
+            $sess_center->name = $center->getName();
+
+        } else {
+            $sess_center = new \stdClass();
+            $sess_center->id = null;
+            $sess_center->name = 'All Centers';
         }
 
         $session = $this->getRequest()->getSession();
-
-        $sess_center = new \stdClass();
-        $sess_center->id = $entity->getId();
-        $sess_center->name = $entity->getName();
-
         $session->set('center', $sess_center);
 
         $api_response = new \stdClass();
