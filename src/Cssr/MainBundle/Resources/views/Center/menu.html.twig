@@ -48,7 +48,7 @@
                 success: function(data,textStatus){
                     if ( textStatus == 'success' ) {
                         // reload page
-                        location.href = {{ path('cssr_main_default_index') }};
+                        location.href = "{{ path('cssr_main_default_index') }}";
                     }
                 },
                 dataType: 'json'
