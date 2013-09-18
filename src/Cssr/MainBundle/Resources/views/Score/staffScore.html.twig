@@ -1,0 +1,90 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Update Scores</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('score') }}">Scores</a></li>
+        <li><a href="{{ path('score_staff') }}">Staff</a></li>
+        <li class="active">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <p>Scores for the week of 8/31/2013-9/6/2013</p>
+
+    <select name="periods">
+        {% for period in periods %}
+        <option>{{ period.period | date('Y-m-d') }}</option>
+        {% endfor %}
+    </select>
+
+    <h3><a href="{{ path('staff_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
+    <form>
+    <table class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th style="text-align: center;">Area</th>
+            <th style="text-align: center;">Score</th>
+            <th style="text-align: center;">Career Success Standards</th>
+            <th style="width: 300px; text-align: center;">Comments</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for course in courses %}
+
+            {% set value = 'N/A' %}
+            {% for score in scores %}
+                {% if score.course_id == course.id %}
+                    {% set value = score.value %}
+                {% endif %}
+            {% endfor %}
+
+            <tr>
+                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
+                <td style="text-align: center;">
+                    <select class="">
+                        <option>N/A</option>
+                    {% for i in 1..5 %}
+                        <option {% if value == i %}selected="selected"{% endif %}>{{ i }}</option>
+                    {% endfor %}}
+                    </select>
+                </td>
+                <td style="font-size: 10px;">
+                    <div class="row">
+                    {% for standard in standards %}
+                        {% if loop.index0 % 4 == 0 %}
+                        <div class="col-lg-6">
+                        {% endif %}
+
+                        <label class="checkbox">
+                            <input type="checkbox" name="standards[]" value="{{ standard.id }}"> {{ standard.name }}
+                        </label>
+
+                        {% if loop.index0 % 4 == 3 %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                </td>
+                <td>
+                    <textarea class="form-control" rows="5"></textarea>
+                </td>
+            </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+    </form>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <a class="btn btn-primary btn-score-save" href="javascript:void(0)">Save</a>
+        </div>
+    </div>
+
+{% endblock %}
