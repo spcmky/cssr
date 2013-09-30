@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
+use Cssr\MainBundle\Model\Report;
 
 /**
  * Score controller.
@@ -27,38 +28,51 @@ class ScoreController extends Controller
      */
     public function indexAction()
     {
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
         $em = $this->getDoctrine()->getManager();
 
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $scores = array();
-        for ( $i = 0; $i < 25; $i++ ) {
-            $scores[$i] = array();
-
-            $scores[$i][0] = uniqid().', '.uniqid();
-
-            $total = 0;
-            $units = 0;
-            for ( $j = 1; $j < 20; $j++ ) {
-                if ( rand(1,5) == 1 ) {
-                    $total += $scores[$i][$j] = rand(0,5);
-                    $units++;
-                } else {
-                    $scores[$i][$j] = null;
-                }
-            }
-
-            $scores[$i][23] = $total; // total units
-            $scores[$i][24] = (!$units)? 0 : round(($total/$units),1); // average
-            $scores[$i][25] = 'Gold'; // status
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
         }
 
-        return array(
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $reports = Report::getFridayAll($em,$activeCenter,$areas,$period);
+
+        $vars = array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
             'areas' => $areas,
             'standards' => $standards,
-            'scores' => $scores
+            'reports' => $reports
         );
+
+        if ( isset($_GET['type']) ) {
+            $vars['type'] = $_GET['type'];
+        }
+
+        return $vars;
     }
 
     /**
