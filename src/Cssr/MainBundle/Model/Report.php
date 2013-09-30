@@ -4,13 +4,13 @@ namespace Cssr\MainBundle\Model;
 
 class Report {
 
-    public static function getFridayAll ( $em, $activeCenter, $areas ) {
+    public static function getFridayAll ( $em, $activeCenter, $areas, $period ) {
 
         // find students
         $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
-        $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "2013-06-23 00:00:00" ';
+        $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
         $sql .= 'ORDER BY S.student_id ';
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -26,7 +26,7 @@ class Report {
         $sql  = 'SELECT S.student_id, C.area_id, S.value ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
-        $sql .= 'WHERE S.period = "2013-06-23 00:00:00" AND S.student_id IN ('.implode(',',$studentIds).')';
+        $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).')';
         $sql .= 'ORDER BY S.student_id ';
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -75,9 +75,9 @@ class Report {
         return $student_scores;
     }
 
-    public static function getFridayCaution ( $em, $activeCenter, $areas ) {
+    public static function getFridayCaution ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas);
+        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         foreach ( $allReports as $student_id => $report ) {
             // caution
             if ( $report['scoreStats']['2'] == 1 && $report['scoreStats']['1'] == 0 ) {
@@ -87,9 +87,9 @@ class Report {
         return $reports;
     }
 
-    public static function getFridayChallenge ( $em, $activeCenter, $areas ) {
+    public static function getFridayChallenge ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas);
+        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         foreach ( $allReports as $student_id => $report ) {
             // challenge
             if ( $report['scoreStats']['1'] >= 1 && $report['scoreStats']['2'] >= 2 ) {
@@ -99,9 +99,9 @@ class Report {
         return $reports;
     }
 
-    public static function getFridayMeetsExpectations ( $em, $activeCenter, $areas ) {
+    public static function getFridayMeetsExpectations ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas);
+        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         foreach ( $allReports as $student_id => $report ) {
             // meets expectations
             if ( $report['scoreStats']['1'] == 0 && $report['scoreStats']['2'] == 0 ) {
@@ -111,9 +111,9 @@ class Report {
         return $reports;
     }
 
-    public static function getFriday40 ( $em, $activeCenter, $areas ) {
+    public static function getFriday40 ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas);
+        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         foreach ( $allReports as $student_id => $report ) {
             // 4.0
             if ( $report['avgScore'] >= 4.0 ) {

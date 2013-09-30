@@ -86,10 +86,15 @@ assetic:
                 -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/css/cssr.css"
             output: "css/cssr/cssr.css"
 
+        js_uri:
+            inputs:
+                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/js/URI.js"
+            output: "js/cssr/uri.js"
+
         js_cssr:
             inputs:
                 -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/js/cssr.js"
-            output: "css/cssr/cssr.css"
+            output: "js/cssr/cssr.js"
 
 # Doctrine Configuration
 doctrine:

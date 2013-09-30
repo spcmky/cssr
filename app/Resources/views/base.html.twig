@@ -26,10 +26,6 @@
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 
-    {% javascripts '@js_cssr' %}
-    <script src="{{ asset_url }}" type="text/javascript"></script>
-    {% endjavascripts %}
-
 </head>
 
 <body>
@@ -128,6 +124,14 @@
         <p>&copy; Adams &amp; Associates 2013</p>
     </div>
 </footer>
+
+{% javascripts '@js_uri' %}
+<script src="{{ asset_url }}" type="text/javascript"></script>
+{% endjavascripts %}
+
+{% javascripts '@js_cssr' %}
+<script src="{{ asset_url }}" type="text/javascript"></script>
+{% endjavascripts %}
 
 </body>
 </html>

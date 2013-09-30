@@ -46,7 +46,7 @@ class ReportController extends Controller
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(period) period FROM cssr_score";
+        $sql = "SELECT DISTINCT(UNIX_TIMESTAMP(period)) period FROM cssr_score";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $periods = $stmt->fetchAll();
@@ -112,36 +112,47 @@ class ReportController extends Controller
         $sql = "SELECT DISTINCT(period) period FROM cssr_score";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
-        $periods = $stmt->fetchAll();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
 
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
 
-        /**
-         * 4.0 Report - avgScore >= 4
-         * 3.0 Report - There are no 1 or 2 scores
-         * Caution Report - no 1 scores and one 2 score
-         * Challenge Report - one or more 1 scores OR one or more 2 scores
-         */
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
         $reports = null;
         switch ( $_GET['type'] ) {
 
             case '4.0' :
-                $reports = Report::getFriday40($em,$activeCenter,$areas);
+                $reports = Report::getFriday40($em,$activeCenter,$areas,$period);
                 break;
 
             case 'Meets Expectations' :
-                $reports = Report::getFridayMeetsExpectations($em,$activeCenter,$areas);
+                $reports = Report::getFridayMeetsExpectations($em,$activeCenter,$areas,$period);
                 break;
 
             case 'Caution' :
-                $reports = Report::getFridayCaution($em,$activeCenter,$areas);
+                $reports = Report::getFridayCaution($em,$activeCenter,$areas,$period);
                 break;
 
             case 'Challenge' :
-                $reports = Report::getFridayChallenge($em,$activeCenter,$areas);
+                $reports = Report::getFridayChallenge($em,$activeCenter,$areas,$period);
                 break;
         }
 
         $vars = array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
             'periods' => $periods,
             'areas' => $areas,
             'standards' => $standards,
