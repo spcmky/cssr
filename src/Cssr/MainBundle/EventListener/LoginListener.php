@@ -29,7 +29,5 @@ class LoginListener implements EventSubscriberInterface
 
     public function onSecurityImplicitLogin(FormEvent $event)
     {
-        $point = $this->container->get('process_points');
-        $point->ProcessPoints(1 , $this->container);
     }
 }
