@@ -1,14 +1,14 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Reports</h1>
+    <h1>Friday {% if type %}<small>{{type}}</small>{%endif%}</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('report') }}">Reports</a></li>
-        <li class="active">View</li>
+        <li class="active">Friday</li>
     </ol>
 {% endblock %}
 
@@ -29,22 +29,19 @@
                 {% for area in areas %}
                 <th style="font-size:9px;">{{ area.name }}</th>
                 {% endfor %}
-                <th>Total</th>
-                <th>Units</th>
                 <th>Final</th>
                 <th>Merit Status</th>
             </tr>
         </thead>
         <tbody>
-        {% for row in scores %}
+        {% for row in reports %}
             <tr>
-                {% for col in row %}
-                    {% if loop.index > 1 and loop.index < 20 %}
-                        <td style="font-size:9px;">{{ col }}</td>
-                    {% else %}
-                        <td>{{ col }}</td>
-                    {% endif %}
+                <td>{{ row.lastname }}, {{ row.firstname }}</td>
+                {% for score in row.scores %}
+                <td style="font-size:9px;">{{ score }}</td>
                 {% endfor %}
+                <td>{{ row.avgScore }}</td>
+                <td>{{ row.rating }}</td>
             </tr>
         {% endfor %}
         </tbody>
