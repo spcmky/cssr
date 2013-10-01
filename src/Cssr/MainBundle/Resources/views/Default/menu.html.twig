@@ -1,0 +1,32 @@
+<div class="sidebar-nav">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Menu</h3>
+        </div>
+        <div class="panel-body" style="text-align: center;">
+
+                {% block sidebar %}
+
+                    {% if admin %}
+
+                        {% if not center.id %}
+                            <a class="btn btn-default" href="{{ path('center') }}">Centers</a>
+                            <a class="btn btn-default" href="{{ path('message') }}">Messages</a>
+                        {% else %}
+                            <a class="btn btn-default" href="{{ path('center_edit', { 'id': center.id }) }}">Center Setup</a>
+                            <a class="btn btn-default" href="{{ path('user_setup') }}">User Setup</a>
+                            <a class="btn btn-default" href="{{ path('score') }}">Update Scores</a>
+                            <a class="btn btn-default" href="{{ path('user') }}">View Scores</a>
+                            <a class="btn btn-default" href="{{ path('report') }}">Reports</a>
+                        {% endif %}
+
+                    {% else %}
+                        <a class="btn btn-default" href="{{ path('score_student_show', { 'id': user.id }) }}">View Scores</a>
+                    {% endif %}
+
+
+                {% endblock %}
+
+        </div>
+    </div>
+</div>

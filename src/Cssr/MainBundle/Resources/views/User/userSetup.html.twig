@@ -1,0 +1,30 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1 xmlns="http://www.w3.org/1999/html">User Setup</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li class="active">User Setup</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <p>Pick a group</p>
+
+    <ul>
+        {% for group in groups %}
+            {% if group.id == 6 %}
+                <li><a href="{{ path('student_new') }}">{{ group.name }}</a></li>
+            {% elseif group.id == 5 %}
+                <li><a href="{{ path('staff_new') }}">{{ group.name }}</a></li>
+            {% else %}
+                <li><a href="{{ path('user_new') }}">{{ group.name }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+{% endblock %}

@@ -10,10 +10,6 @@
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
 
-    {% stylesheets '@css_bootstrap_theme' %}
-    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
-    {% endstylesheets %}
-
     {% stylesheets '@css_cssr' %}
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
@@ -67,32 +63,8 @@
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
         <div class="col-lg-2">
 
-            <div class="sidebar-nav">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Menu</h3>
-                    </div>
-                    <div class="panel-body">
-                        <ul class="nav nav-pills nav-stacked">
-                            {% block sidebar %}
-                                <li class="nav-header disabled"><a>Centers</a></li>
-                                <li><a href="{{ path('center') }}">List</a></li>
-                                <li><a href="{{ path('message') }}">Messages</a></li>
-                                <li class="nav-header disabled"><a>Users</a></li>
-                                <li><a href="{{ path('user') }}">Admins</a></li>
-                                <li><a href="{{ path('staff') }}">Staff</a></li>
-                                <li><a href="{{ path('student') }}">Students</a></li>
-                                <li class="nav-header disabled"><a>Scores</a></li>
-                                <li><a href="{{ path('score') }}">View</a></li>
-                                <li><a href="{{ path('score_student') }}">Update Student</a></li>
-                                <li><a href="{{ path('score_staff') }}">Update Staff</a></li>
-                                <li class="nav-header disabled"><a>Reports</a></li>
-                                <li><a href="{{ path('report') }}">List</a></li>
-                            {% endblock %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            {{ render(controller('CssrMainBundle:Default:showMenu')) }}
+
         </div>
         {% endif %}
 

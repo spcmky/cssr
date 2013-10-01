@@ -45,6 +45,30 @@ class UserController extends Controller
             'entities' => $result
         );
     }
+
+    /**
+     * Lists all User entities.
+     *
+     * @Route("/groups", name="user_setup")
+     * @Method("GET")
+     * @Template()
+     */
+    public function userSetupAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT * FROM cssr_group ORDER BY id";
+        $stmt = $em->getConnection()->prepare($sql);
+
+        $stmt->execute();
+
+        $result = $stmt->fetchAll();
+
+        return array(
+            'groups' => $result
+        );
+    }
+
     /**
      * Creates a new User entity.
      *
