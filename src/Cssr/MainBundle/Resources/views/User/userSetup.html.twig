@@ -7,13 +7,13 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li class="active">User Setup</li>
+        <li class="active">Users</li>
     </ol>
 {% endblock %}
 
 {% block body -%}
 
-    <p><a href="{{ path('user_edit',{ 'id': app.user.id }) }}">Your Account</a></p>
+    <p><a href="{{ path('user_edit',{ 'id': app.user.id }) }}"><span class="glyphicon glyphicon-user"></span> Your Account</a></p>
     <p><strong>OR</strong></p>
     <p>Pick a group</p>
 
