@@ -13,7 +13,7 @@
                             <a class="btn btn-primary" href="{{ path('center') }}"><span class="glyphicon glyphicon-home pull-left"></span> Centers</a>
                             <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
                         {% else %}
-                            <a class="btn btn-primary" href="{{ path('center_edit', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> Center Setup</a>
+                            <a class="btn btn-primary" href="{{ path('center_show', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> Center Setup</a>
                             <a class="btn btn-primary" href="{{ path('user_setup') }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
                             <a class="btn btn-primary" href="{{ path('score') }}"><span class="glyphicon glyphicon-pencil pull-left"></span> <span class="pull-right">Update Scores</span></a>
                             <a class="btn btn-primary" href="{{ path('score_overall') }}"><span class="glyphicon glyphicon-record pull-left"></span> View Scores</a>
