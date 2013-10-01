@@ -126,11 +126,33 @@ class StaffController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
+        $sql  = 'SELECT C.id, A.name FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE C.user_id = '.$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $courses = $stmt->fetchAll();
+
+        $courseIds = array();
+        foreach ( $courses as $c ) {
+            $courseIds[] = $c['id'];
+        }
+
+        $sql  = 'SELECT S.firstname, S.lastname FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
+        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
+        $sql .= 'ORDER BY S.firstname';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
             'entity'      => $entity,
             'delete_form' => $deleteForm->createView(),
+            'courses' => $courses,
+            'students' => $students
         );
     }
 

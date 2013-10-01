@@ -15,9 +15,9 @@
 
     <p><a href="{{ path('user_edit',{ 'id': app.user.id }) }}"><span class="glyphicon glyphicon-user"></span> Your Account</a></p>
     <p><strong>OR</strong></p>
-    <p>Pick a group</p>
+    <p>Pick a group:</p>
 
-    <ul>
+    <ul class="list-unstyled">
         {% for group in groups %}
             {% if group.id == 6 %}
                 <li><a href="{{ path('student') }}">{{ group.name }}</a></li>

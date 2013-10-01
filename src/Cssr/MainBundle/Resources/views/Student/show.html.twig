@@ -4,11 +4,11 @@
 
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li><a href="{{ path('user') }}">Students</a></li>
-        <li class="active">{{ entity.firstname }} {{ entity.lastname }}</li>
+        <li><a href="{{ path('student') }}">Students</a></li>
+        <li class="active">{{ entity.firstname|capitalize }} {{ entity.lastname|capitalize }}</li>
     </ol>
 
-    <h1>{{ entity.firstname }} {{ entity.lastname }}</h1>
+    <h1>{{ entity.firstname|capitalize }} {{ entity.lastname|capitalize }}</h1>
 
     <strong>Dorm</strong><br />
     {{ entity.dorm.name }} <br />
@@ -24,7 +24,7 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <a class="btn btn-default btn-user-edit" href="{{ path('student_edit', { 'id': entity.id }) }}">Edit</a>
+            <a class="btn btn-default btn-user-edit disabled" href="{{ path('student_edit', { 'id': entity.id }) }}">Edit</a>
             <a class="btn btn-danger btn-user-delete" data-toggle="modal" data-target="#modal-user-delete">Delete</a>
         </div>
     </div>

@@ -46,7 +46,7 @@ class ReportController extends Controller
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(UNIX_TIMESTAMP(period)) period FROM cssr_score";
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $periods = $stmt->fetchAll();

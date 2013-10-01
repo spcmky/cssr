@@ -10,8 +10,8 @@
                     {% if admin %}
 
                         {% if not center.id %}
-                            <a class="btn btn-primary" href="{{ path('center') }}">Centers</a>
-                            <a class="btn btn-primary" href="{{ path('message') }}">Messages</a>
+                            <a class="btn btn-primary" href="{{ path('center') }}"><span class="glyphicon glyphicon-home pull-left"></span> Centers</a>
+                            <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
                         {% else %}
                             <a class="btn btn-primary" href="{{ path('center_edit', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> Center Setup</a>
                             <a class="btn btn-primary" href="{{ path('user_setup') }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
