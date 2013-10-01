@@ -108,20 +108,38 @@ class ScoreController extends Controller
 
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(period) period FROM cssr_score WHERE student_id = ".$id;
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score WHERE student_id = ".$id." ORDER BY period";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
-        $periods = $stmt->fetchAll();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
 
         $scores = null;
         if ( $periods ) {
-            $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$periods[0]['period']."'";
+            $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$period->format("Y-m-d H:i:s")."'";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
             $scores = $stmt->fetchAll();
         }
 
         return array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
             'periods' => $periods,
             'student' => $student,
             'courses' => $courses,

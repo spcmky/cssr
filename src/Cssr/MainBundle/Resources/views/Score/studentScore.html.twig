@@ -15,11 +15,11 @@
 
 {% block body %}
 
-    <p>Scores for the week of 8/31/2013-9/6/2013</p>
+    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
 
-    <select name="periods">
-        {% for period in periods %}
-        <option>{{ period.period | date('Y-m-d') }}</option>
+    <select name="periodSelector" id="periodSelector">
+        {% for date in periods %}
+            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
         {% endfor %}
     </select>
 

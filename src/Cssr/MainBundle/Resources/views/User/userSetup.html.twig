@@ -13,16 +13,18 @@
 
 {% block body -%}
 
+    <p><a href="{{ path('user_edit',{ 'id': app.user.id }) }}">Your Account</a></p>
+    <p><strong>OR</strong></p>
     <p>Pick a group</p>
 
     <ul>
         {% for group in groups %}
             {% if group.id == 6 %}
-                <li><a href="{{ path('student_new') }}">{{ group.name }}</a></li>
+                <li><a href="{{ path('student') }}">{{ group.name }}</a></li>
             {% elseif group.id == 5 %}
-                <li><a href="{{ path('staff_new') }}">{{ group.name }}</a></li>
+                <li><a href="{{ path('staff') }}">{{ group.name }}</a></li>
             {% else %}
-                <li><a href="{{ path('user_new') }}">{{ group.name }}</a></li>
+                <li>{{ group.name }} <span class="label label-default">Not Available Yet</span></li>
             {% endif %}
         {% endfor %}
     </ul>

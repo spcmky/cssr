@@ -23,7 +23,7 @@
         <tbody>
         {% for entity in entities %}
             <tr>
-                <td><a href="{{ path('score_student_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></td>
+                <td><a href="{{ path('score_student_show', { 'id': entity.id }) }}">{{ entity.firstname|capitalize }} {{ entity.lastname|capitalize }}</a></td>
             </tr>
         {% endfor %}
         </tbody>
