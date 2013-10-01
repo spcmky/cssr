@@ -175,7 +175,11 @@ class ScoreController extends Controller
         if ( isset($_GET['period']) ) {
             $period = new \DateTime($_GET['period']);
         } else {
-            $period = $periods[count($periods)-1];
+            if ( !empty($periods) ) {
+                $period = $periods[count($periods)-1];
+            } else {
+                $period = new \DateTime('now');
+            }
         }
 
         $period_start = clone $period;
