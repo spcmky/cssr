@@ -128,3 +128,10 @@ fos_user:
     user_class: Cssr\MainBundle\Entity\User
     group:
       group_class: Cssr\MainBundle\Entity\Group
+
+services:
+    cssr_user.security.interactive_login_listener:
+        class: Cssr\MainBundle\EventListener\LoginListener
+        arguments: [@service_container]
+        tags:
+            - { name: 'kernel.event_subscriber'}
