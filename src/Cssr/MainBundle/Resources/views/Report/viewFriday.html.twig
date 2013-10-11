@@ -1,7 +1,7 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Friday {% if type %}<small>{{type}}</small>{%endif%}</h1>
+    <h1>Friday {% if type %}<small>{{type}}</small>{%endif%} {% if comments %}<small>w/ Comments</small>{%endif%}</h1>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -38,11 +38,44 @@
             <tr>
                 <td>{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</td>
                 {% for score in row.scores %}
-                <td style="font-size:9px;">{{ score }}</td>
+                    {% if score is iterable %}
+                        {% if score.comment %}
+                            <td style="text-align: center;"><span class="score-comment-popover" data-placement="top" data-content="{{ score.comment }}">{{ score.value }}</span></td>
+                        {% else %}
+                            <td style="font-size:9px; text-align: center;">{{ score.value }}</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="font-size:9px;">{{ score }}</td>
+                    {% endif %}
                 {% endfor %}
-                <td>{{ row.avgScore }}</td>
-                <td>{{ row.rating }}</td>
+                <td style="text-align: center;"><strong>{{ row.avgScore }}</strong></td>
+                <td style="text-align: center;">{{ row.rating }}</td>
             </tr>
+
+                {% for score in row.scores %}
+                    {% if score is iterable %}
+                        <tr>
+                            <td colspan="21" style="background-color: #f7f7f7;">
+
+                                <div class="row">
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.value}}</div>
+                                    <div class="col-lg-3">
+                                        {% for standard in score.standards %}
+                                            {{ standard }}<br/>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-lg-7">
+                                        <p>{{ score.comment }}</p>
+                                        <small>Updated by Chris Edwards on 9/12/2013</small>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+
         {% endfor %}
         </tbody>
     </table>

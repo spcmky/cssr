@@ -6,4 +6,6 @@
         location.href = uri.href();
     });
 
+    $('a.score-comment-popover').popover();
+
 })();

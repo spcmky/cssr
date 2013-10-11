@@ -171,6 +171,12 @@ class ReportController extends Controller
             $vars['type'] = $_GET['type'];
         }
 
+        if ( isset($_GET['comments']) ) {
+            $vars['comments'] = true;
+        } else {
+            $vars['comments'] = false;
+        }
+
         return $vars;
     }
 
@@ -211,7 +217,7 @@ class ReportController extends Controller
         $period_end = clone $period;
         $period_end->add(new \DateInterval('P5D'));
 
-        $reports = Report::getFridayComments($em,$activeCenter,$areas,$period);
+        $reports = Report::getFridayAllComments($em,$activeCenter,$areas,$period);
 
         // sorting
         usort($reports,function($a,$b){

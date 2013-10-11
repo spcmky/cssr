@@ -4,7 +4,7 @@ namespace Cssr\MainBundle\Model;
 
 class Report {
 
-    public static function getFridayComments ( $em, $activeCenter, $areas, $period ) {
+    public static function getFridayAllComments ( $em, $activeCenter, $areas, $period ) {
         // find students
         $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
         $sql .= 'FROM cssr_score S ';
@@ -29,7 +29,6 @@ class Report {
         $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
         $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
-
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $scores = $stmt->fetchAll();
@@ -53,12 +52,43 @@ class Report {
 
         $student_scores = array();
         foreach ( $students as $student ) {
-            $student_scores[$student['id']] = $student;
-            $student_scores[$student['id']]['scores'] = array();
+
+            // populate scores
+            $totalScore = 0;
+            $scoreCount = 0;
+            $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
 
             // populate scores
             foreach ( $scores as $score ) {
                 if ( $score['student_id'] == $student['id'] ) {
+
+                    if ( empty($student_scores[$student['id']]) ) {
+                        $student_scores[$student['id']] = $student;
+                        $student_scores[$student['id']]['scores'] = array();
+
+                        // populate all areas
+                        foreach ( $areas as $area ) {
+                            $student_scores[$student['id']]['scores'][$area->getId()] = null;
+                        }
+                    }
+
+                    $totalScore += $score['value'];
+                    $scoreCount++;
+
+                    foreach ( $scoreStats as $key => $value ) {
+                        if ( $score['value'] == $key ) {
+                            $scoreStats[$key]++;
+                        }
+                    }
+
+                    // calculate average
+                    $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+
+                    // score stats
+                    $student_scores[$student['id']]['scoreStats'] = $scoreStats;
+
+                    // assign rating
+                    $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
                     $student_scores[$student['id']]['scores'][$score['area_id']] = array(
                         'name' => $score['area_name'],
                         'value' => $score['value'],
@@ -151,7 +181,13 @@ class Report {
 
     public static function getFridayCaution ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+
+        if ( isset($_GET['comments']) ) {
+            $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
+        } else {
+            $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+        }
+
         foreach ( $allReports as $student_id => $report ) {
             // caution
             if ( $report['scoreStats']['2'] == 1 && $report['scoreStats']['1'] == 0 ) {
@@ -163,7 +199,13 @@ class Report {
 
     public static function getFridayChallenge ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+
+        if ( isset($_GET['comments']) ) {
+            $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
+        } else {
+            $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+        }
+
         foreach ( $allReports as $student_id => $report ) {
             // challenge
             if ( $report['scoreStats']['1'] >= 1 && $report['scoreStats']['2'] >= 2 ) {
@@ -175,7 +217,13 @@ class Report {
 
     public static function getFridayMeetsExpectations ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+
+        if ( isset($_GET['comments']) ) {
+            $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
+        } else {
+            $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+        }
+
         foreach ( $allReports as $student_id => $report ) {
             // meets expectations
             if ( $report['scoreStats']['1'] == 0 && $report['scoreStats']['2'] == 0 ) {
@@ -187,7 +235,13 @@ class Report {
 
     public static function getFriday40 ( $em, $activeCenter, $areas, $period ) {
         $reports = null;
-        $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+
+        if ( isset($_GET['comments']) ) {
+            $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
+        } else {
+            $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
+        }
+
         foreach ( $allReports as $student_id => $report ) {
             // 4.0
             if ( $report['avgScore'] >= 4.0 ) {
