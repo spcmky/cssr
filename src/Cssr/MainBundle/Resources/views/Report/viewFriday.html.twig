@@ -22,7 +22,7 @@
         {% endfor %}
     </select>
 
-    <table id="friday-report" class="table table-hover table-bordered" style="font-size:11px;">
+    <table id="friday-report{% if comments %}-comments{% endif %}" class="table table-hover table-bordered" style="font-size:11px;">
         <thead>
             <tr>
                 <th>Name</th>
