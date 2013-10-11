@@ -22,7 +22,7 @@
         {% endfor %}
     </select>
 
-    <table class="table table-hover table-bordered">
+    <table id="friday-report" class="table table-hover table-bordered">
         <thead>
             <tr>
                 <th>Name</th>
@@ -38,9 +38,9 @@
             {% for score in row.scores %}
                 {% if score %}
                 <tr>
-                    <td width="150"><a href="{{ path('student_show', { 'id': entity.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
+                    <td width="150"><a href="{{ path('student_show', { 'id': row.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
                     <td style="text-align: center;">{{ score.name }}</td>
-                    <td style="text-align: center;">{{ score.value }}</td>
+                    <td width="65"style="text-align: center;">{{ score.value }}</td>
                     <td width="250">
                         {% for standard in score.standards %}
                             {{ standard }}<br/>

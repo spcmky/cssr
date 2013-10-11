@@ -43,57 +43,67 @@ assetic:
     assets:
         font_bootstrap_glyphicons_eot:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/fonts/glyphicons-halflings-regular.eot"
+                -  "@CssrMainBundle/Resources/public/bootstrap/fonts/glyphicons-halflings-regular.eot"
             output: "fonts/glyphicons-halflings-regular.eot"
 
         font_bootstrap_glyphicons_svg:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/fonts/glyphicons-halflings-regular.svg"
+                -  "@CssrMainBundle/Resources/public/bootstrap/fonts/glyphicons-halflings-regular.svg"
             output: "fonts/glyphicons-halflings-regular.svg"
 
         font_bootstrap_glyphicons_ttf:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/fonts/glyphicons-halflings-regular.ttf"
+                -  "@CssrMainBundle/Resources/public/bootstrap/fonts/glyphicons-halflings-regular.ttf"
             output: "fonts/glyphicons-halflings-regular.ttf"
 
         font_bootstrap_glyphicons_woff:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/fonts/glyphicons-halflings-regular.woff"
+                -  "@CssrMainBundle/Resources/public/bootstrap/fonts/glyphicons-halflings-regular.woff"
             output: "fonts/glyphicons-halflings-regular.woff"
 
         css_bootstrap:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/css/bootstrap.min.css"
+                -  "@CssrMainBundle/Resources/public/bootstrap/css/bootstrap.min.css"
             output: "css/bootstrap.min.css"
-
-        css_bootstrap_theme:
-            inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/css/bootstrap-theme.min.css"
-            output: "css/bootstrap-theme.min.css"
 
         js_bootstrap:
             inputs:
-                -  "%kernel.root_dir%/../vendor/twitter/bootstrap/js/bootstrap.min.js"
+                -  "@CssrMainBundle/Resources/public/bootstrap/js/bootstrap.min.js"
             output: "js/bootstrap.min.js"
 
         js_jquery:
             inputs:
-            -  "%kernel.root_dir%/../vendor/jquery/jquery-1.10.1.min.js"
+                -  "@CssrMainBundle/Resources/public/jquery/jquery-1.10.1.min.js"
             output: "js/jquery.min.js"
+
+        js_datatables:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/datatables/media/js/jquery.dataTables.min.js"
+            output: "js/jquery.dataTables.min.js"
+
+        js_datatables_bootstrap:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/datatables/media/js/dataTables.bootstrap.js"
+            output: "js/dataTables.bootstrap.js"
+
+        css_datatables_bootstrap:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/datatables/media/css/dataTables.bootstrap.css"
+            output: "css/dataTables.bootstrap.css"
 
         css_cssr:
             inputs:
-                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/css/cssr.css"
+                -  "@CssrMainBundle/Resources/public/css/cssr.css"
             output: "css/cssr/cssr.css"
 
         js_uri:
             inputs:
-                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/js/URI.js"
+                -  "@CssrMainBundle/Resources/public/js/URI.js"
             output: "js/cssr/uri.js"
 
         js_cssr:
             inputs:
-                -  "%kernel.root_dir%/../src/Cssr/MainBundle/Resources/public/js/cssr.js"
+                -  "@CssrMainBundle/Resources/public/js/cssr.js"
             output: "js/cssr/cssr.js"
 
 # Doctrine Configuration

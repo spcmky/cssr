@@ -150,6 +150,8 @@ class ReportController extends Controller
         }
 
         // sorting
+        if ( !empty($_GET['sort']) ) {}
+
         usort($reports,function($a,$b){
             if (strtolower($a['lastname']) === strtolower($b['lastname'])){
                 return strnatcmp($a['lastname'],$b['lastname']);
