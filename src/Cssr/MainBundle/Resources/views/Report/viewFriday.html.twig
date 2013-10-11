@@ -36,7 +36,7 @@
         <tbody>
         {% for row in reports %}
             <tr>
-                <td>{{ row.lastname }}, {{ row.firstname }}</td>
+                <td>{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</td>
                 {% for score in row.scores %}
                 <td style="font-size:9px;">{{ score }}</td>
                 {% endfor %}

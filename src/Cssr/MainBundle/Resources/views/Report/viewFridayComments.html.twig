@@ -1,0 +1,59 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Friday <small>Comments</small></h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li class="active">Friday</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+
+    <select name="periodSelector" id="periodSelector">
+        {% for date in periods %}
+            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+        {% endfor %}
+    </select>
+
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Area</th>
+                <th>Score</th>
+                <th>Career Success Standards</th>
+                <th>Comment</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in reports %}
+
+            {% for score in row.scores %}
+                <tr>
+                    <td width="150">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</td>
+                    <td style="text-align: center;">{{ score.name}}</td>
+                    <td style="text-align: center;">{{ score.value}}</td>
+                    <td width="250">
+                        {% for standard in score.standards %}
+                            {{ standard }}<br/>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <p>{{ score.comment }}</p>
+                        <small>Updated by Chris Edwards on 9/12/2013</small>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

@@ -45,7 +45,83 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->addCoursesToStudents();
 
-        $this->addStudentScores();
+        //$this->addStudentScores();
+
+        $this->addStudentScoreComments();
+
+    }
+
+    protected function addStudentScoreComments() {
+        $this->output->writeln('Adding student score comments...');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $sql = "SELECT U.id FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('groupId', 6);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        foreach ( $students as $student ) {
+
+            // get old comments
+            $sql  = 'SELECT * ';
+            $sql .= 'FROM sertblcomment ';
+            $sql .= 'WHERE intUserID = '.$student['id'].' ';
+            $comments = $this->DB_Old->query($sql,\PDO::FETCH_OBJ);
+
+            // get new scores
+            $sql  = 'SELECT S.id score_id, S.student_id, C.area_id, A.name area_name, S.period ';
+            $sql .= 'FROM cssr_score S ';
+            $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+            $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+            $sql .= 'WHERE S.student_id = '.$student['id'].' ';
+            $sql .= 'ORDER BY S.student_id ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $scores = $stmt->fetchAll();
+
+            foreach ( $comments as $comment ) {
+                foreach ( $scores as $score ) {
+
+                    if ( $comment->dtWeekOf == $score['period'] && $comment->varArea == $score['area_name'] ) {
+
+                        // create comment
+                        $sql  = 'INSERT INTO cssr_comment (id, score_id, comment) ';
+                        $sql .= 'VALUES (:id, :score, :comment) ';
+                        $stmt = $em->getConnection()->prepare($sql);
+                        $stmt->bindValue("id",$comment->keyCommentID,\PDO::PARAM_INT);
+                        $stmt->bindValue("score",$score['score_id'],\PDO::PARAM_INT);
+                        $stmt->bindValue("comment",$comment->varComment,\PDO::PARAM_STR);
+
+                        $continue = true;
+                        try {
+                            $stmt->execute();
+                        } catch ( \Exception $e ) {
+                            $continue = false;
+                        }
+
+                        if ( $continue ) {
+                            // create comment standards
+                            $standardIds = explode(', ',$comment->varCommentTypeID);
+                            foreach ($standardIds as $standardId ) {
+                                $standardId = $standardId + 1;
+                                $sql  = 'INSERT INTO cssr_comment_standard (comment_id, standard_id) ';
+                                $sql .= 'VALUES ( :comment, :standard) ';
+                                $stmt = $em->getConnection()->prepare($sql);
+                                $stmt->bindValue("comment",$comment->keyCommentID,\PDO::PARAM_INT);
+                                $stmt->bindValue("standard",$standardId,\PDO::PARAM_INT);
+                                $stmt->execute();
+                            }
+                        }
+
+                    }
+
+
+                }
+            }
+        }
+
 
     }
 
@@ -96,6 +172,11 @@ class ImportCommand extends ContainerAwareCommand
                             if ( $course['area_id'] == $area->getId() ) {
 
                                 //$this->output->writeln($score->$area_name);
+
+                                // varUserUpdated
+                                // dtDateUpdated
+                                // varUserCreated
+                                // dtDateCreated
 
                                 $sql  = "INSERT INTO cssr_score(course_id,student_id,value,period)";
                                 $sql .= "VALUES(".$course['id'].",".$student['id'].",".$score->$area_name.",'".$score->dtWeekOf."')";

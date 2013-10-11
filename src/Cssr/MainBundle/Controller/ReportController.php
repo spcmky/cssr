@@ -129,7 +129,7 @@ class ReportController extends Controller
         $period_end = clone $period;
         $period_end->add(new \DateInterval('P5D'));
 
-        $reports = null;
+        $reports = array();
         switch ( $_GET['type'] ) {
 
             case '4.0' :
@@ -149,6 +149,14 @@ class ReportController extends Controller
                 break;
         }
 
+        // sorting
+        usort($reports,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
         $vars = array(
             'period' => $period,
             'period_start' => $period_start,
@@ -162,6 +170,66 @@ class ReportController extends Controller
         if ( isset($_GET['type']) ) {
             $vars['type'] = $_GET['type'];
         }
+
+        return $vars;
+    }
+
+    /**
+     * Get Report
+     *
+     * @Route("/view/friday/comments", name="report_view_friday_comments")
+     * @Method("GET")
+     * @Template()
+     */
+    public function viewFridayCommentsAction () {
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $reports = Report::getFridayComments($em,$activeCenter,$areas,$period);
+
+        // sorting
+        usort($reports,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
+            'areas' => $areas,
+            'standards' => $standards,
+            'reports' => $reports
+        );
 
         return $vars;
     }

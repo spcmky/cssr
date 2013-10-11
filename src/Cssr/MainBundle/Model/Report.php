@@ -4,6 +4,80 @@ namespace Cssr\MainBundle\Model;
 
 class Report {
 
+    public static function getFridayComments ( $em, $activeCenter, $areas, $period ) {
+        // find students
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
+        $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
+        $sql .= 'ORDER BY S.student_id ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        $studentIds = array();
+        foreach ( $students as $student ) {
+            $studentIds[] = $student['id'];
+        }
+
+        // scores
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
+        $sql .= 'ORDER BY S.student_id ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        $scoreIds = array();
+        $commentIds = array();
+        foreach ( $scores as $score ) {
+            $scoreIds[] = $score['id'];
+            $commentIds[] = $score['comment_id'];
+        }
+
+        // get comment standards
+        $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+        $sql .= 'FROM cssr_comment_standard CS ';
+        $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+        $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+        $sql .= 'ORDER BY CS.comment_id ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $commentStandards = $stmt->fetchAll();
+
+        $student_scores = array();
+        foreach ( $students as $student ) {
+            $student_scores[$student['id']] = $student;
+            $student_scores[$student['id']]['scores'] = array();
+
+            // populate scores
+            foreach ( $scores as $score ) {
+                if ( $score['student_id'] == $student['id'] ) {
+                    $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'name' => $score['area_name'],
+                        'value' => $score['value'],
+                        'comment' => $score['comment'],
+                        'standards' => array()
+                    );
+
+                    foreach ( $commentStandards as $standard ) {
+                        if ( $standard['comment_id'] == $score['comment_id'] ) {
+                             $student_scores[$student['id']]['scores'][$score['area_id']]['standards'][] = $standard['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $student_scores;
+    }
+
     public static function getFridayAll ( $em, $activeCenter, $areas, $period ) {
 
         // find students
@@ -26,7 +100,7 @@ class Report {
         $sql  = 'SELECT S.student_id, C.area_id, S.value ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
-        $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).')';
+        $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
 
         $stmt = $em->getConnection()->prepare($sql);
