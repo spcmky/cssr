@@ -21,26 +21,26 @@
         {% endfor %}
     </select>
 
-    <table class="table table-hover table-bordered" style="font-size:11px;">
+    <table id="friday-report" class="table table-hover table-bordered" style="font-size:11px;">
         <thead>
             <tr>
                 <th>Name</th>
                 {% for area in areas %}
-                <th style="font-size:9px;">{{ area.name }}</th>
+                    <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
                 {% endfor %}
-                <th>Final</th>
+                <th style="padding: 8px 14px 8px 2px;">Final</th>
                 <th>Merit Status</th>
             </tr>
         </thead>
         <tbody>
         {% for row in reports %}
             <tr>
-                <td>{{ row.lastname }}, {{ row.firstname }}</td>
+                <td><a href="{{ path('student_show', { 'id': row.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
                 {% for score in row.scores %}
-                <td style="font-size:9px;">{{ score }}</td>
+                <td style="font-size:9px; text-align: center;">{{ score }}</td>
                 {% endfor %}
-                <td>{{ row.avgScore }}</td>
-                <td>{{ row.rating }}</td>
+                <td style="text-align: center;"><strong>{{ row.avgScore }}</strong></td>
+                <td style="text-align: center;">{{ row.rating }}</td>
             </tr>
         {% endfor %}
         </tbody>
