@@ -33,11 +33,11 @@
         <div class="col-md-4">
            <h3>Case Load</h3>
             <ul class="list-unstyled report-list">
-                <li><a href="{{ path('report_view') }}">Caseload Scores Report</a></li>
-                <li><a href="{{ path('report_view') }}">Caseload Comments Report</a></li>
-                <li><a href="{{ path('report_view') }}">ESP Scores Report</a></li>
-                <li><a href="{{ path('report_view') }}">Selected Average Report</a></li>
-                <li><a href="{{ path('report_view') }}">Student Record Report</a></li>
+                <li><a href="{{ path('caseload_staff', { 'type': 'scores' }) }}">Caseload Scores Report</a></li>
+                <li><a href="{{ path('caseload_staff', { 'type': 'comments' }) }}">Caseload Comments Report</a></li>
+                <li><a href="{{ path('caseload_staff', { 'type': 'esp' }) }}">ESP Scores Report</a></li>
+                <li><a href="{{ path('caseload_staff', { 'type': 'average' }) }}">Selected Average Report</a></li>
+                <li><a href="{{ path('caseload_staff', { 'type': 'students' }) }}">Student Record Report</a></li>
             </ul>
         </div>
         <div class="col-md-4">

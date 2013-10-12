@@ -76,6 +76,11 @@ assetic:
                 -  "@CssrMainBundle/Resources/public/jquery/jquery-1.10.1.min.js"
             output: "js/jquery.min.js"
 
+        js_moment:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/moment/moment.min.js"
+            output: "js/moment.min.js"
+
         js_datatables:
             inputs:
                 -  "@CssrMainBundle/Resources/public/datatables/media/js/jquery.dataTables.min.js"

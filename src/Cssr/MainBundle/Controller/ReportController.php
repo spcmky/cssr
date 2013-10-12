@@ -242,6 +242,239 @@ class ReportController extends Controller
         return $vars;
     }
 
+    /**
+     * Lists staff for a report
+     *
+     * @Route("/caseload/{type}", name="caseload_staff")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadStaffAction ( $type )
+    {
+        $em = $this->getDoctrine()->getManager();
 
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        $sql  = 'SELECT U.* ';
+        $sql .= 'FROM cssr_user_group UG ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+        $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+        $sql .= 'ORDER BY U.lastname, U.firstname ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('centerId', $center->id,\PDO::PARAM_INT);
+        $stmt->bindValue('groupId', 5, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        $staff = $stmt->fetchAll();
+
+        $comments = false;
+        switch ( $type ) {
+
+            case 'scores' :
+                $report = 'report_caseload_scores';
+                break;
+
+            case 'comments' :
+                $report = 'report_caseload_scores';
+                $comments = true;
+                break;
+
+            case 'esp' :
+                $report = 'report_caseload_esp';
+                break;
+
+            case 'average' :
+                $report = 'report_caseload_average';
+                break;
+
+            case 'students' :
+                $report = 'report_caseload_students';
+                break;
+
+            default:
+                throw $this->createNotFoundException('Unable to find report.');
+
+        }
+
+        return array(
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'staff' => $staff,
+            'report' => $report,
+            'comments' => $comments
+        );
+    }
+
+    /**
+     * Builds report for a staff member
+     *
+     * @Route("/caseload/scores/{id}", name="report_caseload_scores")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadScoresAction ( $id, $comments = false )
+    {
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        if ( isset($_GET['comments']) || $comments ) {
+            $reports = Report::getCaseloadComments($staff,$em,$activeCenter,$areas,$period);
+            $type = 'comments';
+        } else {
+            $reports = Report::getCaseloadScores($staff,$em,$activeCenter,$areas,$period);
+            $type = 'scores';
+        }
+
+        $vars = array(
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
+            'areas' => $areas,
+            'standards' => $standards,
+            'reports' => $reports,
+            'comments' => $comments,
+            'staff' => $staff
+        );
+
+        return $vars;
+    }
+
+    /**
+     * Builds report for a staff member
+     *
+     * @Route("/caseload/esp/{id}", name="report_caseload_esp")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadEspAction ( $id )
+    {
+        $type = 'esp';
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['periodStart']) && isset($_GET['periodEnd']) ) {
+            $periodStart = new \DateTime($_GET['periodStart']);
+            $periodEnd = new \DateTime($_GET['periodEnd']);
+        } else {
+            $periodStart = $periods[count($periods)-1];
+            $periodEnd = $periods[count($periods)-1];
+        }
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        $students = Report::getCaseloadEsp($staff,$em,$activeCenter,array('start'=>$periodStart,'end'=>$periodEnd));
+
+        $selectedPeriods = array();
+        foreach ( $students as $student ) {
+            foreach ( $student['periods'] as $period ) {
+                if ( !in_array($period['date'],$selectedPeriods) ) {
+                    $selectedPeriods[] = $period['date'];
+                }
+            }
+        }
+
+        // sorting
+        usort($students,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'periodStart' => $periodStart,
+            'periodEnd' => $periodEnd,
+            'periods' => $periods,
+            'selectedPeriods' => $selectedPeriods,
+            'students' => $students,
+            'staff' => $staff
+        );
+
+        return $vars;
+    }
+
+    /**
+     * Builds report for a staff member
+     *
+     * @Route("/caseload/average/{id}", name="report_caseload_average")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadAverageAction ( $id )
+    {
+        $type = 'average';
+
+        $vars = $this->caseloadEspAction($id);
+
+        $vars['type_name'] = Report::getCaseloadReportName($type);
+        $vars['type'] = $type;
+
+        return $vars;
+
+    }
+
+    /**
+     * Builds report for a staff member
+     *
+     * @Route("/caseload/students/{id}", name="report_caseload_students")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadStudentsAction ( $id )
+    {
+
+    }
 
 }

@@ -4,6 +4,22 @@ namespace Cssr\MainBundle\Model;
 
 class Report {
 
+    public static $caseloadNames = array(
+        'scores' => 'Caseload Scores',
+        'comments' => 'Caseload Comments',
+        'esp' => 'ESP Scores',
+        'average' => 'Selected Average',
+        'students' => 'Student Record'
+    );
+
+    public static function getCaseloadReportName ( $key ) {
+        if ( isset(self::$caseloadNames[$key]) ) {
+            return self::$caseloadNames[$key];
+        } else {
+            return null;
+        }
+    }
+
     public static function getFridayAllComments ( $em, $activeCenter, $areas, $period ) {
         // find students
         $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
@@ -249,6 +265,257 @@ class Report {
             }
         }
         return $reports;
+    }
+
+    public static function getCaseloadScores ( $staff, $em, $activeCenter, $areas, $period ) {
+
+        // find students
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period = :period ';
+        $sql .= 'ORDER BY S.student_id ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
+        $stmt->bindValue('period', $period, 'datetime');
+
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        if ( empty($students) ) {
+            return array();
+        }
+
+        $studentIds = array();
+        foreach ( $students as $student ) {
+            $studentIds[] = $student['id'];
+        }
+
+        // scores
+        $sql  = 'SELECT S.student_id, C.area_id, S.value ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'WHERE C.user_id = :staff AND S.period = :period AND S.student_id IN ('.implode(',',$studentIds).') ';
+        $sql .= 'ORDER BY S.student_id ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('period', $period, 'datetime');
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        $student_scores = array();
+        foreach ( $students as $student ) {
+            $student_scores[$student['id']] = $student;
+            $student_scores[$student['id']]['scores'] = array();
+
+            // populate all areas
+            foreach ( $areas as $area ) {
+                $student_scores[$student['id']]['scores'][$area->getId()] = null;
+            }
+
+            // populate scores
+            $totalScore = 0;
+            $scoreCount = 0;
+            $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+            foreach ( $scores as $score ) {
+                if ( $score['student_id'] == $student['id'] ) {
+                    $student_scores[$student['id']]['scores'][$score['area_id']] = $score['value'];
+
+                    $totalScore += $score['value'];
+                    $scoreCount++;
+
+                    foreach ( $scoreStats as $key => $value ) {
+                        if ( $score['value'] == $key ) {
+                            $scoreStats[$key]++;
+                        }
+                    }
+                }
+            }
+
+            // calculate average
+            $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+
+            // score stats
+            $student_scores[$student['id']]['scoreStats'] = $scoreStats;
+
+            // assign rating
+            $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
+        }
+
+        return $student_scores;
+    }
+
+    public static function getCaseloadComments ( $staff, $em, $activeCenter, $areas, $period ) {
+
+        // find students
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period = :period ';
+        $sql .= 'ORDER BY S.student_id ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
+        $stmt->bindValue('period', $period, 'datetime');
+
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        if ( empty($students) ) {
+            return array();
+        }
+
+        $studentIds = array();
+        foreach ( $students as $student ) {
+            $studentIds[] = $student['id'];
+        }
+
+        // scores
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'WHERE C.user_id = :staff AND S.period = :period AND S.student_id IN ('.implode(',',$studentIds).') ';
+        $sql .= 'ORDER BY S.student_id ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('period', $period, 'datetime');
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        $scoreIds = array();
+        $commentIds = array();
+        foreach ( $scores as $score ) {
+            $scoreIds[] = $score['id'];
+            $commentIds[] = $score['comment_id'];
+        }
+
+        // get comment standards
+        $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+        $sql .= 'FROM cssr_comment_standard CS ';
+        $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+        $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+        $sql .= 'ORDER BY CS.comment_id ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $commentStandards = $stmt->fetchAll();
+
+        $student_scores = array();
+        foreach ( $students as $student ) {
+
+            // populate scores
+            $totalScore = 0;
+            $scoreCount = 0;
+            $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+
+            // populate scores
+            foreach ( $scores as $score ) {
+                if ( $score['student_id'] == $student['id'] ) {
+
+                    if ( empty($student_scores[$student['id']]) ) {
+                        $student_scores[$student['id']] = $student;
+                        $student_scores[$student['id']]['scores'] = array();
+
+                        // populate all areas
+                        foreach ( $areas as $area ) {
+                            $student_scores[$student['id']]['scores'][$area->getId()] = null;
+                        }
+                    }
+
+                    $totalScore += $score['value'];
+                    $scoreCount++;
+
+                    foreach ( $scoreStats as $key => $value ) {
+                        if ( $score['value'] == $key ) {
+                            $scoreStats[$key]++;
+                        }
+                    }
+
+                    // calculate average
+                    $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+
+                    // score stats
+                    $student_scores[$student['id']]['scoreStats'] = $scoreStats;
+
+                    // assign rating
+                    $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
+                    $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'name' => $score['area_name'],
+                        'value' => $score['value'],
+                        'comment' => $score['comment'],
+                        'standards' => array()
+                    );
+
+                    foreach ( $commentStandards as $standard ) {
+                        if ( $standard['comment_id'] == $score['comment_id'] ) {
+                            $student_scores[$student['id']]['scores'][$score['area_id']]['standards'][] = $standard['name'];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $student_scores;
+    }
+
+    public static function getCaseloadEsp ( $staff, $em, $activeCenter, $periods ) {
+
+        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, S.value, S.period ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_user T ON T.id = C.user_id ';
+        $sql .= 'WHERE U.center_id = :center AND T.id = :staff AND S.period BETWEEN :periodStart AND :periodEnd ';
+        $sql .= 'ORDER BY U.id, S.period ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
+        $stmt->bindValue('periodStart', $periods['start'], 'datetime');
+        $stmt->bindValue('periodEnd', $periods['end'], 'datetime');
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        $students = array();
+        $previous = null;
+
+        foreach ( $scores as $score ) {
+            if ( !isset($students[$score['id']] ) ) {
+                $students[$score['id']] = array(
+                    'id' => $score['id'],
+                    'firstname' => $score['firstname'],
+                    'lastname' => $score['lastname'],
+                    'middlename' => $score['middlename'],
+                    'periods' => array()
+                );
+            }
+
+            $students[$score['id']]['periods'][] = array(
+                'date' => $score['period'],
+                'score' => $score['value']
+            );
+
+        }
+
+        foreach ( $students as $student ) {
+            $total = 0;
+            $count = 0;
+            foreach ( $student['periods'] as $period ) {
+                $count++;
+                $total += $period['score'];
+            }
+            $students[$student['id']]['avgScore'] = ($count) ? round($total/$count,2) : 0;
+            $students[$student['id']]['rating'] = self::getRating($students[$student['id']]['avgScore']);
+        }
+
+        return $students;
     }
 
     protected static function getRating ( $avgScore ) {

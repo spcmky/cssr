@@ -1,0 +1,36 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>{{ type_name }} <small>Staff Select</small></h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li class="active">Case Load</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entity in staff %}
+            <tr>
+                {% if report == 'report_caseload_scores' %}
+                    <td><a href="{{ path(report, { 'id': entity.id }) }}{% if comments %}?comments{% endif %}">{{ entity.lastname|capitalize }}, {{ entity.firstname|capitalize }} {{ entity.middlename|capitalize }}</a></td>
+                {% else %}
+                    <td><a href="{{ path(report, { 'id': entity.id }) }}">{{ entity.lastname|capitalize }}, {{ entity.firstname|capitalize }} {{ entity.middlename|capitalize }}</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

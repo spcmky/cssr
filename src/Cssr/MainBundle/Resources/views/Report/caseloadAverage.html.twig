@@ -1,0 +1,83 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>{{ type_name }} <small>{{ staff.getFirstname|capitalize }} {{ staff.getLastname|capitalize }}</small></h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li><a href="{{ path('caseload_staff', { 'type': type }) }}">{{ type_name }}</a></li>
+        <li class="active">{{ staff.getFirstname|capitalize }} {{ staff.getLastname|capitalize }}</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <h4>Scores for the week of {{periodStart.format('m/d/Y')}} - {{periodEnd.format('m/d/Y')}}</h4>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <form class="form-inline" role="form" id="periodRangeSelector">
+
+                <div class="form-group">
+                    <label for="periodSelectorStart">Start at Week:</label>
+                    <select class="form-control period-selector" name="periodSelectorStart" id="periodSelectorStart">
+                        {% for date in periods %}
+                            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == periodStart.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="periodSelectorEnd">End at Week:</label>
+                    <select class="form-control period-selector" name="periodSelectorEnd" id="periodSelectorEnd">
+                        {% for date in periods %}
+                            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == periodEnd.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+        </div>
+    </div>
+
+    <table id="caseload-esp-report" class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                {% for ds in selectedPeriods %}
+                    <th>{{ ds|date("m/d/Y") }}</th>
+                {% endfor %}
+                <th>Final</th>
+                <th>Merit Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            <tr>
+                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                {% for ds in selectedPeriods %}
+                    <td>
+                    {% for period in student.periods %}
+                        {% if period.date == ds %}
+                            {{ period.score }}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                {% endfor %}
+                <td>{{ student.avgScore }}</td>
+                <td>{{ student.rating }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+
+{% endblock %}
+
