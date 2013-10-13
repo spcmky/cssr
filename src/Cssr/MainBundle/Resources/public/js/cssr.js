@@ -31,6 +31,28 @@
         return false;
     });
 
+    $('#checkAllStudents').on('change',function(){
+        $("input[name='students']").prop('checked', this.checked);
+    });
+
+    $('#caseloadButtonGenerate').on('click',function(){
+        var checked = $("input[name='students']:checked");
+        var count = checked.length;
+        if ( !count ) {
+            return;
+        }
+
+        var students = [];
+        for ( var i = 0; i < count; i++ ) {
+            students.push($(checked[i]).val());
+        }
+
+        var uri = new URI($(this).attr('data-url'));
+        uri.removeSearch("students").addSearch("students",students.join());
+        location.href = uri.href();
+    });
+
+
     //$('a.score-comment-popover').popover();
 
     $('#friday-report').dataTable({

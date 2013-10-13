@@ -462,7 +462,6 @@ class ReportController extends Controller
         $vars['type'] = $type;
 
         return $vars;
-
     }
 
     /**
@@ -474,7 +473,97 @@ class ReportController extends Controller
      */
     public function caseloadStudentsAction ( $id )
     {
+        $type = 'students';
 
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        $sql  = 'SELECT C.id, A.name FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE C.user_id = '.$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $courses = $stmt->fetchAll();
+
+        $courseIds = array();
+        foreach ( $courses as $c ) {
+            $courseIds[] = $c['id'];
+        }
+
+        $sql  = 'SELECT S.id, S.firstname, S.lastname, S.middlename FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
+        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
+        $sql .= 'ORDER BY S.lastname, S.firstname ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        $vars = array(
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'staff' => $staff,
+            'students' => $students
+        );
+
+        return $vars;
+    }
+
+    /**
+     * Builds report for a staff member
+     *
+     * @Route("/caseload/students/{id}/report", name="report_caseload_students_report")
+     * @Method("GET")
+     * @Template()
+     */
+    public function caseloadStudentsReportAction ( $id )
+    {
+        $type = 'students';
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        $studentIds = $_GET['students'];
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+
+        $students = Report::getCaseloadStudents($em,$staff,$areas,$studentIds);
+
+        usort($students,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'comments' => true,
+            'areas' => $areas,
+            'standards' => $standards,
+            'students' => $students,
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'staff' => $staff
+        );
+
+        return $vars;
     }
 
 }

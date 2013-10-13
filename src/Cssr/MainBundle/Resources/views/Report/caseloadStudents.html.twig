@@ -1,0 +1,44 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>{{ type_name }} <small>{{ staff.getFirstname|capitalize }} {{ staff.getLastname|capitalize }}</small></h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li><a href="{{ path('caseload_staff', { 'type': type }) }}">{{ type_name }}</a></li>
+        <li class="active">{{ staff.getFirstname|capitalize }} {{ staff.getLastname|capitalize }}</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    {% if students is empty %}
+        <p>No students found.</p>
+    {% else %}
+
+    <p>Select one or more students:</p>
+    <div id="caseloadStudentList">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" value="" id="checkAllStudents" />
+                Select All
+            </label>
+        </div>
+    {% for student in students %}
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" value="{{ student.id }}" name="students" />
+                <a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a>
+            </label>
+        </div>
+    {% endfor %}
+    </div>
+    <button class="btn btn-primary" data-url="{{ path('report_caseload_students_report', { 'id': staff.id }) }}" id="caseloadButtonGenerate">Generate Report</button>
+
+    {% endif %}
+
+{% endblock %}
+
