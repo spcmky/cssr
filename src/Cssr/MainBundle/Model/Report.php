@@ -38,11 +38,12 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment ';
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
         $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
         $stmt = $em->getConnection()->prepare($sql);
@@ -108,7 +109,15 @@ class Report {
                     $student_scores[$student['id']]['scores'][$score['area_id']] = array(
                         'name' => $score['area_name'],
                         'value' => $score['value'],
-                        'comment' => $score['comment'],
+                        'comment' => array(
+                            'body' => $score['comment'],
+                            'updated' => $score['comment_updated'],
+                            'updater' => array(
+                                'id' => $score['updater_id'],
+                                'firstname' => $score['updater_firstname'],
+                                'lastname' => $score['updater_lastname']
+                            )
+                        ),
                         'standards' => array()
                     );
 
@@ -120,6 +129,8 @@ class Report {
                 }
             }
         }
+
+        //echo '<pre>'.print_r($student_scores,true).'</pre>'; die();
 
         return $student_scores;
     }
@@ -377,11 +388,12 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment ';
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
         $sql .= 'WHERE C.user_id = :staff AND S.period = :period AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
         $stmt = $em->getConnection()->prepare($sql);
@@ -449,7 +461,15 @@ class Report {
                     $student_scores[$student['id']]['scores'][$score['area_id']] = array(
                         'name' => $score['area_name'],
                         'value' => $score['value'],
-                        'comment' => $score['comment'],
+                        'comment' => array(
+                            'body' => $score['comment'],
+                            'updated' => $score['comment_updated'],
+                            'updater' => array(
+                                'id' => $score['updater_id'],
+                                'firstname' => $score['updater_firstname'],
+                                'lastname' => $score['updater_lastname']
+                            )
+                        ),
                         'standards' => array()
                     );
 
@@ -535,11 +555,12 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period, CM.id comment_id, CM.comment ';
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'LEFT JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
         $sql .= 'WHERE C.user_id = :staff AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id, S.period ';
         $stmt = $em->getConnection()->prepare($sql);
@@ -620,7 +641,15 @@ class Report {
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scores'][$score['area_id']] = array(
                         'name' => $score['area_name'],
                         'value' => $score['value'],
-                        'comment' => $score['comment'],
+                        'comment' => array(
+                            'body' => $score['comment'],
+                            'updated' => $score['comment_updated'],
+                            'updater' => array(
+                                'id' => $score['updater_id'],
+                                'firstname' => $score['updater_firstname'],
+                                'lastname' => $score['updater_lastname']
+                            )
+                        ),
                         'standards' => array()
                     );
 

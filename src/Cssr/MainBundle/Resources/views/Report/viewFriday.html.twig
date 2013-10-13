@@ -40,7 +40,7 @@
                 {% for score in row.scores %}
                     {% if score is iterable %}
                         {% if score.comment %}
-                            <td style="text-align: center;"><span class="score-comment-popover" data-placement="top" data-content="{{ score.comment }}">{{ score.value }}</span></td>
+                            <td style="text-align: center;"><span class="score-comment-popover">{{ score.value }}</span></td>
                         {% else %}
                             <td style="font-size:9px; text-align: center;">{{ score.value }}</td>
                         {% endif %}
@@ -66,8 +66,8 @@
                                         {% endfor %}
                                     </div>
                                     <div class="col-lg-7">
-                                        <p>{{ score.comment }}</p>
-                                        <small>Updated by Chris Edwards on 9/12/2013</small>
+                                        <p>{{ score.comment.body }}</p>
+                                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
                                     </div>
                                 </div>
 
