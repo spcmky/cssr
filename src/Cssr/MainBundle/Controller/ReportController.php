@@ -566,4 +566,103 @@ class ReportController extends Controller
         return $vars;
     }
 
+    /**
+     * Lists students
+     *
+     * @Route("/history/student", name="history_student")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStudentAction ()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        $sql  = 'SELECT U.* ';
+        $sql .= 'FROM cssr_user_group UG ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+        $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+        $sql .= 'ORDER BY U.lastname, U.firstname ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('centerId', $center->id,\PDO::PARAM_INT);
+        $stmt->bindValue('groupId', 6, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        $students = $stmt->fetchAll();
+
+        if ( isset($_GET['comments']) ) {
+            $reportName = 'history_student_comments';
+            $comments = true;
+        } else {
+            $reportName = 'history_student_scores';
+            $comments = false;
+        }
+
+        return array(
+            'comments' => $comments,
+            'reportName' => $reportName,
+            'students' => $students
+        );
+    }
+
+    /**
+     * Student history scores
+     *
+     * @Route("/history/student/{id}/scores", name="history_student_scores")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStudentScoresAction ( $id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$student) {
+            throw $this->createNotFoundException('Unable to find Student.');
+        }
+
+        $report = Report::getHistoryStudent($em,$areas,$student);
+
+        return array(
+            'areas' => $areas,
+            'standards' => $standards,
+            'student' => $report
+        );
+    }
+
+    /**
+     * Student history comments
+     *
+     * @Route("/history/student/{id}/comments", name="history_student_comments")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStudentCommentsAction ( $id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$student) {
+            throw $this->createNotFoundException('Unable to find Student.');
+        }
+
+        $report = Report::getHistoryStudentComments($em,$areas,$student);
+
+        return array(
+            'areas' => $areas,
+            'standards' => $standards,
+            'student' => $report
+        );
+    }
+
 }

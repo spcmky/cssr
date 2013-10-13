@@ -1,0 +1,57 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Student History <small>Comments</small></h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li><a href="{{ path('history_student') }}?comments">Student History</a></li>
+        <li class="active">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <h3>Comments for <a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></h3>
+
+    <table id="friday-report" class="table table-hover table-bordered">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Area</th>
+            <th>Score</th>
+            <th>Career Success Standards</th>
+            <th>Comment</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for period, report in student.periods %}
+            {% for score in report.scores %}
+            {% if score %}
+                <tr>
+                    <td>{{ period|date('m/d/Y') }}</td>
+                    <td style="text-align: center;">{{ score.name }}</td>
+                    <td width="65"style="text-align: center;">{{ score.value }}</td>
+                    <td width="250">
+                        {% for standard in score.standards %}
+                            {{ standard }}<br/>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <p>{{ score.comment.body }}</p>
+                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
+                    </td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+
+{% endblock %}

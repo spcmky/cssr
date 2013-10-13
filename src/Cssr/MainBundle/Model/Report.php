@@ -670,6 +670,194 @@ class Report {
         return $student_scores;
     }
 
+    public static function getHistoryStudentComments ( $em, $areas, $student ) {
+
+        $studentScores = array(
+            'id' => $student->getId(),
+            'firstname' => $student->getFirstname(),
+            'lastname' => $student->getLastname(),
+            'middlename' => $student->getMiddlename(),
+            'periods' => array()
+        );
+
+        // scores
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
+        $sql .= 'WHERE S.student_id = :student ';
+        $sql .= 'ORDER BY S.period ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        if ( empty($scores) ) {
+            return $studentScores;
+        }
+
+        $scoreIds = array();
+        $commentIds = array();
+        foreach ( $scores as $score ) {
+            $scoreIds[] = $score['id'];
+            $commentIds[] = $score['comment_id'];
+        }
+
+        // get comment standards
+        $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+        $sql .= 'FROM cssr_comment_standard CS ';
+        $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+        $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+        $sql .= 'ORDER BY CS.comment_id ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $commentStandards = $stmt->fetchAll();
+
+        // populate scores
+        foreach ( $scores as $score ) {
+
+            $period = new \DateTime($score['period']);
+
+            if ( empty($studentScores['periods'][$period->format('Y-m-d')]) ) {
+                $studentScores['periods'][$period->format('Y-m-d')] = array(
+                    'scores' => array(),
+                    'avgScore' => null,
+                    'scoreStats' => null,
+                    'rating' => null
+                );
+
+                // populate scores
+                $totalScore = 0;
+                $scoreCount = 0;
+                $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+
+                // populate all areas
+                foreach ( $areas as $area ) {
+                    $studentScores['periods'][$period->format('Y-m-d')]['scores'][$area->getId()] = null;
+                }
+            }
+
+            $totalScore += $score['value'];
+            $scoreCount++;
+
+            foreach ( $scoreStats as $key => $value ) {
+                if ( $score['value'] == $key ) {
+                    $scoreStats[$key]++;
+                }
+            }
+
+            // calculate average
+            $studentScores['periods'][$period->format('Y-m-d')]['avgScore'] = round($totalScore/$scoreCount,2);
+
+            // score stats
+            $studentScores['periods'][$period->format('Y-m-d')]['scoreStats'] = $scoreStats;
+
+            // assign rating
+            $studentScores['periods'][$period->format('Y-m-d')]['rating'] = self::getRating($studentScores['periods'][$period->format('Y-m-d')]['avgScore']);
+            $studentScores['periods'][$period->format('Y-m-d')]['scores'][$score['area_id']] = array(
+                'name' => $score['area_name'],
+                'value' => $score['value'],
+                'comment' => array(
+                    'body' => $score['comment'],
+                    'updated' => $score['comment_updated'],
+                    'updater' => array(
+                        'id' => $score['updater_id'],
+                        'firstname' => $score['updater_firstname'],
+                        'lastname' => $score['updater_lastname']
+                    )
+                ),
+                'standards' => array()
+            );
+
+            foreach ( $commentStandards as $standard ) {
+                if ( $standard['comment_id'] == $score['comment_id'] ) {
+                    $studentScores['periods'][$period->format('Y-m-d')]['scores'][$score['area_id']]['standards'][] = $standard['name'];
+                }
+            }
+        }
+
+        //echo '<pre>'.print_r($studentScores,true).'</pre>'; die();
+
+        return $studentScores;
+    }
+
+    public static function getHistoryStudent ( $em, $areas, $student ) {
+
+        // scores
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE S.student_id = :student ';
+        $sql .= 'ORDER BY S.period ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        // populate scores
+        $studentScores = array(
+            'id' => $student->getId(),
+            'firstname' => $student->getFirstname(),
+            'lastname' => $student->getLastname(),
+            'middlename' => $student->getMiddlename(),
+            'periods' => array()
+        );
+
+        foreach ( $scores as $score ) {
+
+            $period = new \DateTime($score['period']);
+
+            if ( empty($studentScores['periods'][$period->format('Y-m-d')]) ) {
+                $studentScores['periods'][$period->format('Y-m-d')] = array(
+                    'scores' => array(),
+                    'avgScore' => null,
+                    'scoreStats' => null,
+                    'rating' => null
+                );
+
+                // populate scores
+                $totalScore = 0;
+                $scoreCount = 0;
+                $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+
+                // populate all areas
+                foreach ( $areas as $area ) {
+                    $studentScores['periods'][$period->format('Y-m-d')]['scores'][$area->getId()] = null;
+                }
+            }
+
+            $totalScore += $score['value'];
+            $scoreCount++;
+
+            foreach ( $scoreStats as $key => $value ) {
+                if ( $score['value'] == $key ) {
+                    $scoreStats[$key]++;
+                }
+            }
+
+            // calculate average
+            $studentScores['periods'][$period->format('Y-m-d')]['avgScore'] = round($totalScore/$scoreCount,2);
+
+            // score stats
+            $studentScores['periods'][$period->format('Y-m-d')]['scoreStats'] = $scoreStats;
+
+            // assign rating
+            $studentScores['periods'][$period->format('Y-m-d')]['rating'] = self::getRating($studentScores['periods'][$period->format('Y-m-d')]['avgScore']);
+            $studentScores['periods'][$period->format('Y-m-d')]['scores'][$score['area_id']] = array(
+                'name' => $score['area_name'],
+                'value' => $score['value']
+            );
+        }
+
+        //echo '<pre>'.print_r($studentScores,true).'</pre>'; die();
+
+        return $studentScores;
+    }
+
+
     protected static function getRating ( $avgScore ) {
         if ( $avgScore >= 4.3 ) {
             return 'Gold';
