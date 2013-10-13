@@ -665,4 +665,207 @@ class ReportController extends Controller
         );
     }
 
+    /**
+     * Lists staff
+     *
+     * @Route("/history/staff", name="history_staff")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStaffAction ()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        $sql  = 'SELECT U.* ';
+        $sql .= 'FROM cssr_user_group UG ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+        $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+        $sql .= 'ORDER BY U.lastname, U.firstname ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('centerId', $center->id,\PDO::PARAM_INT);
+        $stmt->bindValue('groupId', 5, \PDO::PARAM_INT);
+        $stmt->execute();
+        $staff = $stmt->fetchAll();
+
+        if ( isset($_GET['comments']) ) {
+            $reportName = 'history_staff_comments';
+            $comments = true;
+        } else {
+            $reportName = 'history_staff_scores';
+            $comments = false;
+        }
+
+        return array(
+            'comments' => $comments,
+            'reportName' => $reportName,
+            'staff' => $staff
+        );
+    }
+
+    /**
+     * Staff history scores
+     *
+     * @Route("/history/staff/{id}/scores", name="history_staff_scores")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStaffScoresAction ( $id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff.');
+        }
+
+        // get staff courses
+        $sql  = 'SELECT C.id, A.id, A.name FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE C.user_id = '.$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $course = $stmt->fetch();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $reports = Report::getHistoryStaffScores($staff,$em,$activeCenter,$areas,$period);
+
+        usort($reports,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'staff' => $staff,
+            'course' => $course,
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
+            'areas' => $areas,
+            'standards' => $standards,
+            'reports' => $reports
+        );
+
+        if ( isset($_GET['type']) ) {
+            $vars['type'] = $_GET['type'];
+        }
+
+        if ( isset($_GET['comments']) ) {
+            $vars['comments'] = true;
+        } else {
+            $vars['comments'] = false;
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Staff history comments
+     *
+     * @Route("/history/staff/{id}/comments", name="history_staff_comments")
+     * @Method("GET")
+     * @Template()
+     */
+    public function historyStaffCommentsAction ( $id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff.');
+        }
+
+        // get staff courses
+        $sql  = 'SELECT C.id, A.id, A.name FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE C.user_id = '.$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $course = $stmt->fetch();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $reports = Report::getHistoryStaffComments($staff,$em,$activeCenter,$areas,$period);
+
+        // sorting
+        usort($reports,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'staff' => $staff,
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
+            'areas' => $areas,
+            'standards' => $standards,
+            'reports' => $reports,
+            'course' => $course
+        );
+
+        return $vars;
+    }
+
 }

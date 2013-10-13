@@ -1,0 +1,32 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Staff History {% if comments %}<small>Comments</small>{%else%}<small>Scores</small>{%endif%}</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li class="active">Staff History</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in staff %}
+            <tr>
+                <td><a href="{{ path(reportName, { 'id': user.id }) }}">{{ user.lastname|capitalize }}, {{ user.firstname|capitalize }} {{ user.middlename|capitalize }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

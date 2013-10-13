@@ -1,0 +1,87 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Staff History <small>Scores</small>{% if comments %}<small>w/ Comments</small>{%endif%}</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li><a href="{{ path('history_staff') }}">Staff History</a></li>
+        <li class="active">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename|capitalize }}</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+
+    <select name="periodSelector" id="periodSelector">
+        {% for date in periods %}
+            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>Scores for <a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename|capitalize }}</a></h3>
+
+    <table id="friday-report{% if comments %}-comments{% endif %}" class="table table-hover table-bordered" style="font-size:11px;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                {% for area in areas %}
+                    <th style="font-size: 9px; padding: 8px 14px 8px 2px;{% if course.name == area.name %}background-color: #efefef;{% endif %}">{{ area.name }}</th>
+                {% endfor %}
+                <th style="padding: 8px 14px 8px 2px;">Final</th>
+                <th>Merit Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in reports %}
+            <tr>
+                <td><a href="{{ path('student_show', { 'id': row.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
+                {% for area_id, score in row.scores %}
+                    {% if score is iterable %}
+                        {% if score.comment %}
+                            <td style="text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}"><span class="score-comment-popover">{{ score.value }}</span></td>
+                        {% else %}
+                            <td style="font-size:9px; text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}">{{ score.value }}</td>
+                        {% endif %}
+                    {% else %}
+                        <td style="font-size:9px; text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}">{{ score }}</td>
+                    {% endif %}
+                {% endfor %}
+                <td style="text-align: center;"><strong>{{ row.avgScore }}</strong></td>
+                <td style="text-align: center;">{{ row.rating }}</td>
+            </tr>
+
+                {% for score in row.scores %}
+                    {% if score is iterable %}
+                        <tr>
+                            <td colspan="21" style="background-color: #f7f7f7;">
+
+                                <div class="row">
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.value}}</div>
+                                    <div class="col-lg-3">
+                                        {% for standard in score.standards %}
+                                            {{ standard }}<br/>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-lg-7">
+                                        <p>{{ score.comment.body }}</p>
+                                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
