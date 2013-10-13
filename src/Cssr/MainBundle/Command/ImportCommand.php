@@ -55,10 +55,12 @@ class ImportCommand extends ContainerAwareCommand
         $this->output->writeln('Adding student score comments...');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
 
-        $sql = "SELECT U.id FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+        $sql = "SELECT U.id FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :studentGroupId OR UG.group_id = :staffGroupId ";
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('groupId', 6);
+        $stmt->bindValue('studentGroupId', 6, \PDO::PARAM_INT);
+        $stmt->bindValue('staffGroupId', 5, \PDO::PARAM_INT);
         $stmt->execute();
         $students = $stmt->fetchAll();
 
@@ -86,13 +88,31 @@ class ImportCommand extends ContainerAwareCommand
 
                     if ( $comment->dtWeekOf == $score['period'] && $comment->varArea == $score['area_name'] ) {
 
+                        // need to lookup user by name twice
+
+                        $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                        $stmt = $em->getConnection()->prepare($sql);
+                        $stmt->bindValue('username', $comment->varUserCreated, \PDO::PARAM_INT);
+                        $stmt->execute();
+                        $creator_id = $stmt->fetchColumn();
+
+                        $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                        $stmt = $em->getConnection()->prepare($sql);
+                        $stmt->bindValue('username', $comment->varUserUpdated, \PDO::PARAM_INT);
+                        $stmt->execute();
+                        $updater_id = $stmt->fetchColumn();
+
                         // create comment
-                        $sql  = 'INSERT INTO cssr_comment (id, score_id, comment) ';
-                        $sql .= 'VALUES (:id, :score, :comment) ';
+                        $sql  = 'INSERT INTO cssr_comment (id, score_id, comment, created, updated, created_by, updated_by ) ';
+                        $sql .= 'VALUES (:id, :score, :comment, :created, :updated, :created_by, :updated_by) ';
                         $stmt = $em->getConnection()->prepare($sql);
                         $stmt->bindValue("id",$comment->keyCommentID,\PDO::PARAM_INT);
                         $stmt->bindValue("score",$score['score_id'],\PDO::PARAM_INT);
                         $stmt->bindValue("comment",$comment->varComment,\PDO::PARAM_STR);
+                        $stmt->bindValue('created', new \DateTime($comment->dtDateCreated), "datetime");
+                        $stmt->bindValue('updated', new \DateTime($comment->dtDateUpdated), "datetime");
+                        $stmt->bindValue('created_by', $creator_id, \PDO::PARAM_INT);
+                        $stmt->bindValue('updated_by', $updater_id, \PDO::PARAM_INT);
 
                         $continue = true;
                         try {
@@ -111,7 +131,13 @@ class ImportCommand extends ContainerAwareCommand
                                 $stmt = $em->getConnection()->prepare($sql);
                                 $stmt->bindValue("comment",$comment->keyCommentID,\PDO::PARAM_INT);
                                 $stmt->bindValue("standard",$standardId,\PDO::PARAM_INT);
-                                $stmt->execute();
+
+                                try {
+                                    $stmt->execute();
+                                } catch ( \Exception $e ) {
+                                    // ignore - most likely primary key constraint issue
+                                }
+
                             }
                         }
 
@@ -129,12 +155,14 @@ class ImportCommand extends ContainerAwareCommand
         $this->output->writeln('Adding student scores...');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
 
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
 
-        $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+        $sql = "SELECT U.id FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :studentGroupId OR UG.group_id = :staffGroupId ";
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('groupId', 6);
+        $stmt->bindValue('studentGroupId', 6, \PDO::PARAM_INT);
+        $stmt->bindValue('staffGroupId', 5, \PDO::PARAM_INT);
         $stmt->execute();
         $students = $stmt->fetchAll();
 
@@ -151,7 +179,7 @@ class ImportCommand extends ContainerAwareCommand
             WHERE UC.student_id = :userId";
 
             $stmt = $em->getConnection()->prepare($sql);
-            $stmt->bindValue('userId', $student['id']);
+            $stmt->bindValue('userId', $student['id'], \PDO::PARAM_INT);
             $stmt->execute();
             $courses = $stmt->fetchAll();
 
@@ -165,8 +193,6 @@ class ImportCommand extends ContainerAwareCommand
 
                     if ( $score->$area_name ) {
 
-
-
                         foreach ( $courses as $course ) {
 
                             if ( $course['area_id'] == $area->getId() ) {
@@ -178,9 +204,32 @@ class ImportCommand extends ContainerAwareCommand
                                 // varUserCreated
                                 // dtDateCreated
 
-                                $sql  = "INSERT INTO cssr_score(course_id,student_id,value,period)";
-                                $sql .= "VALUES(".$course['id'].",".$student['id'].",".$score->$area_name.",'".$score->dtWeekOf."')";
-                                $this->DB_New->query($sql);
+                                // need to lookup user by name twice
+
+                                $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                                $stmt = $em->getConnection()->prepare($sql);
+                                $stmt->bindValue('username', $score->varUserCreated, \PDO::PARAM_INT);
+                                $stmt->execute();
+                                $creator_id = $stmt->fetchColumn();
+
+                                $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                                $stmt = $em->getConnection()->prepare($sql);
+                                $stmt->bindValue('username', $score->varUserUpdated, \PDO::PARAM_INT);
+                                $stmt->execute();
+                                $updater_id = $stmt->fetchColumn();
+
+                                $sql  = "INSERT INTO cssr_score ( course_id, student_id, value, period, created, updated, created_by, updated_by )";
+                                $sql .= "VALUES( :course, :student, :score, :period, :created, :updated, :created_by, :updated_by )";
+                                $stmt = $em->getConnection()->prepare($sql);
+                                $stmt->bindValue('course', $course['id'], \PDO::PARAM_INT);
+                                $stmt->bindValue('student', $student['id'], \PDO::PARAM_INT);
+                                $stmt->bindValue('score', $score->$area_name, \PDO::PARAM_INT);
+                                $stmt->bindValue('period', new \DateTime($score->dtWeekOf), "datetime");
+                                $stmt->bindValue('created', new \DateTime($score->dtDateCreated), "datetime");
+                                $stmt->bindValue('updated', new \DateTime($score->dtDateUpdated), "datetime");
+                                $stmt->bindValue('created_by', $creator_id, \PDO::PARAM_INT);
+                                $stmt->bindValue('updated_by', $updater_id, \PDO::PARAM_INT);
+                                $stmt->execute();
                             }
                         }
                     }
@@ -388,6 +437,8 @@ class ImportCommand extends ContainerAwareCommand
         $userManager = $this->getContainer()->get('fos_user.user_manager');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
+
 
         $count = 0;
         foreach ( $result as $user ) {
