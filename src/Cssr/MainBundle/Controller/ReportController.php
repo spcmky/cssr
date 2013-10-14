@@ -969,4 +969,47 @@ class ReportController extends Controller
 
         return $vars;
     }
+
+    /**
+     * Weekly stats
+     *
+     * @Route("/statistics", name="report_statistics")
+     * @Method("GET")
+     * @Template()
+     */
+    public function weeklyStatisticsAction ()
+    {
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['periodStart']) && isset($_GET['periodEnd']) ) {
+            $periodStart = new \DateTime($_GET['periodStart']);
+            $periodEnd = new \DateTime($_GET['periodEnd']);
+        } else {
+            $periodStart = $periods[count($periods)-1];
+            $periodEnd = $periods[count($periods)-1];
+        }
+
+        $report = Report::getWeeklyStatistics($em,$activeCenter,$periodStart,$periodEnd);
+
+        $vars = array(
+            'periodStart' => $periodStart,
+            'periodEnd' => $periodEnd,
+            'periods' => $periods,
+            'report' => $report
+        );
+
+        return $vars;
+
+    }
 }

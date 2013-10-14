@@ -54,3 +54,8 @@ body {
     width: 110px;
     margin-right: 20px;
 }
+
+#stats-insights div.alert {
+    width: 250px;
+    text-align: center;
+}

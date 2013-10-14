@@ -1,0 +1,90 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Weekly Statistics</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('report') }}">Reports</a></li>
+        <li class="active">Weekly Statistics</li>
+    </ol>
+{% endblock %}
+
+{% block body -%}
+
+    <h4>Statistics for the week of {{periodStart.format('m/d/Y')}} - {{periodEnd.format('m/d/Y')}}</h4>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <form class="form-inline" role="form" id="periodRangeSelector">
+
+                <div class="form-group">
+                    <label for="periodSelectorStart">Start at Week:</label>
+                    <select class="form-control period-selector" name="periodSelectorStart" id="periodSelectorStart">
+                        {% for date in periods %}
+                            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == periodStart.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="periodSelectorEnd">End at Week:</label>
+                    <select class="form-control period-selector" name="periodSelectorEnd" id="periodSelectorEnd">
+                        {% for date in periods %}
+                            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == periodEnd.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <h4>Derived from {{ report.total }} scores</h4>
+            <div style="font-size: 180px;">{{ report.avg }}</div>
+            <div style="font-size: 36px;">Average Score</div>
+        </div>
+        <div class="col-lg-2">
+            <h4>History</h4>
+            {% for score in report.period_avgs %}
+                {% if score.period|date('U') >= periodStart.format('U') and score.period|date('U') <= periodEnd.format('U') %}
+                    <strong>{{ score.period|date('m/d/Y') }} - {{ score.avg }}</strong> <br/>
+                {% else %}
+                    {{ score.period|date('m/d/Y') }} - {{ score.avg }} <br/>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-lg-6" id="stats-insights">
+            <h4>Performance Insights</h4>
+
+            <div class="alert alert-success">
+                <div style="font-size: 56px;">{{ report.greatp }}%</div>
+                <div style="font-size: 20px;">4.0</div>
+            </div>
+
+            <div class="alert alert-info">
+                <div style="font-size: 56px;">{{ report.expectedp }}%</div>
+                <div style="font-size: 20px;">Meets Expectations</div>
+            </div>
+
+            <div class="alert alert-warning">
+                <div style="font-size: 56px;">{{ report.cautionp }}%</div>
+                <div style="font-size: 20px;">Caution</div>
+            </div>
+
+            <div class="alert alert-danger">
+                <div style="font-size: 56px;">{{ report.challengep }}%</div>
+                <div style="font-size: 20px;">Challenge</div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+

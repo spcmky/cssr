@@ -1054,6 +1054,134 @@ class Report {
         return $student_scores;
     }
 
+    public static function getWeeklyStatistics ( $em, $center, $periodStart, $periodEnd ) {
+
+        $sql  = 'SELECT DISTINCT(U.id) ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = student_id ';
+        $sql .= 'WHERE U.center_id = :center AND S.period BETWEEN :periodStart AND :periodEnd ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->bindValue('periodStart', $periodStart, 'datetime');
+        $stmt->bindValue('periodEnd', $periodEnd, 'datetime');
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        $sql  = 'SELECT S.student_id, C.area_id, S.value ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = student_id ';
+        $sql .= 'WHERE U.center_id = :center AND S.period BETWEEN :periodStart AND :periodEnd ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->bindValue('periodStart', $periodStart, 'datetime');
+        $stmt->bindValue('periodEnd', $periodEnd, 'datetime');
+        $stmt->execute();
+        $scores = $stmt->fetchAll();
+
+        $stats = array(
+            'caution' => 0,
+            'challenge' => 0,
+            'great' => 0,
+            'expected' => 0
+        );
+
+        $student_scores = array();
+        foreach ( $students as $student ) {
+            $student_scores[$student['id']] = $student;
+            $student_scores[$student['id']]['scores'] = array();
+
+
+            // populate scores
+            $studentTotalScore = 0;
+            $studentScoreCount = 0;
+            $studentScoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+            foreach ( $scores as $score ) {
+                if ( $score['student_id'] == $student['id'] ) {
+
+                    $studentTotalScore += $score['value'];
+                    $studentScoreCount++;
+
+                    foreach ( $studentScoreStats as $key => $value ) {
+                        if ( $score['value'] == $key ) {
+                            $studentScoreStats[$key]++;
+                        }
+                    }
+                }
+            }
+
+            // calculate average
+            $student_scores[$student['id']]['avgScore'] = round($studentTotalScore/$studentScoreCount,2);
+
+            // score stats
+            $student_scores[$student['id']]['scoreStats'] = $studentScoreStats;
+
+            // assign rating
+            $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
+        }
+
+        //echo '<pre>'.print_r($student_scores,true).'</pre>'; die();
+
+        $totalScore = 0;
+        $scoreCount = 0;
+        foreach ( $student_scores as $score ) {
+            $totalScore += $score['avgScore'];
+            $scoreCount++;
+
+
+            // caution
+            if ( $score['scoreStats']['2'] == 1 && $score['scoreStats']['1'] == 0 ) {
+                $stats['caution']++;
+            }
+
+            // challenge
+            if ( $score['scoreStats']['1'] >= 1 || $score['scoreStats']['2'] >= 2 ) {
+                $stats['challenge']++;
+            }
+
+            // meets expectations
+            if ( $score['scoreStats']['1'] == 0 && $score['scoreStats']['2'] == 0 ) {
+                $stats['expected']++;
+            }
+
+            // 4.0
+            if ( $score['avgScore'] >= 4.0 ) {
+                $stats['great']++;
+            }
+
+        }
+
+        $stats['total'] = $scoreCount;
+        $stats['avg'] = round($totalScore/$scoreCount,1);
+
+        $stats['greatp'] = round(($stats['great']*100)/$stats['total'],0);
+        $stats['expectedp'] = round(($stats['expected']*100)/$stats['total'],0);
+        $stats['challengep'] = round(($stats['challenge']*100)/$stats['total'],0);
+        $stats['cautionp'] = round(($stats['caution']*100)/$stats['total'],0);
+
+        // average history
+        $sql = "
+        SELECT score_period, AVG(avg_student_score) score_avg
+        FROM (
+            SELECT S.period score_period, AVG(S.value) avg_student_score
+	        FROM cssr_score S
+	        LEFT JOIN cssr_user U ON U.id = S.student_id
+	        WHERE U.center_id = :center
+	        GROUP BY S.student_id, S.period ) SA
+        GROUP BY score_period
+        ORDER BY score_period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->execute();
+        $period_avgs = $stmt->fetchAll();
+        $stats['period_avgs'] = array();
+        foreach ( $period_avgs as $avg ) {
+            $stats['period_avgs'][] = array('period'=>$avg['score_period'],'avg'=>round($avg['score_avg'],1));
+        }
+
+        return $stats;
+    }
+
 
     protected static function getRating ( $avgScore ) {
         if ( $avgScore >= 4.3 ) {
