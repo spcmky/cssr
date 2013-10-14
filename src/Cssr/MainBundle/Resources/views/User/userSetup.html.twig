@@ -21,10 +21,8 @@
         {% for group in groups %}
             {% if group.id == 6 %}
                 <li><a href="{{ path('student') }}">{{ group.name }}</a></li>
-            {% elseif group.id == 5 %}
-                <li><a href="{{ path('staff') }}">{{ group.name }}</a></li>
             {% else %}
-                <li>{{ group.name }} <span class="label label-default">Not Available Yet</span></li>
+                <li><a href="{{ path('staff_group',{'group_id':group.id}) }}">{{ group.name }}</a></li>
             {% endif %}
         {% endfor %}
     </ul>

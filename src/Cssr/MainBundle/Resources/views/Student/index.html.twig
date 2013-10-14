@@ -23,9 +23,9 @@
         </tr>
         </thead>
         <tbody>
-        {% for entity in entities %}
+        {% for student in students %}
             <tr>
-                <td><a href="{{ path('student_show', { 'id': entity.id }) }}">{{ entity.firstname|capitalize }} {{ entity.lastname|capitalize }}</a></td>
+                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
             </tr>
         {% endfor %}
         </tbody>

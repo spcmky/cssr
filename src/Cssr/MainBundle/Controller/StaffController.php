@@ -34,12 +34,16 @@ class StaffController extends Controller
 
         if ( $center ) {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE U.center_id = :centerId AND UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE U.center_id = :centerId AND UG.group_id < :groupId
+            ORDER BY U.lastname, U.firstname";
 
             $stmt = $em->getConnection()->prepare($sql);
 
             $stmt->bindValue('centerId', $center->id);
-            $stmt->bindValue('groupId', 5);
+            $stmt->bindValue('groupId', 6);
 
             $stmt->execute();
 
@@ -47,11 +51,15 @@ class StaffController extends Controller
 
         } else {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE UG.group_id < :groupId
+            ORDER BY U.lastname, U.firstname";
 
             $stmt = $em->getConnection()->prepare($sql);
 
-            $stmt->bindValue('groupId', 5);
+            $stmt->bindValue('groupId', 6);
 
             $stmt->execute();
 
@@ -60,6 +68,67 @@ class StaffController extends Controller
 
 
         return array(
+            'entities' => $result
+        );
+    }
+
+    /**
+     * Lists all Staff entities.
+     *
+     * @Route("/group/{group_id}", name="staff_group")
+     * @Method("GET")
+     * @Template()
+     */
+    public function groupIndexAction ( $group_id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $group = $em->getRepository('CssrMainBundle:Group')->find($group_id);
+
+        if (!$group) {
+            throw $this->createNotFoundException('Unable to find staff group.');
+        }
+
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+
+        if ( $center ) {
+
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE U.center_id = :centerId AND UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
+            $stmt->bindValue('centerId', $center->id);
+            $stmt->bindValue('groupId', $group_id);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+
+        } else {
+
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
+            $stmt->bindValue('groupId', $group_id);
+
+            $stmt->execute();
+
+            $result = $stmt->fetchAll();
+        }
+
+
+        return array(
+            'group' => $group,
             'entities' => $result
         );
     }
