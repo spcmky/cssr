@@ -868,4 +868,105 @@ class ReportController extends Controller
         return $vars;
     }
 
+    /**
+     * Staff exception
+     *
+     * @Route("/exception", name="staff_exception")
+     * @Method("GET")
+     * @Template()
+     */
+    public function staffExceptionAction ()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            $period = $periods[count($periods)-1];
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        // get staff
+
+        $sql = "SELECT U.id, U.lastname, U.firstname, U.middlename, A.name AS course_name, s.period, COUNT(S.id) score_count
+        FROM cssr_user U
+        LEFT JOIN cssr_user_group UG ON UG.user_id = U.id
+        LEFT JOIN cssr_group G ON G.id = UG.group_id
+        INNER JOIN cssr_course C ON C.user_id = U.id
+        LEFT JOIN cssr_area A ON A.id = C.area_id
+        LEFT JOIN cssr_score S ON S.course_id = C.id
+        WHERE G.id = 5 AND U.center_id = ".$activeCenter->id."
+        GROUP BY U.id, S.period
+        ORDER BY U.lastname";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $staff = $stmt->fetchAll();
+
+        // score all periods
+        $scored = array();
+        foreach ( $staff as $user ) {
+            if ( !isset($scored[$user['id']]) ) {
+                $scored[$user['id']] = array(
+                    'id' => $user['id'],
+                    'firstname' => $user['firstname'],
+                    'lastname' => $user['lastname'],
+                    'middlename' => $user['middlename'],
+                    'course_name' => $user['course_name'],
+                    'periods' => array()
+                );
+            }
+
+            foreach ( $periods as $date ) {
+                $user_period = new \DateTime($user['period']);
+                if ( $user_period->format('Y-m-d') == $date->format('Y-m-d') ) {
+                    $scored[$user['id']]['periods'][$date->format('Y-m-d')] = $user['score_count'];
+                } else if ( !isset($scored[$user['id']]['periods'][$date->format('Y-m-d')]) ) {
+                    $scored[$user['id']]['periods'][$date->format('Y-m-d')] = 0;
+                }
+            }
+        }
+
+
+        $report = array();
+        foreach ( $scored as $score ) {
+            if ( $score['periods'][$period->format('Y-m-d')] == 0 ) {
+                $report[] = array(
+                    'id' => $score['id'],
+                    'firstname' => $score['firstname'],
+                    'lastname' => $score['lastname'],
+                    'middlename' => $score['middlename'],
+                    'course_name' => $score['course_name']
+                );
+            }
+        }
+
+        //echo "<pre>".print_r($report,true)."</pre>"; die();
+
+        $vars = array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
+            'periods' => $periods,
+            'report' => $report
+        );
+
+        return $vars;
+    }
 }

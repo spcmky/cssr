@@ -13,8 +13,6 @@
 
 {% block body %}
 
-    <p><span class="label label-default">Note</span> Only Friday reports without comments are functional as of now.</p>
-
     <div class="row">
         <div class="col-md-4">
             <h3>Friday</h3>
@@ -47,7 +45,7 @@
                 <li><a href="{{ path('history_student') }}?comments">Student History - Comments Report</a></li>
                 <li><a href="{{ path('history_staff') }}">Staff History - Scores Report</a></li>
                 <li><a href="{{ path('history_staff') }}?comments">Staff History - Comments Report</a></li>
-                <li><a href="{{ path('report_view') }}">Staff Exception Report</a></li>
+                <li><a href="{{ path('staff_exception') }}">Staff Exception Report</a></li>
                 <li><a href="{{ path('report_view') }}">Weekly Statistics Report</a></li>
             </ul>
         </div>
