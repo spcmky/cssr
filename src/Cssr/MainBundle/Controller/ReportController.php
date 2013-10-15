@@ -908,7 +908,7 @@ class ReportController extends Controller
 
         // get staff
 
-        $sql = "SELECT U.id, U.lastname, U.firstname, U.middlename, A.name AS course_name, s.period, COUNT(S.id) score_count
+        $sql = "SELECT U.id, U.lastname, U.firstname, U.middlename, A.name AS course_name, S.period, COUNT(S.id) score_count
         FROM cssr_user U
         LEFT JOIN cssr_user_group UG ON UG.user_id = U.id
         LEFT JOIN cssr_group G ON G.id = UG.group_id
