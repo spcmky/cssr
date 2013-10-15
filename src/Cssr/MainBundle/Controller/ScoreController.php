@@ -103,7 +103,11 @@ class ScoreController extends Controller
 
         if ( $center ) {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE U.center_id = :centerId AND UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE U.center_id = :centerId AND UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname ";
 
             $stmt = $em->getConnection()->prepare($sql);
 
@@ -116,7 +120,12 @@ class ScoreController extends Controller
 
         } else {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname ";
+
 
             $stmt = $em->getConnection()->prepare($sql);
 
@@ -224,7 +233,11 @@ class ScoreController extends Controller
 
         if ( $center ) {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE U.center_id = :centerId AND UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE U.center_id = :centerId AND UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname ";
 
             $stmt = $em->getConnection()->prepare($sql);
 
@@ -237,7 +250,11 @@ class ScoreController extends Controller
 
         } else {
 
-            $sql = "SELECT U.* FROM cssr_user_group UG LEFT JOIN cssr_user U ON U.id = UG.user_id WHERE UG.group_id = :groupId";
+            $sql = "SELECT U.*
+            FROM cssr_user_group UG
+            LEFT JOIN cssr_user U ON U.id = UG.user_id
+            WHERE UG.group_id = :groupId
+            ORDER BY U.lastname, U.firstname ";
 
             $stmt = $em->getConnection()->prepare($sql);
 
