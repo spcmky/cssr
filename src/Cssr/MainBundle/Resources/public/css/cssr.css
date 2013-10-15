@@ -1,6 +1,49 @@
 body {
-    padding-top: 50px; /* Account for fixed navbar */
+    padding-top: 80px; /* Account for fixed navbar */
+    background-color: #efefef;
 }
+
+body .container {
+    background-color: #ffffff;
+}
+
+header {
+    height: 80px;
+    background: url('/bundles/cssrmain/images/header_background.png') 0 0;
+}
+
+header .container {
+    background-color: transparent;
+}
+
+header .cssr-header {
+    height: 80px;
+    background: url('/bundles/cssrmain/images/header_top.png') 0 0 no-repeat;
+}
+
+header nav ul.nav {
+    margin: 10px 0 0 530px;
+}
+
+header nav p {
+    padding-top: 10px;
+    color: #428ccb;
+}
+
+footer .container {
+    padding: 10px;
+    border-top: 2px solid #e2e2e2;
+    background-color: #212121;
+    color: #636161;
+}
+footer .container p {
+    font-size: 12px;
+    padding-top: 10px;
+}
+footer .container a {
+    color: #8a8989;
+}
+
 .sidebar-nav {
     padding: 9px 0;
 }

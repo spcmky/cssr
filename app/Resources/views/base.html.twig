@@ -43,7 +43,7 @@
 <a class="sr-only" href="#content">Skip navigation</a>
 
 <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
-    <div class="container">
+    <div class="container cssr-header">
         <div class="navbar-header">
             <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
@@ -51,7 +51,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="{{ path('cssr_main_default_index') }}" class="navbar-brand">Career Success Standards Rating</a>
+            <a href="{{ path('cssr_main_default_index') }}" class="navbar-brand sr-only">Career Success Standards Rating</a>
         </div>
         <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
             <p class="navbar-text pull-right">
@@ -65,7 +65,7 @@
                 {% endif %}
             </p>
             {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-            {{ render(controller('CssrMainBundle:Center:showMenu')) }}
+                {{ render(controller('CssrMainBundle:Center:showMenu')) }}
             {% endif %}
         </nav>
     </div>
@@ -107,7 +107,7 @@
 
 <footer role="contentinfo">
     <div class="container">
-        <p>&copy; Adams &amp; Associates 2013</p>
+        <p>&copy; 2013 <a>Adams &amp; Associates, Inc.</a> &nbsp; | &nbsp; Developed by <a>Tran Interactive Design Group</a></p>
     </div>
 </footer>
 
