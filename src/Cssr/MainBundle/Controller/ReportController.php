@@ -911,11 +911,12 @@ class ReportController extends Controller
         INNER JOIN cssr_course C ON C.user_id = U.id
         LEFT JOIN cssr_area A ON A.id = C.area_id
         LEFT JOIN cssr_score S ON S.course_id = C.id
-        WHERE G.id = 5 AND U.center_id = ".$activeCenter->id."
+        WHERE G.id = 5 AND U.center_id = :center
         GROUP BY U.id, S.period
         ORDER BY U.lastname";
 
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
         $stmt->execute();
         $staff = $stmt->fetchAll();
 
