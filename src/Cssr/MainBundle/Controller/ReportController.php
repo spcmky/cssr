@@ -882,6 +882,10 @@ class ReportController extends Controller
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
 
+        if (!$activeCenter) {
+            throw $this->createNotFoundException('Unable to find current center.');
+        }
+
         $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
