@@ -17,7 +17,7 @@
                             <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
                             {% endif %}
                             {% if user_is_granted(user,'reports') %}
-                            <a class="btn btn-primary" href="{{ path('report') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Reports</a>
+                            <a class="btn btn-primary" href="{{ path('report_statistics') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Weekly Stats</a>
                             {% endif %}
                         {% else %}
                             {% if user_is_granted(user,'center update') %}

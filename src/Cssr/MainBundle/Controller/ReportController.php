@@ -1042,13 +1042,27 @@ class ReportController extends Controller
             $periodEnd = $periods[count($periods)-1];
         }
 
-        $report = Report::getWeeklyStatistics($em,$activeCenter,$periodStart,$periodEnd);
+
+        $reports = array();
+        if ( $activeCenter->id ) {
+            $reports[] = Report::getWeeklyStatistics($em,$activeCenter->id,$periodStart,$periodEnd);
+        } else {
+
+            $centers = $em->getRepository('CssrMainBundle:Center')->findBy(
+                array('active' => 1),
+                array('name' => 'ASC')
+            );
+            foreach ( $centers as $center ) {
+                $reports[] = Report::getWeeklyStatistics($em,$center->getId(),$periodStart,$periodEnd);
+            }
+        }
 
         $vars = array(
+            'center' => $activeCenter,
             'periodStart' => $periodStart,
             'periodEnd' => $periodEnd,
             'periods' => $periods,
-            'report' => $report
+            'reports' => $reports
         );
 
         return $vars;

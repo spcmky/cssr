@@ -7,7 +7,9 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        {% if center.id %}
         <li><a href="{{ path('report') }}">Reports</a></li>
+        {% endif %}
         <li class="active">Weekly Statistics</li>
     </ol>
 {% endblock %}
@@ -43,6 +45,12 @@
         </div>
     </div>
 
+    {% for report in reports %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+
+    <h2>{{ report.center.name }}</h2>
     <div class="row">
         <div class="col-lg-4">
             <h4>Derived from {{ report.total }} scores</h4>
@@ -83,6 +91,10 @@
             </div>
         </div>
     </div>
+
+        </div>
+    </div>
+    {% endfor %}
 
 
 

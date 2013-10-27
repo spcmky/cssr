@@ -1188,14 +1188,14 @@ class Report {
         return $student_scores;
     }
 
-    public static function getWeeklyStatistics ( $em, $center, $periodStart, $periodEnd ) {
+    public static function getWeeklyStatistics ( $em, $center_id, $periodStart, $periodEnd ) {
 
         $sql  = 'SELECT DISTINCT(U.id) ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = student_id ';
         $sql .= 'WHERE U.center_id = :center AND S.period BETWEEN :periodStart AND :periodEnd ';
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->bindValue('center', $center_id, \PDO::PARAM_INT);
         $stmt->bindValue('periodStart', $periodStart, 'datetime');
         $stmt->bindValue('periodEnd', $periodEnd, 'datetime');
         $stmt->execute();
@@ -1207,13 +1207,16 @@ class Report {
         $sql .= 'LEFT JOIN cssr_user U ON U.id = student_id ';
         $sql .= 'WHERE U.center_id = :center AND S.period BETWEEN :periodStart AND :periodEnd ';
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->bindValue('center', $center_id, \PDO::PARAM_INT);
         $stmt->bindValue('periodStart', $periodStart, 'datetime');
         $stmt->bindValue('periodEnd', $periodEnd, 'datetime');
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
+        $center = $em->getRepository('CssrMainBundle:Center')->find($center_id);
+
         $stats = array(
+            'center' => $center,
             'caution' => 0,
             'challenge' => 0,
             'great' => 0,
@@ -1286,12 +1289,21 @@ class Report {
         }
 
         $stats['total'] = $scoreCount;
-        $stats['avg'] = round($totalScore/$scoreCount,1);
+        if ( $stats['total'] ) {
+            $stats['avg'] = round($totalScore/$scoreCount,1);
 
-        $stats['greatp'] = round(($stats['great']*100)/$stats['total'],0);
-        $stats['expectedp'] = round(($stats['expected']*100)/$stats['total'],0);
-        $stats['challengep'] = round(($stats['challenge']*100)/$stats['total'],0);
-        $stats['cautionp'] = round(($stats['caution']*100)/$stats['total'],0);
+            $stats['greatp'] = round(($stats['great']*100)/$stats['total'],0);
+            $stats['expectedp'] = round(($stats['expected']*100)/$stats['total'],0);
+            $stats['challengep'] = round(($stats['challenge']*100)/$stats['total'],0);
+            $stats['cautionp'] = round(($stats['caution']*100)/$stats['total'],0);
+        } else {
+            $stats['avg'] = 0;
+
+            $stats['greatp'] = 0;
+            $stats['expectedp'] = 0;
+            $stats['challengep'] = 0;
+            $stats['cautionp'] = 0;
+        }
 
         // average history
         $sql = "
@@ -1305,7 +1317,7 @@ class Report {
         GROUP BY score_period
         ORDER BY score_period";
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('center', $center->id, \PDO::PARAM_INT);
+        $stmt->bindValue('center', $center_id, \PDO::PARAM_INT);
         $stmt->execute();
         $period_avgs = $stmt->fetchAll();
         $stats['period_avgs'] = array();
