@@ -11,19 +11,14 @@ class CourseType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
-            ->add('password')
-            ->add('firstname')
-            ->add('middlename')
-            ->add('lastname')
-            ->add('email')
-            ->add('phone');
+            ->add('area')
+            ->add('user');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\Course'
+            'data_class' => 'Cssr\MainBundle\Entity\CssrCourse'
         ));
     }
 

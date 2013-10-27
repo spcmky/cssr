@@ -8,7 +8,7 @@
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('user_setup') }}">User Setup</a></li>
-        <li><a href="{{ path('student_show', { 'id': entity.id }) }}">{{ entity.firstname|capitalize }} {{ entity.middlename|capitalize }} {{ entity.lastname|capitalize }}</a></li>
+        <li><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.middlename|capitalize }} {{ student.lastname|capitalize }}</a></li>
         <li class="active">Edit</li>
     </ol>
 {% endblock %}
@@ -17,7 +17,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form id="form-user-update" name="form-user-update" role="form" action="{{ path('student_update', { 'id': entity.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+            <form id="form-user-update" name="form-user-update" role="form" action="{{ path('student_update', { 'id': student.id }) }}" method="post" {{ form_enctype(edit_form) }}>
                 <input type="hidden" name="_method" value="PUT" />
                 {{ form_widget(edit_form) }}
             </form>
@@ -112,7 +112,7 @@
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ path('user_delete', { 'id': entity.id }) }}",
+                    url: "{{ path('user_delete', { 'id': student.id }) }}",
                     success: function(data,textStatus){
                         if ( textStatus == 'success' ) {
                             // reload page

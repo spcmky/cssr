@@ -66,6 +66,11 @@ class User extends BaseUser
      */
     protected $dorm;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Course", mappedBy="user", cascade={"persist"})
+     **/
+    protected $courses;
+
     public function __construct ( $values = array() )
     {
         parent::__construct();
@@ -75,6 +80,7 @@ class User extends BaseUser
         }
 
         $this->groups = new ArrayCollection();
+        $this->courses = new ArrayCollection();
     }
 
     /**
@@ -280,6 +286,29 @@ class User extends BaseUser
     public function setDorm(Dorm $dorm)
     {
         $this->dorm = $dorm;
+
+        return $this;
+    }
+
+    /**
+     * Get courses
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCourses()
+    {
+        return $this->courses;
+    }
+
+    /**
+     * Set courses
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $courses
+     * @return User
+     */
+    public function setCourses(ArrayCollection $courses)
+    {
+        $this->courses = $courses;
 
         return $this;
     }

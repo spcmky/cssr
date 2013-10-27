@@ -29,7 +29,9 @@ class ReportController extends Controller
      */
     public function indexAction()
     {
-        return array();
+        return array(
+            'user' => $this->getUser()
+        );
     }
 
     /**
@@ -567,6 +569,39 @@ class ReportController extends Controller
     }
 
     /**
+     * Builds report for a staff member
+     *
+     * @Route("/students/{id}/record", name="report_student_record")
+     * @Method("GET")
+     * @Template()
+     */
+    public function studentRecordReportAction ( $id ) {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$student) {
+            throw $this->createNotFoundException('Unable to find Student entity.');
+        }
+
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
+        $report = Report::getStudentRecord($em,$areas,$id);
+
+        $vars = array(
+            'comments' => true,
+            'areas' => $areas,
+            'standards' => $standards,
+            'student' => $student,
+            'report' => $report
+        );
+
+        return $vars;
+    }
+
+    /**
      * Lists students
      *
      * @Route("/history/student", name="history_student")
@@ -630,6 +665,7 @@ class ReportController extends Controller
         $report = Report::getHistoryStudent($em,$areas,$student);
 
         return array(
+            'user' => $this->getUser(),
             'areas' => $areas,
             'standards' => $standards,
             'student' => $report
@@ -659,6 +695,7 @@ class ReportController extends Controller
         $report = Report::getHistoryStudentComments($em,$areas,$student);
 
         return array(
+            'user' => $this->getUser(),
             'areas' => $areas,
             'standards' => $standards,
             'student' => $report

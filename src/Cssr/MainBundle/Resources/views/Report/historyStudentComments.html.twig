@@ -8,7 +8,9 @@
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('report') }}">Reports</a></li>
+        {% if user_is_granted(user,'report admin') %}
         <li><a href="{{ path('history_student') }}?comments">Student History</a></li>
+        {% endif %}
         <li class="active">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</li>
     </ol>
 {% endblock %}

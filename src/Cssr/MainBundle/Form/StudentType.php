@@ -16,7 +16,9 @@ class StudentType extends AbstractType
             ->add('lastname')
             ->add('username')
             ->add('email')
-            ->add('phone');
+            ->add('phone')
+            ->add('entry')
+            ->add('dorm');
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
@@ -25,12 +27,19 @@ class StudentType extends AbstractType
             'second_options' => array('label' => 'form.new_password_confirmation'),
             'invalid_message' => 'fos_user.password.mismatch',
         ));
+
+        $builder->add('courses', 'collection', array(
+            'type' => new CourseType(),
+            'allow_add' => true,
+            'by_reference' => false,
+            'required' => false
+        ));
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\User'
+            'data_class' => 'Cssr\MainBundle\Entity\CssrUser'
         ));
     }
 

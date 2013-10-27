@@ -2,17 +2,20 @@
 
 namespace Cssr\MainBundle\Model;
 
-class Center {
 
-    public static function getCourses ( $em, $center ) {
+class Student {
+
+    public static function getCourses ( $em, $student ) {
+
         $sql = "
         SELECT C.id, C.area_id, C.user_id
-        FROM cssr_course C
+        FROM cssr_student_course UC
+        LEFT JOIN cssr_course C ON C.id = UC.course_id
         LEFT JOIN cssr_area A ON A.id = C.area_id
         LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE U.center_id = :centerId";
+        WHERE UC.student_id = :userId";
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('centerId', $center->getId());
+        $stmt->bindValue('userId', $student->getId());
         $stmt->execute();
         $items = $stmt->fetchAll();
 

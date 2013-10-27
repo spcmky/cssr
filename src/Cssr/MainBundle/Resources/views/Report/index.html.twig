@@ -13,6 +13,7 @@
 
 {% block body %}
 
+    {% if user_is_granted(user,'report admin') %}
     <div class="row">
         <div class="col-md-4">
             <h3>Friday</h3>
@@ -50,5 +51,11 @@
             </ul>
         </div>
     </div>
-
+    {% else %}
+    <ul class="list-unstyled report-list">
+        <li><a href="{{ path('history_student_scores', { 'id': user.id }) }}">Student History - Scores Report</a></li>
+        <li><a href="{{ path('history_student_comments', { 'id': user.id }) }}?comments">Student History - Comments Report</a></li>
+        <li><a href="{{ path('report_student_record', { 'id': user.id }) }}?students={{ user.id }}">Student Record Report</a></li>
+    </ul>
+    {% endif %}
 {% endblock %}

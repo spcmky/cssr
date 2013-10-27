@@ -12,6 +12,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use Cssr\MainBundle\Entity\Center;
 use Cssr\MainBundle\Form\CenterType;
+use Cssr\MainBundle\Model\Group;
+
 
 /**
  * Center controller.
@@ -319,6 +321,7 @@ class CenterController extends Controller
         }
 
         return array(
+            'user' => $this->getUser(),
             'current_center' => $current,
             'centers' => $centers
         );

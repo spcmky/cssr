@@ -1,14 +1,16 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Student History {% if comments %}<small>w/ Comments</small>{%endif%}</h1>
+    <h1>Student History</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('report') }}">Reports</a></li>
+        {% if user_is_granted(user,'report admin') %}
         <li><a href="{{ path('history_student') }}">Student History</a></li>
+        {% endif %}
         <li class="active">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</li>
     </ol>
 {% endblock %}

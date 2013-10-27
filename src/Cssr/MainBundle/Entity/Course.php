@@ -3,6 +3,7 @@
 namespace Cssr\MainBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -21,7 +22,7 @@ class Course
      * @ORM\ManyToOne(targetEntity="User", inversedBy="courses")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    protected $staff;
+    protected $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Area")
@@ -29,6 +30,37 @@ class Course
      */
     protected $area;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $active;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $updated;
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function prePersist()
+    {
+        $this->active = 1;
+        $this->created = $this->updated = new \DateTime();
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function preUpdate()
+    {
+        $this->updated = new \DateTime();
+    }
 
     /**
      * Get id
@@ -41,26 +73,26 @@ class Course
     }
 
     /**
-     * Set staff
+     * Set user
      *
-     * @param \Cssr\MainBundle\Entity\User $staff
+     * @param \Cssr\MainBundle\Entity\User $user
      * @return Course
      */
-    public function setStaff(\Cssr\MainBundle\Entity\User $staff = null)
+    public function setUser(\Cssr\MainBundle\Entity\User $user = null)
     {
-        $this->staff = $staff;
+        $this->user = $user;
     
         return $this;
     }
 
     /**
-     * Get staff
+     * Get user
      *
      * @return \Cssr\MainBundle\Entity\User
      */
-    public function getStaff()
+    public function getUser()
     {
-        return $this->staff;
+        return $this->user;
     }
 
     /**
@@ -86,4 +118,72 @@ class Course
         return $this->area;
     }
 
+    /**
+     * Get active
+     *
+     * @return integer
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set active
+     *
+     * @param integer $active
+     * @return Course
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Course
+     */
+    public function setCreated(\DateTime $created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return \DateTime
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     * @return Course
+     */
+    public function setUpdated(\DateTime $updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
 }

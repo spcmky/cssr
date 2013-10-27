@@ -54,8 +54,6 @@ class DefaultController extends Controller
             }
         }
 
-
-
         return array(
             'admin' => $admin,
             'user' => $user,

@@ -9,6 +9,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StudentType;
+use Cssr\MainBundle\Model\Center;
+use Cssr\MainBundle\Model\Student;
+
+
 
 /**
  * Student controller.
@@ -164,18 +168,38 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $student = $em->getRepository('CssrMainBundle:CssrUser')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Student entity.');
+        if (!$student) {
+            throw $this->createNotFoundException('Unable to find Student.');
         }
 
-        $editForm = $this->createForm(new StudentType(), $entity);
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        //$student->setCourses(Student::getCourses($em,$student));
+
+
+        //$centerCourses = Center::getCourses($em,$center);
+
+
+        $editForm = $this->createForm(new StudentType(), $student);
         $deleteForm = $this->createDeleteForm($id);
 
+        /*
+        $form = $this->createFormBuilder($task)
+            ->add('task', 'text')
+            ->add('dueDate', 'date')
+            ->add('save', 'submit')
+            ->getForm();
+        */
+
         return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
+            'student' => $student,
+            //'centerCourses' => $centerCourses,
+            'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );
     }

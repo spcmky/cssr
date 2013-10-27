@@ -150,3 +150,7 @@ services:
         arguments: [@service_container]
         tags:
             - { name: 'kernel.event_subscriber'}
+    cssr.twig.cssr_extension:
+        class: Cssr\MainBundle\Twig\CssrExtension
+        tags:
+            - { name: twig.extension }

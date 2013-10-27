@@ -1,0 +1,5 @@
+services:
+    cssr.twig.cssr_extension:
+        class: Cssr\MainBundle\Twig\CssrExtension
+        tags:
+            - { name: twig.extension }
