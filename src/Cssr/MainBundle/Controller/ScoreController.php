@@ -173,13 +173,30 @@ class ScoreController extends Controller
 
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(period) period FROM cssr_score WHERE student_id = ".$id." ORDER BY period";
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $periods = array();
-        foreach ( $stmt->fetchAll() as $p ) {
-            $periods[] = new \DateTime($p['period']);
+        // calculate current week and last completed week
+        $today = new \DateTime();
+
+        if ( $today->format('w') < 6 || ($today->format('w') == 6 && $today->format('H') < 14 ) ) {
+            $offset = 0 - $today->format('w');
+        } else {
+            $offset = 7 - $today->format('w');
         }
+
+        $period_current = new \DateTime('now');
+        if ( $offset > 0 ) {
+            $period_current->add(new \DateInterval('P'.$offset.'D'));
+        } else if ( $offset < 0 )   {
+            $period_current->sub(new \DateInterval('P'.abs($offset).'D'));
+        }
+
+        $period_last = clone $period_current;
+        $offset = $offset - 7;
+        $period_last->sub(new \DateInterval('P'.abs($offset).'D'));
+
+        $periods = array(
+            $period_last,
+            $period_current
+        );
 
         if ( isset($_GET['period']) ) {
             $period = new \DateTime($_GET['period']);
@@ -277,50 +294,118 @@ class ScoreController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function staffScoreAction($id)
-    {
+    public function staffScoreAction ( $id ) {
         $em = $this->getDoctrine()->getManager();
 
-        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if ( !$student ) {
-            throw $this->createNotFoundException('Unable to find Student entity.');
+        if ( !$staff ) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        // calculate current week and last completed week
+        $today = new \DateTime();
+
+        if ( $today->format('w') < 6 || ($today->format('w') == 6 && $today->format('H') < 14 ) ) {
+            $offset = 0 - $today->format('w');
+        } else {
+            $offset = 7 - $today->format('w');
+        }
+
+        $period_current = new \DateTime('now');
+        if ( $offset > 0 ) {
+            $period_current->add(new \DateInterval('P'.$offset.'D'));
+        } else if ( $offset < 0 )   {
+            $period_current->sub(new \DateInterval('P'.abs($offset).'D'));
+        }
+
+        $period_last = clone $period_current;
+        $offset = $offset - 7;
+        $period_last->sub(new \DateInterval('P'.abs($offset).'D'));
+
+        $periods = array(
+            $period_last,
+            $period_current
+        );
+
+        if ( isset($_GET['period']) ) {
+            $period = new \DateTime($_GET['period']);
+        } else {
+            if ( !empty($periods) ) {
+                $period = $periods[count($periods)-1];
+            } else {
+                $period = new \DateTime('now');
+            }
+        }
+
+        $period_start = clone $period;
+        $period_start->sub(new \DateInterval('P1D'));
+
+        $period_end = clone $period;
+        $period_end->add(new \DateInterval('P5D'));
+
+        $sql  = 'SELECT C.id, A.name ';
+        $sql .= 'FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE C.user_id = '.$id;
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $courses = $stmt->fetchAll();
+
+        $courseIds = array();
+        foreach ( $courses as $c ) {
+            $courseIds[] = $c['id'];
+        }
+
+        $sql  = 'SELECT S.id, S.firstname, S.lastname ';
+        $sql .= 'FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
+        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
+        $sql .= 'ORDER BY S.firstname';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $students = $stmt->fetchAll();
+
+        $studentIds = array();
+        foreach ( $students as $s ) {
+            $studentIds[] = $s['id'];
         }
 
         $sql = "
-        SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+        SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname, U.middlename user_middlename
         FROM cssr_student_course UC
         LEFT JOIN cssr_course C ON C.id = UC.course_id
         LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE UC.student_id = :userId";
+        LEFT JOIN cssr_user U ON U.id = UC.student_id
+        WHERE C.id IN (".implode(',',$courseIds).")
+        ORDER BY area_id, U.lastname, U.firstname";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $id);
         $stmt->execute();
-        $courses = $stmt->fetchAll();
+        $student_courses = $stmt->fetchAll();
 
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(period) period FROM cssr_score WHERE student_id = ".$id;
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $periods = $stmt->fetchAll();
-
         $scores = null;
         if ( $periods ) {
-            $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$periods[0]['period']."'";
+            $sql = "SELECT * FROM cssr_score WHERE course_id in (".implode(',',$courseIds).") AND period = '".$period->format("Y-m-d H:i:s")."'";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
             $scores = $stmt->fetchAll();
         }
 
         return array(
+            'period' => $period,
+            'period_start' => $period_start,
+            'period_end' => $period_end,
             'periods' => $periods,
-            'student' => $student,
+            'students' => $students,
+            'student_courses' => $student_courses,
             'courses' => $courses,
             'standards' => $standards,
-            'scores' => $scores
+            'scores' => $scores,
+            'staff' => $staff
         );
     }
 

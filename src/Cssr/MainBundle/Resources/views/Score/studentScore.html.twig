@@ -17,11 +17,13 @@
 
     <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
 
+    {% if periods|length %}
     <select name="periodSelector" id="periodSelector">
         {% for date in periods %}
             <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
         {% endfor %}
     </select>
+    {%  endif %}
 
     <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
     <form>

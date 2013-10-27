@@ -9,25 +9,28 @@
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('score') }}">Scores</a></li>
         <li><a href="{{ path('score_staff') }}">Staff</a></li>
-        <li class="active">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</li>
+        <li class="active">{{ staff.firstname|capitalize }} {{ staff.lastname|capitalize }}</li>
     </ol>
 {% endblock %}
 
 {% block body %}
 
-    <p>Scores for the week of 8/31/2013-9/6/2013</p>
+    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
 
-    <select name="periods">
-        {% for period in periods %}
-        <option>{{ period.period | date('Y-m-d') }}</option>
-        {% endfor %}
-    </select>
+    {% if periods|length %}
+        <select name="periodSelector" id="periodSelector">
+            {% for date in periods %}
+                <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+            {% endfor %}
+        </select>
+    {%  endif %}
 
-    <h3><a href="{{ path('staff_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
+    <h3><a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.firstname|capitalize }} {{ staff.lastname|capitalize }}</a></h3>
     <form>
     <table class="table table-hover table-bordered">
         <thead>
         <tr>
+            <th style="text-align: center;">Student</th>
             <th style="text-align: center;">Area</th>
             <th style="text-align: center;">Score</th>
             <th style="text-align: center;">Career Success Standards</th>
@@ -35,16 +38,17 @@
         </tr>
         </thead>
         <tbody>
-        {% for course in courses %}
+        {% for course in student_courses %}
 
             {% set value = 'N/A' %}
             {% for score in scores %}
-                {% if score.course_id == course.id %}
+                {% if score.course_id == course.id and score.student_id == course.user_id %}
                     {% set value = score.value %}
                 {% endif %}
             {% endfor %}
 
             <tr>
+                <td>{{ course.user_lastname|capitalize }}, {{ course.user_firstname|capitalize }} {{ course.user_middlename|capitalize }}</td>
                 <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
                 <td style="text-align: center;">
                     <select class="">
