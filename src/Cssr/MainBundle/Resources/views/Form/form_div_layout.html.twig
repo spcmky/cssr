@@ -115,8 +115,23 @@
 {% spaceless %}
     <div {{ block('widget_container_attributes') }}>
     {% for child in form %}
-        {{ form_widget(child) }}
-        {{ form_label(child) }}
+
+        {% if child.vars.block_prefixes.1 == 'checkbox' %}
+            <label class="checkbox">
+                {{ form_widget(child, {'attr': {'class': attr.widget_class|default('')}}) }}
+                {{ child.vars.label|trans({}, translation_domain) }}<br>
+            </label>
+        {% elseif child.vars.block_prefixes.1 == 'radio' %}
+            <label class="radio">
+                {{ form_widget(child, {'attr': {'class': attr.widget_class|default('')}}) }}
+                {{ child.vars.label|trans({}, translation_domain) }}<br>
+            </label>
+        {% else %}
+
+            {{ form_widget(child) }}
+            {{ form_label(child) }}
+        {% endif %}
+
     {% endfor %}
     </div>
 {% endspaceless %}
@@ -124,7 +139,7 @@
 
 {% block choice_widget_collapsed %}
 {% spaceless %}
-    <select class="form-control" {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
+    <select class="selectpicker show-tick" {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
         {% if empty_value is not none %}
             <option value=""{% if required and value is empty %} selected="selected"{% endif %}>{{ empty_value|trans({}, translation_domain) }}</option>
         {% endif %}
@@ -158,13 +173,13 @@
 
 {% block checkbox_widget %}
 {% spaceless %}
-    <input class="form-control" type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+    <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
 {% endspaceless %}
 {% endblock checkbox_widget %}
 
 {% block radio_widget %}
 {% spaceless %}
-    <input class="form-control" type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
+    <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
 {% endspaceless %}
 {% endblock radio_widget %}
 
@@ -280,7 +295,7 @@
     {% if label is empty %}
         {% set label = name|humanize %}
     {% endif %}
-    <button class="btn" type="{{ type|default('button') }}" {{ block('button_attributes') }}>{{ label|trans({}, translation_domain) }}</button>
+    <button class="btn btn-primary" type="{{ type|default('button') }}" {{ block('button_attributes') }}>{{ label|trans({}, translation_domain) }}</button>
 {% endspaceless %}
 {% endblock button_widget %}
 

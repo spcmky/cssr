@@ -66,10 +66,20 @@ assetic:
                 -  "@CssrMainBundle/Resources/public/bootstrap/css/bootstrap.min.css"
             output: "css/bootstrap.min.css"
 
+        css_bootstrap_select:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/bootstrap/css/bootstrap-select.min.css"
+            output: "css/bootstrap-select.min.css"
+
         js_bootstrap:
             inputs:
                 -  "@CssrMainBundle/Resources/public/bootstrap/js/bootstrap.min.js"
             output: "js/bootstrap.min.js"
+
+        js_bootstrap_select:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/bootstrap/js/bootstrap-select.min.js"
+            output: "js/bootstrap-select.min.js"
 
         js_jquery:
             inputs:

@@ -5,6 +5,7 @@ body {
 
 body .container {
     background-color: #ffffff;
+    padding-bottom: 25px;
 }
 
 header {
@@ -29,6 +30,7 @@ header nav p {
     padding-top: 10px;
     color: #428ccb;
 }
+
 
 footer .container {
     padding: 10px;
@@ -102,4 +104,16 @@ footer .container a {
 #stats-insights div.alert {
     width: 250px;
     text-align: center;
+}
+
+label {
+    margin-right: 10px;
+}
+
+#message-new input[type=text]{
+    width: 400px;
+}
+
+#message-new textarea{
+    width: 400px;
 }

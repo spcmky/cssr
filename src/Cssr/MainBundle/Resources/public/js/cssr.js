@@ -1,5 +1,6 @@
 (function(){
 
+    $('.selectpicker').selectpicker();
 
     $('#periodSelector').on('change',function(){
         var uri = new URI(location.href).removeSearch("period").addSearch("period",$(this).val());

@@ -10,6 +10,10 @@
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
 
+    {% stylesheets '@css_bootstrap_select' %}
+    <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
+    {% endstylesheets %}
+
     <link href="/bundles/cssrmain/datatables/media/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
 
     <link href="/bundles/cssrmain/css/cssr.css" rel="stylesheet" type="text/css"/>
@@ -23,6 +27,10 @@
     {% endjavascripts %}
 
     {% javascripts '@js_bootstrap' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
+
+    {% javascripts '@js_bootstrap_select' %}
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 

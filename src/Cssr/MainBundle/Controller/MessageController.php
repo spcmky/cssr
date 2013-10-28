@@ -51,12 +51,20 @@ class MessageController extends Controller
         $form = $this->createCreateForm($message);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {
+        if ( $form->isValid() ) {
+
             $em = $this->getDoctrine()->getManager();
+
             $em->persist($message);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('message_show', array('id' => $message->getId())));
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Message created successfully!'
+            );
+
+            return $this->redirect($this->generateUrl('message'));
         }
 
         return array(
@@ -74,7 +82,8 @@ class MessageController extends Controller
     */
     private function createCreateForm(Message $message)
     {
-        $form = $this->createForm(new MessageType(), $message, array(
+
+        $form = $this->createForm(new MessageType($this->getDoctrine()->getManager()), $message, array(
             'action' => $this->generateUrl('message_create'),
             'method' => 'POST',
         ));
