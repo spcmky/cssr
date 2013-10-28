@@ -184,7 +184,9 @@ class CenterController extends Controller
         $editForm = $this->createForm(new CenterType(), $entity);
         $editForm->submit($request);
 
-        if ($editForm->isValid()) {
+        if ( $editForm->isValid() ) {
+
+            $em->flush();
 
             // filter $originalDorms to contain Dorms no longer present
             $removedDorms = array();
@@ -216,7 +218,6 @@ class CenterController extends Controller
                 $em->remove($vocation);
             }
 
-            $em->persist($entity);
             $em->flush();
 
             $this->get('session')->getFlashBag()->add(
@@ -254,7 +255,6 @@ class CenterController extends Controller
 
             $entity->setActive(0); // logical delete
 
-            $em->persist($entity);
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {

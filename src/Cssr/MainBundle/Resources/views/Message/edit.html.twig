@@ -1,16 +1,21 @@
 {% extends '::base.html.twig' %}
 
+{% block page_header %}
+    <h1>Edit Message</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('message') }}">Messages</a></li>
+        <li class="active">Edit</li>
+    </ol>
+{% endblock %}
+
 {% block body -%}
-    <h1>Message edit</h1>
 
-    {{ form(edit_form) }}
+    <div id="message-edit">
+        {{ form(edit_form) }}
+    </div>
 
-        <ul class="record_actions">
-    <li>
-        <a href="{{ path('message') }}">
-            Back to the list
-        </a>
-    </li>
-    <li>{{ form(delete_form) }}</li>
-</ul>
 {% endblock %}

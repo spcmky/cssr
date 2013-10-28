@@ -183,7 +183,6 @@ class CourseController extends Controller
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
-            $em->persist($entity);
             $em->flush();
 
             return $this->redirect($this->generateUrl('course_edit', array('id' => $id)));

@@ -55,9 +55,23 @@ class MessageController extends Controller
 
             $em = $this->getDoctrine()->getManager();
 
+            $message->setActive(1);
+            $message->setCreatedBy($this->getUser());
+            $message->setUpdatedBy($this->getUser());
+
             $em->persist($message);
             $em->flush();
 
+            // add the groups
+            $sql  = 'INSERT INTO cssr_group_message ( group_id, message_id ) ';
+            $sql .= 'VALUES ( :group, :message ) ';
+            $stmt = $em->getConnection()->prepare($sql);
+
+            foreach ( $message->getGroups() as $group ) {
+                $stmt->bindValue('group', $group->getId(), \PDO::PARAM_INT);
+                $stmt->bindValue('message', $message->getId(), \PDO::PARAM_INT);
+                $stmt->execute();
+            }
 
             $this->get('session')->getFlashBag()->add(
                 'success',
@@ -172,7 +186,7 @@ class MessageController extends Controller
     */
     private function createEditForm(Message $message)
     {
-        $form = $this->createForm(new MessageType(), $message, array(
+        $form = $this->createForm(new MessageType($this->getDoctrine()->getManager()), $message, array(
             'action' => $this->generateUrl('message_update', array('id' => $message->getId())),
             'method' => 'PUT',
         ));
@@ -202,8 +216,30 @@ class MessageController extends Controller
         $editForm = $this->createEditForm($message);
         $editForm->handleRequest($request);
 
-        if ($editForm->isValid()) {
+        if ( $editForm->isValid() ) {
+
             $em->flush();
+
+            // remove old groups
+            $sql  = 'DELETE FROM cssr_group_message WHERE message_id = '.$message->getId().' ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+
+            // add the new groups
+            $sql  = 'INSERT INTO cssr_group_message ( group_id, message_id ) ';
+            $sql .= 'VALUES ( :group, :message ) ';
+            $stmt = $em->getConnection()->prepare($sql);
+
+            foreach ( $message->getGroups() as $group ) {
+                $stmt->bindValue('group', $group->getId(), \PDO::PARAM_INT);
+                $stmt->bindValue('message', $message->getId(), \PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Message updated successfully!'
+            );
 
             return $this->redirect($this->generateUrl('message_edit', array('id' => $id)));
         }

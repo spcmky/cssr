@@ -29,8 +29,14 @@
         <tbody>
         {% for message in messages %}
             <tr>
-                <td><a href="{{ path('message_show', { 'id': message.id }) }}">{{ message.title }}</a></td>
-                <td>{{ message.center.name }}</td>
+                <td><a href="{{ path('message_edit', { 'id': message.id }) }}">{{ message.title }}</a></td>
+                <td>
+                    {% if message.center.name is defined %}
+                        {{ message.center.name }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </td>
                 <td>
                     <ul class="list-unstyled">
                     {% for group in message.groups %}
@@ -39,12 +45,21 @@
                     </ul>
                 </td>
                 <td style="width: 100px;">
-                    <a href="{{ path('staff_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> {{ message.created|date('m/d/Y') }}
+                    {% if message.createdBy.id is defined %}
+                        <a href="{{ path('staff_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> {{ message.created|date('m/d/Y') }}
+                    {% else %}
+                        Unknown
+                    {% endif %}
                 </td>
                 <td style="width: 100px;">
-                    {% if message.updated %}
-                        <a href="{{ path('staff_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> {{ message.updated|date('m/d/Y') }}
-                    {% endif %}</td>
+                    {% if message.updatedBy.id is defined %}
+                        {% if message.updated %}
+                            <a href="{{ path('staff_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> {{ message.updated|date('m/d/Y') }}
+                        {% endif %}
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </td>
                 <td>{% if message.active == 0 %}No{% else %}Yes{% endif %}</td>
             </tr>
         {% endfor %}

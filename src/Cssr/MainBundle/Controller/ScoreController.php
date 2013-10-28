@@ -703,7 +703,6 @@ class ScoreController extends Controller
 
             $score->setUpdatedBy($this->getUser());
 
-            $em->persist($score);
             $em->flush();
 
             if ( $request->isXmlHttpRequest() ) {

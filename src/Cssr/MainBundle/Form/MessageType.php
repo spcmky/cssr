@@ -16,15 +16,15 @@ class MessageType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('title','text',array(
-                'required' => true
-            ))
-            ->add('body','textarea',array(
-                'attr' => array(
-                    'rows' => 5
-                )
-            ));
+        $builder->add('title','text',array(
+            'required' => true
+        ));
+
+        $builder->add('body','textarea',array(
+            'attr' => array(
+                'rows' => 5
+            )
+        ));
 
         $builder->add('center', 'entity', array(
             'class' => 'CssrMainBundle:Center',

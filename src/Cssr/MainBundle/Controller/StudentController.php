@@ -226,7 +226,7 @@ class StudentController extends Controller
         $editForm->submit($request);
 
         if ($editForm->isValid()) {
-            $em->persist($entity);
+
             $em->flush();
 
             return $this->redirect($this->generateUrl('student_edit', array('id' => $id)));

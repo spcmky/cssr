@@ -154,7 +154,7 @@ class VocationController extends Controller
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
-            $em->persist($entity);
+
             $em->flush();
 
             return $this->redirect($this->generateUrl('vocation_edit', array('id' => $id)));

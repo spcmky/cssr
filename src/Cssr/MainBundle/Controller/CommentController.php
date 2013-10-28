@@ -142,7 +142,6 @@ class CommentController extends Controller
 
             $comment->setUpdatedBy($this->getUser());
 
-            $em->persist($comment);
             $em->flush();
 
             if ( $request->isXmlHttpRequest() ) {

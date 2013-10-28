@@ -154,9 +154,7 @@ class AreaController extends Controller
         $editForm->bind($request);
 
         if ($editForm->isValid()) {
-            $em->persist($entity);
             $em->flush();
-
             return $this->redirect($this->generateUrl('area_edit', array('id' => $id)));
         }
 
