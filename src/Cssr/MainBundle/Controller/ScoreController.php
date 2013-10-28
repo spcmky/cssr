@@ -396,6 +396,7 @@ class ScoreController extends Controller
         }
 
         return array(
+            'user' => $this->getUser(),
             'period' => $period,
             'period_start' => $period_start,
             'period_end' => $period_end,
