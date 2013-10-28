@@ -25,9 +25,25 @@ class Group extends BaseGroup
      **/
     protected $users;
 
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Cssr\MainBundle\Entity\Message", inversedBy="groups")
+     * @ORM\JoinTable(name="cssr_group_message",
+     *   joinColumns={
+     *     @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     *   },
+     *   inverseJoinColumns={
+     *     @ORM\JoinColumn(name="message_id", referencedColumnName="id")
+     *   }
+     * )
+     */
+    private $messages;
+
 
     public function __construct() {
         $this->users = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     /**
@@ -85,4 +101,53 @@ class Group extends BaseGroup
         $this->users = $users;
     }
 
+    /**
+     * Add message
+     *
+     * @param \Cssr\MainBundle\Entity\Message $message
+     * @return Group
+     */
+    public function addMessage(\Cssr\MainBundle\Entity\Message $message)
+    {
+        $this->messages[] = $message;
+
+        return $this;
+    }
+
+    /**
+     * Remove message
+     *
+     * @param \Cssr\MainBundle\Entity\Message $message
+     */
+    public function removeMessage(\Cssr\MainBundle\Entity\Message $message)
+    {
+        $this->messages->removeElement($message);
+    }
+
+    /**
+     * Get messages
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+
+    /**
+     * Set messages
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $messages
+     */
+    public function setMessages(ArrayCollection $messages)
+    {
+        $this->messages = $messages;
+    }
+
+    /*
+     * @return string
+     */
+    public function __toString () {
+        return $this->getName();
+    }
 }

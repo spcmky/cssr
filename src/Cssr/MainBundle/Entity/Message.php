@@ -3,14 +3,14 @@
 namespace Cssr\MainBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="cssr_score")
+ * @ORM\Table(name="cssr_message")
  * @ORM\HasLifecycleCallbacks()
-
  */
-class Score
+class Message
 {
     /**
      * @ORM\Id
@@ -20,26 +20,24 @@ class Score
     protected $id;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=150, nullable=true)
      */
-    protected $value;
+    protected $title;
 
     /**
-     * @ORM\OneToOne(targetEntity="Course")
-     * @ORM\JoinColumn(name="course_id", referencedColumnName="id")
+     * @var string
+     *
+     * @ORM\Column(name="body", type="string", length=4000, nullable=true)
      */
-    protected $course;
+    protected $body;
 
     /**
-     * @ORM\OneToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="student_id", referencedColumnName="id")
+     * @ORM\OneToOne(targetEntity="Center")
+     * @ORM\JoinColumn(name="center", referencedColumnName="id")
      */
-    protected $student;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    protected $period;
+    protected $center;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -62,6 +60,26 @@ class Score
      * @ORM\JoinColumn(name="updated_by", referencedColumnName="id")
      **/
     protected $updatedBy;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    protected $active;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Cssr\MainBundle\Entity\Group", mappedBy="messages")
+     */
+    protected $groups;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->group = new ArrayCollection();
+    }
 
     /**
      * @ORM\PrePersist
@@ -91,56 +109,56 @@ class Score
     }
 
     /**
-     * Set value
+     * Set title
      *
-     * @param string $value
-     * @return Score
+     * @param string $title
+     * @return Message
      */
-    public function setValue($value)
+    public function setTitle ( $title )
     {
-        $this->value = $value;
+        $this->title = $title;
 
         return $this;
     }
 
     /**
-     * Get value
+     * Get title
      *
      * @return string
      */
-    public function getValue()
+    public function getTitle ()
     {
-        return $this->value;
+        return $this->title;
     }
 
     /**
-     * Set period
+     * Set body
      *
-     * @param \DateTime $period
-     * @return Score
+     * @param string $body
+     * @return Message
      */
-    public function setPeriod($period)
+    public function setBody ( $body )
     {
-        $this->period = $period;
+        $this->body = $body;
 
         return $this;
     }
 
     /**
-     * Get period
+     * Get body
      *
-     * @return \DateTime
+     * @return string
      */
-    public function getPeriod()
+    public function getBody ()
     {
-        return $this->period;
+        return $this->body;
     }
 
     /**
      * Set created
      *
      * @param \DateTime $created
-     * @return Score
+     * @return Message
      */
     public function setCreated($created)
     {
@@ -163,7 +181,7 @@ class Score
      * Set updated
      *
      * @param \DateTime $updated
-     * @return Score
+     * @return Message
      */
     public function setUpdated($updated)
     {
@@ -183,56 +201,33 @@ class Score
     }
 
     /**
-     * Set course
+     * Set center
      *
-     * @param \Cssr\MainBundle\Entity\Course $course
-     * @return Score
+     * @param \Cssr\MainBundle\Entity\Center $center
+     * @return Message
      */
-    public function setCourse(\Cssr\MainBundle\Entity\Course $course = null)
+    public function setCenter(\Cssr\MainBundle\Entity\Center $center = null)
     {
-        $this->course = $course;
+        $this->center = $center;
     
         return $this;
     }
 
     /**
-     * Get course
+     * Get center
      *
-     * @return \Cssr\MainBundle\Entity\Course 
+     * @return \Cssr\MainBundle\Entity\Center
      */
-    public function getCourse()
+    public function getCenter()
     {
-        return $this->course;
-    }
-
-    /**
-     * Set student
-     *
-     * @param \Cssr\MainBundle\Entity\User $student
-     * @return Score
-     */
-    public function setStudent(\Cssr\MainBundle\Entity\User $student = null)
-    {
-        $this->student = $student;
-    
-        return $this;
-    }
-
-    /**
-     * Get student
-     *
-     * @return \Cssr\MainBundle\Entity\User
-     */
-    public function getStudent()
-    {
-        return $this->student;
+        return $this->center;
     }
 
     /**
      * Set createdBy
      *
      * @param \Cssr\MainBundle\Entity\User $user
-     * @return Score
+     * @return Message
      */
     public function setCreatedBy(\Cssr\MainBundle\Entity\User $user)
     {
@@ -255,7 +250,7 @@ class Score
      * Set updatedBy
      *
      * @param \Cssr\MainBundle\Entity\User $user
-     * @return Score
+     * @return Message
      */
     public function setUpdatedBy(\Cssr\MainBundle\Entity\User $user)
     {
@@ -274,4 +269,69 @@ class Score
         return $this->updatedBy;
     }
 
+    /**
+     * Set active
+     *
+     * @param integer $active
+     * @return Message
+     */
+    public function setActive ( $active )
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return integer
+     */
+    public function getActive ()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Add group
+     *
+     * @param \Cssr\MainBundle\Entity\Group $group
+     * @return Message
+     */
+    public function addGroup(\Cssr\MainBundle\Entity\Group $group)
+    {
+        $this->groups[] = $group;
+
+        return $this;
+    }
+
+    /**
+     * Remove group
+     *
+     * @param \Cssr\MainBundle\Entity\Group $group
+     */
+    public function removeGroup(\Cssr\MainBundle\Entity\Group $group)
+    {
+        $this->groups->removeElement($group);
+    }
+
+    /**
+     * Get group
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * Set groups
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $groups
+     */
+    public function setGroups ( ArrayCollection $groups )
+    {
+        $this->groups = $groups;
+    }
 }

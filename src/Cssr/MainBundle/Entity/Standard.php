@@ -18,21 +18,21 @@ class Standard
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=100, nullable=true)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
      *
      * @ORM\ManyToMany(targetEntity="Cssr\MainBundle\Entity\Comment", mappedBy="standards")
      */
-    private $comments;
+    protected $comments;
 
     /**
      * Constructor

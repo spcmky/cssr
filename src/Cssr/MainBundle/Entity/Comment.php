@@ -19,41 +19,41 @@ class Comment
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="comment", type="string", length=4000, nullable=true)
      */
-    private $comment;
+    protected $comment;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created", type="datetime", nullable=true)
      */
-    private $created;
+    protected $created;
 
     /**
      *
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="created_by", referencedColumnName="id")
      */
-    private $createdBy;
+    protected $createdBy;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="updated", type="datetime", nullable=true)
      */
-    private $updated;
+    protected $updated;
 
     /**
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="updated_by", referencedColumnName="id")
      **/
-    private $updatedBy;
+    protected $updatedBy;
 
     /**
      * @var \Cssr\MainBundle\Entity\Score
@@ -63,7 +63,7 @@ class Comment
      *   @ORM\JoinColumn(name="score_id", referencedColumnName="id")
      * })
      */
-    private $score;
+    protected $score;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -78,7 +78,7 @@ class Comment
      *   }
      * )
      */
-    private $standards;
+    protected $standards;
 
     /**
      * Constructor

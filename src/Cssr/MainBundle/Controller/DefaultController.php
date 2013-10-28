@@ -23,7 +23,49 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return array();
+        $em = $this->getDoctrine()->getManager();
+
+        $criteria = array('active'=>1);
+        $session = $this->getRequest()->getSession();
+        $center = $session->get('center');
+        if ( $center->id > 0 ) {
+            $criteria['center'] = $center->id;
+        }
+
+        $user = $this->getUser();
+        $groupIds = array();
+        foreach ( $user->getGroups() as $group ) {
+            $groupIds[] = $group->getId();
+        }
+
+        // find all messages for the current center
+        $sql = 'SELECT message_id ';
+        $sql .= 'FROM cssr_group_message GM ';
+        $sql .= 'WHERE GM.group_id IN ('.implode(',',$groupIds).') ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $messageIds = array();
+        foreach ( $stmt->fetchAll() as $m ) {
+            $messageIds[] = $m['message_id'];
+        }
+
+        $messages = $em->getRepository('CssrMainBundle:Message')->findBy(
+            $criteria,
+            array('updated'=>'desc')
+        );
+
+        $userMessages = array();
+        foreach ( $messages as $message ) {
+            if ( in_array($message->getId(),$messageIds) ) {
+                $userMessages[] = $message;
+            }
+        }
+
+        return array(
+            'user' => $user,
+            'center' => $center,
+            'messages' => $userMessages
+        );
     }
 
     /**

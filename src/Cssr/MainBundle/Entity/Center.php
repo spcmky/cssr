@@ -74,18 +74,18 @@ class Center
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="created_by", referencedColumnName="id")
      **/
-    private $createdBy;
+    protected $createdBy;
 
     /**
      * @ORM\OneToOne(targetEntity="User")
      * @ORM\JoinColumn(name="updated_by", referencedColumnName="id")
      **/
-    private $updatedBy;
+    protected $updatedBy;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $active;
+    protected $active;
 
     public function __construct()
     {

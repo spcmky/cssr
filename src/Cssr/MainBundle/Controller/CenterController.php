@@ -339,16 +339,18 @@ class CenterController extends Controller
             $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
             if (!$center) {
-                throw $this->createNotFoundException('Unable to find Center entity.');
+                $sess_center = new \stdClass();
+                $sess_center->id = -1;
+                $sess_center->name = 'All Centers';
+            } else {
+                $sess_center = new \stdClass();
+                $sess_center->id = $center->getId();
+                $sess_center->name = $center->getName();
             }
-
-            $sess_center = new \stdClass();
-            $sess_center->id = $center->getId();
-            $sess_center->name = $center->getName();
 
         } else {
             $sess_center = new \stdClass();
-            $sess_center->id = null;
+            $sess_center->id = -1;
             $sess_center->name = 'All Centers';
         }
 

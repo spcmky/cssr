@@ -11,8 +11,42 @@
     </ol>
 {% endblock %}
 
-{% block body %}
+{% block body -%}
 
-<p>No Messages</p>
+    <table class="records_list table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Center</th>
+                <th>Audience</th>
+                <th>Created</th>
+                <th>Updated</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for message in messages %}
+            <tr>
+                <td><a href="{{ path('message_show', { 'id': message.id }) }}">{{ message.title }}</a></td>
+                <td>{{ message.center.name }}</td>
+                <td>
+                    <ul class="list-unstyled">
+                    {% for group in message.groups %}
+                        <li>{{ group.name }}</li>
+                    {% endfor %}
+                    </ul>
+                </td>
+                <td style="width: 100px;">
+                    <a href="{{ path('staff_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> {{ message.created|date('m/d/Y') }}
+                </td>
+                <td style="width: 100px;">
+                    {% if message.updated %}
+                        <a href="{{ path('staff_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> {{ message.updated|date('m/d/Y') }}
+                    {% endif %}</td>
+                <td>{% if message.active == 0 %}No{% else %}Yes{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-{% endblock %}
+    {% endblock %}

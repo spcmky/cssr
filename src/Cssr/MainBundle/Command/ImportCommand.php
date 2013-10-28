@@ -39,6 +39,8 @@ class ImportCommand extends ContainerAwareCommand
         //$this->createAreas();
         //$this->createUsers();
 
+        $this->createMessages();
+
         //$this->createCourses();
 
         //$this->addUsersToGroups();
@@ -47,7 +49,8 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->addStudentScores();
 
-        $this->addStudentScoreComments();
+        //$this->addStudentScoreComments();
+
 
     }
 
@@ -92,13 +95,13 @@ class ImportCommand extends ContainerAwareCommand
 
                         $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
                         $stmt = $em->getConnection()->prepare($sql);
-                        $stmt->bindValue('username', $comment->varUserCreated, \PDO::PARAM_INT);
+                        $stmt->bindValue('username', $comment->varUserCreated, \PDO::PARAM_STR);
                         $stmt->execute();
                         $creator_id = $stmt->fetchColumn();
 
                         $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
                         $stmt = $em->getConnection()->prepare($sql);
-                        $stmt->bindValue('username', $comment->varUserUpdated, \PDO::PARAM_INT);
+                        $stmt->bindValue('username', $comment->varUserUpdated, \PDO::PARAM_STR);
                         $stmt->execute();
                         $updater_id = $stmt->fetchColumn();
 
@@ -208,13 +211,13 @@ class ImportCommand extends ContainerAwareCommand
 
                                 $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
                                 $stmt = $em->getConnection()->prepare($sql);
-                                $stmt->bindValue('username', $score->varUserCreated, \PDO::PARAM_INT);
+                                $stmt->bindValue('username', $score->varUserCreated, \PDO::PARAM_STR);
                                 $stmt->execute();
                                 $creator_id = $stmt->fetchColumn();
 
                                 $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
                                 $stmt = $em->getConnection()->prepare($sql);
-                                $stmt->bindValue('username', $score->varUserUpdated, \PDO::PARAM_INT);
+                                $stmt->bindValue('username', $score->varUserUpdated, \PDO::PARAM_STR);
                                 $stmt->execute();
                                 $updater_id = $stmt->fetchColumn();
 
@@ -253,6 +256,64 @@ class ImportCommand extends ContainerAwareCommand
                 $sql = 'INSERT INTO cssr_student_course (course_id,student_id)
                     VALUES ('.$course_id.','.$s->intStudentID.')';
                 $this->DB_New->query($sql);
+            } catch ( \Exception $e ) {
+                $this->output->writeln($e->getMessage());
+            }
+        }
+
+    }
+
+    protected function createMessages () {
+
+        $this->output->writeln('Creating Messages...');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
+
+        $messages = $this->DB_Old->query("SELECT * FROM sertblmessages",\PDO::FETCH_OBJ);
+
+        foreach ( $messages as $m ) {
+            try {
+
+                $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('username', $m->varUserCreated, \PDO::PARAM_STR);
+                $stmt->execute();
+                $creator_id = $stmt->fetchColumn();
+
+                $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('username', $m->varUserUpdated, \PDO::PARAM_STR);
+                $stmt->execute();
+                $updater_id = $stmt->fetchColumn();
+
+
+                $sql  = 'INSERT INTO cssr_message ( title, body, center, active, created, updated, created_by, updated_by ) ';
+                $sql .= 'VALUES ( :title, :body, :center, :active, :created, :updated, :created_by, :updated_by ) ';
+                $stmt = $em->getConnection()->prepare($sql);
+
+                $stmt->bindValue('title', $m->varMessageTitle, \PDO::PARAM_STR);
+                $stmt->bindValue('body', $m->varMessage, \PDO::PARAM_STR);
+                $stmt->bindValue('center', $m->intCenterID, \PDO::PARAM_INT);
+                $stmt->bindValue('active', $m->boolActive, \PDO::PARAM_INT);
+                $stmt->bindValue('created', new \DateTime($m->dtDateCreated), "datetime");
+                $stmt->bindValue('updated', new \DateTime($m->dtDateUpdated), "datetime");
+                $stmt->bindValue('created_by', $creator_id, \PDO::PARAM_INT);
+                $stmt->bindValue('updated_by', $updater_id, \PDO::PARAM_INT);
+                $stmt->execute();
+
+                $messageId = $em->getConnection()->lastInsertId();
+
+                $sql  = 'INSERT INTO cssr_group_message ( group_id, message_id ) ';
+                $sql .= 'VALUES ( :group, :message ) ';
+                $stmt = $em->getConnection()->prepare($sql);
+
+                foreach ( explode(',',$m->varAudience) as $group ) {
+                    $stmt->bindValue('group', $group, \PDO::PARAM_INT);
+                    $stmt->bindValue('message', $messageId, \PDO::PARAM_INT);
+                    $stmt->execute();
+                }
+
             } catch ( \Exception $e ) {
                 $this->output->writeln($e->getMessage());
             }
