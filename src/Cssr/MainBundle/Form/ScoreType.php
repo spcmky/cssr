@@ -12,14 +12,9 @@ class ScoreType extends AbstractType
     {
         $builder
             ->add('value')
-            ->add('comment')
-            ->add('created')
-            ->add('modified')
+            ->add('period')
             ->add('course')
-            ->add('student')
-            ->add('standards')
-            ->add('modifier')
-        ;
+            ->add('student');
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

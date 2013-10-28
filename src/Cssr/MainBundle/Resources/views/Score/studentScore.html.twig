@@ -26,7 +26,14 @@
     {%  endif %}
 
     <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
-    <form>
+
+
+
+    <form id="student-scores" name="student-scores">
+
+    <div style="display: none;" class="alert alert-success"></div>
+    <div style="display: none;" class="alert alert-danger"></div>
+
     <table class="table table-hover table-bordered">
         <thead>
         <tr>
@@ -40,16 +47,18 @@
         {% for course in courses %}
 
             {% set value = 'N/A' %}
+            {% set score_id = '-1' %}
             {% for score in scores %}
                 {% if score.course_id == course.id %}
                     {% set value = score.value %}
+                    {% set score_id = score.id %}
                 {% endif %}
             {% endfor %}
 
-            <tr>
+            <tr data-scoreId="{{ score_id }}" data-studentId="{{ student.id }}" data-courseId="{{ course.id }}">
                 <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
                 <td style="text-align: center;">
-                    <select class="">
+                    <select class="score-value">
                         <option>N/A</option>
                     {% for i in 1..5 %}
                         <option {% if value == i %}selected="selected"{% endif %}>{{ i }}</option>
@@ -64,7 +73,7 @@
                         {% endif %}
 
                         <label class="checkbox">
-                            <input type="checkbox" name="standards[]" value="{{ standard.id }}"> {{ standard.name }}
+                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}"> {{ standard.name }}
                         </label>
 
                         {% if loop.index0 % 4 == 3 %}
@@ -74,7 +83,7 @@
                     </div>
                 </td>
                 <td>
-                    <textarea class="form-control" rows="5"></textarea>
+                    <textarea class="form-control score-comment" rows="5"></textarea>
                 </td>
             </tr>
 
@@ -89,4 +98,89 @@
         </div>
     </div>
 
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
+
+            $(function() {
+
+                $('select.score-value').on('change', function(){
+
+                    var _this = this;
+                    var scoreId = $(this).parent().parent().data('scoreid');
+
+                    if ( scoreId < 0 ) {
+
+                        var data = {
+                            value: $(this).val(),
+                            student: $(this).parent().parent().data('studentid'),
+                            course: $(this).parent().parent().data('courseid'),
+                            period: $('#periodSelector').val()
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: '{{ path("score_create") }}',
+                            data: data,
+                            success: function(data,textStatus){
+                                if ( textStatus == 'success' && data.status == 'success' ) {
+                                    //console.log('success');
+                                    $(_this).parent().parent().data('scoreid',data.scoreId);
+
+                                    $('#student-scores').find('.alert-success').html('Score created successfully!').show();
+                                    setTimeout(function(){
+                                        $('#student-scores').find('.alert-success').hide();
+                                    },3000);
+
+                                } else {
+                                    $('#student-scores').find('.alert-danger').html('Score creation failed!').show();
+                                    setTimeout(function(){
+                                        $('#student-scores').find('.alert-danger').hide();
+                                    },3000);
+                                    //console.log('failed');
+                                }
+                            },
+                            dataType: 'json'
+                        });
+
+                    } else {
+
+                        var data = {
+                            value: $(this).val(),
+                            _method: 'PUT'
+                        };
+
+                        var url = '{{ path("score_update", {'id': 'score_id'}) }}';
+                        url = url.replace("score_id", scoreId);
+
+                        $.ajax({
+                            type: "PUT",
+                            url: url,
+                            data: data,
+                            success: function(data,textStatus){
+                                if ( textStatus == 'success' && data.status == 'success' ) {
+                                    //console.log('success');
+                                    $('#student-scores').find('.alert-success').html('Score updated successfully!').show();
+                                    setTimeout(function(){
+                                        $('#student-scores').find('.alert-success').hide();
+                                    },3000);
+
+                                } else {
+                                    $('#student-scores').find('.alert-danger').html('Score update failed!').show();
+                                    setTimeout(function(){
+                                        $('#student-scores').find('.alert-danger').hide();
+                                    },3000);
+                                    //console.log('failed');
+                                }
+                            },
+                            dataType: 'json'
+                        });
+                    }
+
+                });
+
+            });
+
+        })();
+    </script>
 {% endblock %}

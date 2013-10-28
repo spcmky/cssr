@@ -37,10 +37,9 @@ class Score
     protected $student;
 
     /**
-     * @ORM\OneToOne(targetEntity="Comment")
-     * @ORM\JoinColumn(name="comment_id", referencedColumnName="id")
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    protected $comment;
+    protected $period;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -70,6 +69,7 @@ class Score
     public function setCreatedValue()
     {
         $this->created = new \DateTime();
+        $this->updated = new \DateTime();
     }
 
     /**
@@ -111,6 +111,29 @@ class Score
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * Set period
+     *
+     * @param \DateTime $period
+     * @return Score
+     */
+    public function setPeriod($period)
+    {
+        $this->period = $period;
+
+        return $this;
+    }
+
+    /**
+     * Get period
+     *
+     * @return \DateTime
+     */
+    public function getPeriod()
+    {
+        return $this->period;
     }
 
     /**
@@ -249,30 +272,6 @@ class Score
     public function getUpdatedBy()
     {
         return $this->updatedBy;
-    }
-
-    /**
-     * Add comment
-     *
-     * @param \Cssr\MainBundle\Entity\Comment $comment
-     * @return Score
-     */
-    public function setComment(\Cssr\MainBundle\Entity\Comment $comment)
-    {
-        $comment->setScore($this);
-        $this->comment = $comment;
-
-        return $this;
-    }
-
-    /**
-     * Get comment
-     *
-     * @return \Cssr\MainBundle\Entity\Comment
-     */
-    public function getComment()
-    {
-        return $this->comment;
     }
 
 }

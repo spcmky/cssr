@@ -3,10 +3,13 @@
 namespace Cssr\MainBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
 use Cssr\MainBundle\Model\Report;
@@ -417,22 +420,96 @@ class ScoreController extends Controller
      * @Method("POST")
      * @Template("CssrMainBundle:Score:new.html.twig")
      */
-    public function createAction(Request $request)
-    {
-        $entity  = new Score();
-        $form = $this->createForm(new ScoreType(), $entity);
-        $form->bind($request);
+    public function createAction ( Request $request ) {
+        $em = $this->getDoctrine()->getManager();
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
+        $score  = new Score();
+        $form = $this->createForm(new ScoreType(), $score);
+        $form->submit($request);
+
+        $isValid = true;
+        if ( !empty($_POST['value']) ) {
+            $value = $_POST['value'];
+            if ( $value == 'N/A' ) {
+                $value = null;
+                $score->setValue($value);
+            } else if ( in_array($value,array(1,2,3,4,5)) ) {
+                $value = (int) $value;
+                $score->setValue($value);
+            } else {
+                $isValid = false;
+            }
+        } else {
+            $isValid = false;
+        }
+
+        if ( !empty($_POST['student']) ) {
+            $student = $em->getRepository('CssrMainBundle:User')->find($_POST['student']);
+            if ( $student ) {
+                $score->setStudent($student);
+            } else {
+                $isValid = false;
+            }
+        } else {
+            $isValid = false;
+        }
+
+        if ( !empty($_POST['course']) ) {
+            $course = $em->getRepository('CssrMainBundle:Course')->find($_POST['course']);
+            if ( $course ) {
+                $score->setCourse($course);
+            } else {
+                $isValid = false;
+            }
+        } else {
+            $isValid = false;
+        }
+
+        if ( !empty($_POST['period']) ) {
+            $period = new \DateTime($_POST['period']);
+            $score->setPeriod($period);
+        } else {
+            $isValid = false;
+        }
+
+        //{"value":"5","student":"49446","course":"91","period":"2013-10-27"}
+
+        if ( $isValid ) {
+
+            $score->setCreatedBy($this->getUser());
+            $score->setUpdatedBy($this->getUser());
+
+            $em->persist($score);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('score_show', array('id' => $entity->getId())));
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'success';
+                $api_response->scoreId = $score->getId();
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                return $this->redirect($this->generateUrl('score_show', array('id' => $score->getId())));
+            }
+        }
+
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+            $api_response->data = $_POST;
+
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
         }
 
         return array(
-            'entity' => $entity,
+            'entity' => $score,
             'form'   => $form->createView(),
         );
     }
@@ -514,32 +591,71 @@ class ScoreController extends Controller
      * @Method("PUT")
      * @Template("CssrMainBundle:Score:edit.html.twig")
      */
-    public function updateAction ( Request $request, $id )
-    {
+    public function updateAction ( Request $request, $id ) {
+
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Score')->find($id);
+        $score = $em->getRepository('CssrMainBundle:Score')->find($id);
 
-        if (!$entity) {
+        if (!$score) {
             throw $this->createNotFoundException('Unable to find Score entity.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new ScoreType(), $entity);
-        $editForm->bind($request);
 
-        if ($editForm->isValid()) {
-            $em->persist($entity);
+        //$deleteForm = $this->createDeleteForm($id);
+        //$editForm = $this->createForm(new ScoreType(), $score);
+        //$editForm->submit($request);
+
+        $value = $request->request->get('value');
+
+        $isValid = true;
+        if ( !empty($value) ) {
+            //$value = $_POST['value'];
+            if ( $value == 'N/A' ) {
+                $value = null;
+                $score->setValue($value);
+            } else if ( in_array($value,array(1,2,3,4,5)) ) {
+                $value = (int) $value;
+                $score->setValue($value);
+            } else {
+                $isValid = false;
+            }
+        } else {
+            $isValid = false;
+        }
+
+        if ( $isValid ) {
+
+            $em->persist($score);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('score_edit', array('id' => $id)));
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'success';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            }
+        }
+
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
         }
 
         return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+            'entity'      => $score,
+            //'edit_form'   => $editForm->createView(),
+            //'delete_form' => $deleteForm->createView(),
         );
+
     }
     /**
      * Deletes a Score entity.
