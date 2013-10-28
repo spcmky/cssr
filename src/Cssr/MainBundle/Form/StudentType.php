@@ -39,7 +39,7 @@ class StudentType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\CssrUser'
+            'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
     }
 

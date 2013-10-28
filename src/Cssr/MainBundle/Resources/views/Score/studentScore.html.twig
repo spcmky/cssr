@@ -27,8 +27,6 @@
 
     <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
 
-
-
     <form id="student-scores" name="student-scores">
 
     <div style="display: none;" class="alert alert-success"></div>
@@ -44,19 +42,17 @@
         </tr>
         </thead>
         <tbody>
-        {% for course in courses %}
+        {% for score in scores %}
 
             {% set value = 'N/A' %}
             {% set score_id = '-1' %}
-            {% for score in scores %}
-                {% if score.course_id == course.id %}
-                    {% set value = score.value %}
-                    {% set score_id = score.id %}
-                {% endif %}
-            {% endfor %}
+            {% if score.score.id %}
+                {% set value = score.score.value %}
+                {% set score_id = score.score.id %}
+            {% endif %}
 
-            <tr data-scoreId="{{ score_id }}" data-studentId="{{ student.id }}" data-courseId="{{ course.id }}">
-                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
+            <tr data-scoreId="{{ score_id }}" data-studentId="{{ student.id }}" data-courseId="{{ score.course.id }}">
+                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ score.course.name }}</td>
                 <td style="text-align: center;">
                     <select class="score-value">
                         <option>N/A</option>
@@ -72,8 +68,17 @@
                         <div class="col-lg-6">
                         {% endif %}
 
+                        {% set checked = '' %}
+                        {% if score.comment is iterable and score.comment.standards is iterable %}
+                            {% for standard_name in score.comment.standards %}
+                                {% if standard_name == standard.name %}
+                                    {% set checked = 'checked="checked"' %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
                         <label class="checkbox">
-                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}"> {{ standard.name }}
+                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}" {{ checked }}> {{ standard.name }}
                         </label>
 
                         {% if loop.index0 % 4 == 3 %}
@@ -83,7 +88,10 @@
                     </div>
                 </td>
                 <td>
-                    <textarea class="form-control score-comment" rows="5"></textarea>
+                    <textarea class="form-control score-comment" rows="5" data-commentId="{% if score.comment is iterable %}{{ score.comment.id }}{% else %}-1{% endif %}">{% if score.comment is iterable %}{{ score.comment.body }}{% endif %}</textarea>
+                    {% if score.comment is iterable %}
+                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
+                    {% endif %}
                 </td>
             </tr>
 
@@ -92,18 +100,13 @@
     </table>
     </form>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <a class="btn btn-primary btn-score-save" href="javascript:void(0)">Save</a>
-        </div>
-    </div>
-
     <script type="text/javascript">
         // Get the ul that holds the collection of tags
         (function() {
 
             $(function() {
 
+                // check for value change
                 $('select.score-value').on('change', function(){
 
                     var _this = this;
@@ -178,6 +181,98 @@
                     }
 
                 });
+
+                // check for comment
+                $('textarea.score-comment').on('focus', function(){
+                    var initialValue = $(this).val();
+                    var _this = this;
+
+                    function testForChange() {
+                        if ( $(_this).val() != initialValue ) {
+                            var scoreId = $(_this).parent().parent().data('scoreid');
+                            if ( scoreId > 0 ) {
+                                // need a score id before we can submit
+
+                                var commentId = $(_this).data('commentid');
+
+                                if ( commentId < 0 ) {
+                                    var data = {
+                                        comment: $(_this).val(),
+                                        score: scoreId,
+                                        standards: []
+                                    };
+
+                                    var checked_standards = $(_this).parent().parent().find('input:checked');
+                                    $.each(checked_standards,function(){
+                                        data.standards.push($(this).val());
+                                    })
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '{{ path("comment_create") }}',
+                                        data: data,
+                                        success: function(data,textStatus){
+                                            if ( textStatus == 'success' && data.status == 'success' ) {
+                                                console.log('success');
+                                                $(_this).data('commentid',data.commentId);
+
+
+                                            } else {
+                                                console.log('failed');
+                                            }
+                                        },
+                                        dataType: 'json'
+                                    });
+                                } else {
+                                    var data = {
+                                        comment: $(_this).val(),
+                                        standards: [],
+                                        _method: 'PUT'
+                                    };
+
+                                    var checked_standards = $(_this).parent().parent().find('input:checked');
+                                    $.each(checked_standards,function(){
+                                        data.standards.push($(this).val());
+                                    })
+
+                                    var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
+                                    url = url.replace("comment_id", commentId);
+
+                                    $.ajax({
+                                        type: "PUT",
+                                        url: url,
+                                        data: data,
+                                        success: function(data,textStatus){
+                                            if ( textStatus == 'success' && data.status == 'success' ) {
+                                                console.log('success');
+
+                                                //$(_this).data('commentid',data.commentId);
+
+
+                                            } else {
+                                                console.log('failed');
+                                            }
+                                        },
+                                        dataType: 'json'
+                                    });
+                                }
+
+
+                            }
+                        }
+                    }
+
+                    $(this).on('blur',function() {
+                        window.clearInterval(timer);
+                        testForChange();
+                        $(_this).unbind("blur");
+                    });
+
+                    var timer = window.setInterval(function() {
+                        //testForChange();
+                    }, 500);
+                });
+
 
             });
 

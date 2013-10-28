@@ -217,12 +217,88 @@ class ScoreController extends Controller
         $period_end = clone $period;
         $period_end->add(new \DateInterval('P5D'));
 
-        $scores = null;
+        $scores = array();
         if ( $periods ) {
             $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$period->format("Y-m-d H:i:s")."'";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->execute();
             $scores = $stmt->fetchAll();
+        }
+
+        $scoreIds = array();
+        foreach ( $scores as $s ) {
+            $scoreIds[] = $s['id'];
+        }
+        if ( !empty($scoreIds) ) {
+            $sql = "SELECT C.id, C.comment, C.score_id, C.updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname
+            FROM cssr_comment C
+            LEFT JOIN cssr_user U ON U.id = C.updated_by
+            WHERE score_id IN (".implode(',',$scoreIds).") ";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $comments = $stmt->fetchAll();
+        }
+
+        if ( !empty($comments) ) {
+            foreach ( $comments as $c ) {
+                $commentIds[] = $c['id'];
+            }
+
+            // get comment standards
+            $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+            $sql .= 'FROM cssr_comment_standard CS ';
+            $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+            $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+            $sql .= 'ORDER BY CS.comment_id ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $commentStandards = $stmt->fetchAll();
+        }
+
+
+        $student_scores = array();
+        foreach ( $courses as $course ) {
+
+            $student_scores[$course['id']] = array(
+                'course' => array(
+                    'id' => $course['id'],
+                    'name' => $course['area_name']
+                ),
+                'score' => array(
+                    'id' => null,
+                    'value' => null
+                ),
+                'comment' => null
+            );
+
+            foreach ( $scores as $score ) {
+                if ( $score['course_id'] == $course['id'] ) {
+                    $student_scores[$course['id']]['score']['value'] = $score['value'];
+                    $student_scores[$course['id']]['score']['id'] = $score['id'];
+
+                    foreach ( $comments as $comment ) {
+                        if ( $comment['score_id'] == $score['id'] ) {
+                            $student_scores[$course['id']]['comment'] = array(
+                                'id' => $comment['id'],
+                                'body' => $comment['comment'],
+                                'updated' => $comment['updated'],
+                                'updater' => array(
+                                    'id' => $comment['updater_id'],
+                                    'firstname' => $comment['updater_firstname'],
+                                    'lastname' => $comment['updater_lastname']
+                                ),
+                                'standards' => array()
+                            );
+
+                            foreach ( $commentStandards as $standard ) {
+                                if ( $standard['comment_id'] == $comment['id'] ) {
+                                    $student_scores[$course['id']]['comment']['standards'][] = $standard['name'];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return array(
@@ -231,9 +307,8 @@ class ScoreController extends Controller
             'period_end' => $period_end,
             'periods' => $periods,
             'student' => $student,
-            'courses' => $courses,
             'standards' => $standards,
-            'scores' => $scores
+            'scores' => $student_scores
         );
     }
 
@@ -626,6 +701,8 @@ class ScoreController extends Controller
 
         if ( $isValid ) {
 
+            $score->setUpdatedBy($this->getUser());
+
             $em->persist($score);
             $em->flush();
 
@@ -655,8 +732,8 @@ class ScoreController extends Controller
             //'edit_form'   => $editForm->createView(),
             //'delete_form' => $deleteForm->createView(),
         );
-
     }
+
     /**
      * Deletes a Score entity.
      *

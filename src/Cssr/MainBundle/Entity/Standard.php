@@ -11,16 +11,35 @@ use Doctrine\ORM\Mapping as ORM;
 class Standard
 {
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
      * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    protected $id;
+    private $id;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=false)
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=100, nullable=true)
      */
-    protected $name;
+    private $name;
+
+    /**
+     * @var \Doctrine\Common\Collections\Collection
+     *
+     * @ORM\ManyToMany(targetEntity="Cssr\MainBundle\Entity\Comment", mappedBy="standards")
+     */
+    private $comments;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -53,5 +72,48 @@ class Standard
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Add comments
+     *
+     * @param \Cssr\MainBundle\Entity\Comment $comment
+     * @return Center
+     */
+    public function addComment(\Cssr\MainBundle\Entity\Comment $comment)
+    {
+        $this->comments->add($comment);
+
+        return $this;
+    }
+
+    /**
+     * Remove comments
+     *
+     * @param \Cssr\MainBundle\Entity\Comment $comment
+     */
+    public function removeComment(\Cssr\MainBundle\Entity\Comment $comment)
+    {
+        $this->comments->removeElement($comment);
+    }
+
+    /**
+     * Get comments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+    /**
+     * Set comments
+     *
+     * @param \Doctrine\Common\Collections\ArrayCollection $comments
+     */
+    public function setComments(ArrayCollection $comments)
+    {
+        $this->comments = $comments;
     }
 }

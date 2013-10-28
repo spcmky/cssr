@@ -18,7 +18,7 @@ class CourseType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\CssrCourse'
+            'data_class' => 'Cssr\MainBundle\Entity\Course'
         ));
     }
 
