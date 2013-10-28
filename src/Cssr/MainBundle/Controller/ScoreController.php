@@ -514,7 +514,7 @@ class ScoreController extends Controller
      * @Method("PUT")
      * @Template("CssrMainBundle:Score:edit.html.twig")
      */
-    public function updateAction(Request $request, $id)
+    public function updateAction ( Request $request, $id )
     {
         $em = $this->getDoctrine()->getManager();
 

@@ -330,14 +330,10 @@ class CenterController extends Controller
     /**
      * Set active center ajax call
      *
-     * @Route("/setactive", name="center_activate")
+     * @Route("/{id}/activate", name="center_activate")
      * @Method("POST")
      */
-    public function setActiveAction()
-    {
-        $request = $this->getRequest();
-        $id = $request->request->get('center');
-
+    public function setActiveAction ( $id ) {
         if ( !empty($id) ) {
             $em = $this->getDoctrine()->getManager();
             $center = $em->getRepository('CssrMainBundle:Center')->find($id);

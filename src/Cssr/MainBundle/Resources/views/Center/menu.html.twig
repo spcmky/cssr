@@ -24,8 +24,8 @@
                 </li>
             {% endfor %}
             {% if user_is_granted(user,'center create') %}
-            <li class="divider"></li>
-            <li><a href="{{ path('center_new') }}">Add Center</a></li>
+                <li class="divider"></li>
+                <li><a href="{{ path('center_new') }}">Add Center</a></li>
             {% endif %}
         </ul>
 
@@ -41,13 +41,11 @@
         $('ul.center-menu a.selectable-center').on('click', function(e) {
             // prevent the link from creating a "#" on the URL
             e.preventDefault();
-            var data = {
-                center: $(this).attr("rel")
-            };
+            var url = '{{ path("center_activate", {'id': 'center_id'}) }}';
+            url = url.replace("center_id", $(this).attr("rel"));
             $.ajax({
                 type: "POST",
-                url: "{{ path('center_activate') }}",
-                data: data,
+                url: url,
                 success: function(data,textStatus){
                     if ( textStatus == 'success' ) {
                         // reload page
@@ -57,8 +55,6 @@
                 dataType: 'json'
             });
         });
-
-
     });
 
 })();
