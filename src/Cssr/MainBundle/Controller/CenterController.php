@@ -234,6 +234,7 @@ class CenterController extends Controller
             'delete_form' => $deleteForm->createView(),
         );
     }
+
     /**
      * Deletes a Center entity.
      *

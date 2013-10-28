@@ -14,8 +14,66 @@
 
 {% block body -%}
 
-    <div id="message-edit">
-        {{ form(edit_form) }}
+    <div class="row">
+        <div class="col-md-8">
+            <form id="form-message-update" name="form-message-update" role="form" action="{{ path('message_update', { 'id': message.id }) }}" method="post" {{ form_enctype(edit_form) }}>
+                <input type="hidden" name="_method" value="PUT" />
+                {{ form_widget(edit_form) }}
+            </form>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a class="btn btn-primary btn-message-save" href="javascript:void(0)">Save</a>
+                    <a class="btn btn-danger btn-message-delete" data-toggle="modal" data-target="#modal-message-delete">Delete</a>
+                </div>
+            </div>
+        </div>
     </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal-message-delete" tabindex="-1" role="dialog" aria-labelledby="messageDeleteModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Are you sure you want to delete this message?</h4>
+                </div>
+                <div class="modal-body">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-danger btn-message-delete">Yes</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script type="text/javascript">
+    // Get the ul that holds the collection of tags
+    (function() {
+
+        $('button.btn-message-delete').on('click', function(e){
+            // prevent the link from creating a "#" on the URL
+            e.preventDefault();
+
+            $.ajax({
+                type: "DELETE",
+                url: "{{ path('message_delete', { 'id': message.id }) }}",
+                success: function(data,textStatus){
+                    if ( textStatus == 'success' ) {
+                        // reload page
+                        location.href = "{{ path('message') }}";
+                    }
+                },
+                dataType: 'json'
+            });
+        });
+
+        $('a.btn-message-save').on('click', function(e){
+            $('form#form-message-update').submit();
+        });
+
+    })();
+    </script>
+
 
 {% endblock %}

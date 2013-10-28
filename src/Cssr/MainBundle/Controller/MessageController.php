@@ -32,7 +32,7 @@ class MessageController extends Controller
 
         //findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
 
-        $messages = $em->getRepository('CssrMainBundle:Message')->findBy(array(),array('updated'=>'desc'));
+        $messages = $em->getRepository('CssrMainBundle:Message')->findBy(array('active'=>1),array('updated'=>'desc'));
 
         return array(
             'messages' => $messages,
@@ -191,10 +191,9 @@ class MessageController extends Controller
             'method' => 'PUT',
         ));
 
-        $form->add('submit', 'submit', array('label' => 'Update'));
-
         return $form;
     }
+
     /**
      * Edits an existing Message.
      *
@@ -259,7 +258,7 @@ class MessageController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
-        $form->handleRequest($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
@@ -269,11 +268,32 @@ class MessageController extends Controller
                 throw $this->createNotFoundException('Unable to find Message.');
             }
 
-            $em->remove($message);
+            $message->setActive(0); // logical delete
+
             $em->flush();
+
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'success';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            }
         }
 
-        return $this->redirect($this->generateUrl('message'));
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        } else {
+            return $this->redirect($this->generateUrl('message'));
+        }
     }
 
     /**

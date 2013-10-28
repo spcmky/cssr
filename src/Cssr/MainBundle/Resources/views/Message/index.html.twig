@@ -23,21 +23,20 @@
                 <th>Audience</th>
                 <th>Created</th>
                 <th>Updated</th>
-                <th>Active</th>
             </tr>
         </thead>
         <tbody>
         {% for message in messages %}
             <tr>
                 <td><a href="{{ path('message_edit', { 'id': message.id }) }}">{{ message.title }}</a></td>
-                <td>
+                <td style="width: 180px;">
                     {% if message.center.name is defined %}
                         {{ message.center.name }}
                     {% else %}
                         Unknown
                     {% endif %}
                 </td>
-                <td>
+                <td style="width: 220px;">
                     <ul class="list-unstyled">
                     {% for group in message.groups %}
                         <li>{{ group.name }}</li>
@@ -60,7 +59,6 @@
                         Unknown
                     {% endif %}
                 </td>
-                <td>{% if message.active == 0 %}No{% else %}Yes{% endif %}</td>
             </tr>
         {% endfor %}
         </tbody>
