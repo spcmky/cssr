@@ -3,6 +3,7 @@
 namespace Cssr\MainBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -142,11 +143,8 @@ class MessageController extends Controller
             throw $this->createNotFoundException('Unable to find Message.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
-
         return array(
-            'message'      => $message,
-            'delete_form' => $deleteForm->createView(),
+            'message'      => $message
         );
     }
 
@@ -168,12 +166,10 @@ class MessageController extends Controller
         }
 
         $editForm = $this->createEditForm($message);
-        $deleteForm = $this->createDeleteForm($id);
 
         return array(
             'message'      => $message,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+            'edit_form'   => $editForm->createView()
         );
     }
 
@@ -211,7 +207,6 @@ class MessageController extends Controller
             throw $this->createNotFoundException('Unable to find Message.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm($message);
         $editForm->handleRequest($request);
 
@@ -245,8 +240,7 @@ class MessageController extends Controller
 
         return array(
             'message'      => $message,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+            'edit_form'   => $editForm->createView()
         );
     }
     /**
@@ -257,35 +251,35 @@ class MessageController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
-        $form = $this->createDeleteForm($id);
-        $form->submit($request);
+        $em = $this->getDoctrine()->getManager();
+        $message = $em->getRepository('CssrMainBundle:Message')->find($id);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $message = $em->getRepository('CssrMainBundle:Message')->find($id);
-
-            if (!$message) {
-                throw $this->createNotFoundException('Unable to find Message.');
-            }
-
-            $message->setActive(0); // logical delete
-
-            $em->flush();
-
+        if ( !$message ) {
             if ( $request->isXmlHttpRequest() ) {
                 $api_response = new \stdClass();
-                $api_response->status = 'success';
+                $api_response->status = 'failed';
 
                 // create a JSON-response with a 200 status code
                 $response = new Response(json_encode($api_response));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
+            } else {
+                throw $this->createNotFoundException('Unable to find Message.');
             }
         }
 
+        $message->setActive(0); // logical delete
+
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            'Message deleted successfully!'
+        );
+
         if ( $request->isXmlHttpRequest() ) {
             $api_response = new \stdClass();
-            $api_response->status = 'failed';
+            $api_response->status = 'success';
 
             // create a JSON-response with a 200 status code
             $response = new Response(json_encode($api_response));
@@ -294,22 +288,5 @@ class MessageController extends Controller
         } else {
             return $this->redirect($this->generateUrl('message'));
         }
-    }
-
-    /**
-     * Creates a form to delete a Message by id.
-     *
-     * @param mixed $id The message id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm($id)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('message_delete', array('id' => $id)))
-            ->setMethod('DELETE')
-            ->add('submit', 'submit', array('label' => 'Delete'))
-            ->getForm()
-        ;
     }
 }
