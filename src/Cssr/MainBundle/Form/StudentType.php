@@ -23,8 +23,16 @@ class StudentType extends AbstractType
             ->add('username')
             ->add('email')
             ->add('phone')
-            ->add('entry','date')
-            ->add('dorm');
+            ->add('entry','date');
+
+        $builder->add('center', 'entity', array(
+            'class' => 'CssrMainBundle:Center',
+            'choices' => $this->options['centers'],
+            'multiple'  => false,
+            'expanded' => false
+        ));
+
+        $builder->add('dorm');
 
 
         $builder->add('enrollment','choice',array(

@@ -85,20 +85,36 @@ class StudentController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity = new User();
-        $form = $this->createForm(new StudentType(), $entity);
+        $em = $this->getDoctrine()->getManager();
+
+        $student = new User();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $centerCourses = Center::getCourses($em,$center);
+
+        $form = $this->createForm(new StudentType(array(
+            'studentCourses' => array(),
+            'centerCourses' => $centerCourses,
+            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
+        )), $student);
+
+        //$form->add('submit', 'submit', array('label' => 'Create'));
+
         $form->submit($request);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
+        if ( $form->isValid() ) {
+
+            $em->persist($student);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('student_show', array('id' => $entity->getId())));
+            return $this->redirect($this->generateUrl('student_show', array('id' => $student->getId())));
         }
 
         return array(
-            'entity' => $entity,
+            'student' => $student,
             'form'   => $form->createView(),
         );
     }
@@ -112,11 +128,26 @@ class StudentController extends Controller
      */
     public function newAction()
     {
-        $entity = new User();
-        $form   = $this->createForm(new StudentType(), $entity);
+        $em = $this->getDoctrine()->getManager();
+
+        $student = new User();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $centerCourses = Center::getCourses($em,$center);
+
+        $form = $this->createForm(new StudentType(array(
+            'studentCourses' => array(),
+            'centerCourses' => $centerCourses,
+            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
+        )), $student);
+
+        //$form->add('submit', 'submit', array('label' => 'Create'));
 
         return array(
-            'entity' => $entity,
+            'student' => $student,
             'form'   => $form->createView(),
         );
     }
@@ -177,15 +208,16 @@ class StudentController extends Controller
 
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
-
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
 
         $studentCourses = Student::getCourses($em,$student);
         $centerCourses = Center::getCourses($em,$center);
 
         $editForm = $this->createForm(new StudentType(array(
             'studentCourses' => $studentCourses,
-            'centerCourses' => $centerCourses
+            'centerCourses' => $centerCourses,
+            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
         return array(
@@ -221,7 +253,8 @@ class StudentController extends Controller
 
         $editForm = $this->createForm(new StudentType(array(
             'studentCourses' => $studentCourses,
-            'centerCourses' => $centerCourses
+            'centerCourses' => $centerCourses,
+            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
         $editForm->submit($request);

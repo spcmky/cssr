@@ -18,23 +18,26 @@
         <div class="col-md-8">
             <form id="form-student-new" name="form-student-new" action="{{ path('student_create') }}" method="post" {{ form_enctype(form) }}>
                 {{ form_widget(form) }}
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <input type="submit" value="Create" class="btn btn-primary btn-student-save"/>
+                    </div>
+                </div>
+
             </form>
 
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <a class="btn btn-primary btn-student-save" href="javascript:void(0)">Create</a>
-                </div>
-            </div>
         </div>
     </div>
 
     <script type="text/javascript">
         // Get the ul that holds the collection of tags
         (function() {
-
+            /*
             $('a.btn-student-save').on('click', function(e){
                 $('form#form-student-new').submit();
             });
+            */
 
         })();
     </script>
