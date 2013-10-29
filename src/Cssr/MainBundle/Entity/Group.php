@@ -38,7 +38,7 @@ class Group extends BaseGroup
      *   }
      * )
      */
-    private $messages;
+    protected $messages;
 
 
     public function __construct() {
