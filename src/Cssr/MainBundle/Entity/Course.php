@@ -188,6 +188,6 @@ class Course
     }
 
     public function __toString() {
-        return (string) $this->getId();
+        return $this->getArea()->getname().' - '.$this->getUser()->getFirstname().' '.$this->getUser()->getLastname();
     }
 }

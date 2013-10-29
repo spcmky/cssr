@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StudentType;
 use Cssr\MainBundle\Model\Center;
@@ -168,7 +169,7 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $student = $em->getRepository('CssrMainBundle:CssrUser')->find($id);
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if (!$student) {
             throw $this->createNotFoundException('Unable to find Student.');
@@ -179,28 +180,17 @@ class StudentController extends Controller
 
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
 
-        //$student->setCourses(Student::getCourses($em,$student));
+        $studentCourses = Student::getCourses($em,$student);
+        $centerCourses = Center::getCourses($em,$center);
 
-
-        //$centerCourses = Center::getCourses($em,$center);
-
-
-        $editForm = $this->createForm(new StudentType(), $student);
-        $deleteForm = $this->createDeleteForm($id);
-
-        /*
-        $form = $this->createFormBuilder($task)
-            ->add('task', 'text')
-            ->add('dueDate', 'date')
-            ->add('save', 'submit')
-            ->getForm();
-        */
+        $editForm = $this->createForm(new StudentType(array(
+            'studentCourses' => $studentCourses,
+            'centerCourses' => $centerCourses
+        )), $student);
 
         return array(
             'student' => $student,
-            //'centerCourses' => $centerCourses,
-            'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+            'edit_form' => $editForm->createView()
         );
     }
 
@@ -211,31 +201,45 @@ class StudentController extends Controller
      * @Method("PUT")
      * @Template("CssrMainBundle:Student:edit.html.twig")
      */
-    public function updateAction(Request $request, $id)
+    public function updateAction ( Request $request, $id )
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Student entity.');
+        if (!$student) {
+            throw $this->createNotFoundException('Unable to find Student.');
         }
 
-        $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new StudentType(), $entity);
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $studentCourses = Student::getCourses($em,$student);
+        $centerCourses = Center::getCourses($em,$center);
+
+        $editForm = $this->createForm(new StudentType(array(
+            'studentCourses' => $studentCourses,
+            'centerCourses' => $centerCourses
+        )), $student);
+
         $editForm->submit($request);
 
-        if ($editForm->isValid()) {
+        if ( $editForm->isValid() ) {
 
             $em->flush();
+
+            // take care of courses
+            $data = $request->request->get('cssr_mainbundle_studenttype');
+            Student::enroll($em,$student,$data['enrollment']);
 
             return $this->redirect($this->generateUrl('student_edit', array('id' => $id)));
         }
 
         return array(
-            'entity'      => $entity,
-            'edit_form'   => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
+            'student' => $student,
+            'edit_form'   => $editForm->createView()
         );
     }
     /**
@@ -247,7 +251,7 @@ class StudentController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();

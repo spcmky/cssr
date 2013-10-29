@@ -125,3 +125,7 @@ label {
 #message-edit textarea{
     width: 400px;
 }
+
+#cssr_mainbundle_studenttype_entry div.bootstrap-select {
+    width: 100px;
+}
