@@ -1044,7 +1044,7 @@ class ReportController extends Controller
 
 
         $reports = array();
-        if ( $activeCenter->id ) {
+        if ( $activeCenter->id > 0 ) {
             $reports[] = Report::getWeeklyStatistics($em,$activeCenter->id,$periodStart,$periodEnd);
         } else {
 
