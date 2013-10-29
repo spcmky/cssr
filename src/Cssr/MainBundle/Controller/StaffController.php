@@ -143,7 +143,7 @@ class StaffController extends Controller
     public function createAction(Request $request)
     {
         $entity = new User();
-        $form = $this->createForm(new StaffType(), $entity);
+        $form = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
         $form->submit($request);
 
         if ($form->isValid()) {
@@ -170,7 +170,7 @@ class StaffController extends Controller
     public function newAction()
     {
         $entity = new User();
-        $form = $this->createForm(new StaffType(), $entity);
+        $form = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
 
         return array(
             'entity' => $entity,
@@ -244,7 +244,7 @@ class StaffController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
-        $editForm = $this->createForm(new StaffType(), $entity);
+        $editForm = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
@@ -272,7 +272,7 @@ class StaffController extends Controller
         }
 
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new StaffType(), $entity);
+        $editForm = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
         $editForm->submit($request);
 
         if ($editForm->isValid()) {

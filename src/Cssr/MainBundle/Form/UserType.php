@@ -9,6 +9,12 @@ use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
 class UserType extends AbstractType
 {
+    protected $em;
+
+    public function __construct ( $em = null ) {
+        $this->em = $em;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -17,7 +23,8 @@ class UserType extends AbstractType
             ->add('lastname')
             ->add('username')
             ->add('email');
-            //->add('password');
+
+        $builder->add('phone');
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
@@ -26,16 +33,21 @@ class UserType extends AbstractType
             'second_options' => array('label' => 'form.new_password_confirmation'),
             'invalid_message' => 'fos_user.password.mismatch',
         ));
-        /**
-        $builder->add('current_password', 'password', array(
-            'label' => 'form.current_password',
-            'translation_domain' => 'FOSUserBundle',
-            'mapped' => false,
-            'constraints' => new UserPassword()
-        ));
-        **/
 
-        $builder->add('phone');
+        $builder->add('center', 'entity', array(
+            'class' => 'CssrMainBundle:Center',
+            'choices' => $this->getCenterChoices(),
+            'multiple'  => false,
+            'expanded' => false
+        ));
+
+        $builder->add('groups', 'entity', array(
+            'class' => 'CssrMainBundle:Group',
+            'choices' => $this->getGroupChoices(),
+            'multiple'  => true,
+            'expanded' => true
+        ));
+
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)
@@ -43,6 +55,16 @@ class UserType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
+    }
+
+    private function getGroupChoices() {
+        $groups = $this->em->getRepository('CssrMainBundle:Group')->findAll();
+        return $groups;
+    }
+
+    private function getCenterChoices() {
+        $centers = $this->em->getRepository('CssrMainBundle:Center')->findAll();
+        return $centers;
     }
 
     public function getName()

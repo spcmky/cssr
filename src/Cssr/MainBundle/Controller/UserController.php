@@ -83,7 +83,7 @@ class UserController extends Controller
         $user = $userManager->createUser();
         $user->setEnabled(true);
 
-        $form = $this->createForm(new UserType(), $user);
+        $form = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
         $form->submit($request);
 
         if ( $form->isValid() ) {
@@ -113,7 +113,7 @@ class UserController extends Controller
         $user = $userManager->createUser();
         $user->setEnabled(true);
 
-        $form   = $this->createForm(new UserType(), $user);
+        $form   = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
 
         return array(
             'entity' => $user,
@@ -163,7 +163,7 @@ class UserController extends Controller
             throw $this->createNotFoundException('Unable to find User entity.');
         }
 
-        $editForm = $this->createForm(new UserType(), $user);
+        $editForm = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
@@ -191,7 +191,7 @@ class UserController extends Controller
         }
 
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new UserType(), $user);
+        $editForm = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
         $editForm->submit($request);
 
         if ($editForm->isValid()) {
@@ -215,7 +215,7 @@ class UserController extends Controller
     public function deleteAction(Request $request, $id)
     {
         $form = $this->createDeleteForm($id);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
