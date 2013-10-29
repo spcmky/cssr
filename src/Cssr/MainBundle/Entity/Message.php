@@ -78,7 +78,7 @@ class Message
      */
     public function __construct()
     {
-        $this->group = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     /**
