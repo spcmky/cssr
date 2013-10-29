@@ -24,7 +24,7 @@ class CenterController extends Controller
 {
 
     /**
-     * Lists all Center entities.
+     * Lists all Centers.
      *
      * @Route("/", name="center")
      * @Method("GET")
@@ -34,13 +34,13 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entities = $em->getRepository('CssrMainBundle:Center')->findBy(
+        $centers = $em->getRepository('CssrMainBundle:Center')->findBy(
             array('active' => 1),
             array('name' => 'ASC')
         );
 
         return array(
-            'entities' => $entities,
+            'centers' => $centers,
         );
     }
     /**
@@ -52,7 +52,7 @@ class CenterController extends Controller
      */
     public function createAction(Request $request)
     {
-        $center  = new Center();
+        $center = new Center();
         $form = $this->createForm(new CenterType(), $center);
         $form->submit($request);
 
