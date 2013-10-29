@@ -9,7 +9,7 @@
 
                     {% if admin %}
 
-                        {% if center.id == -1 %}
+                        {% if center.id < 1 %}
                             {% if user_is_granted(user,'center update') %}
                                 <a class="btn btn-primary" href="{{ path('center') }}"><span class="glyphicon glyphicon-home pull-left"></span> Centers</a>
                             {% endif %}
