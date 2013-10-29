@@ -5,23 +5,23 @@
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('center') }}">Centers</a></li>
-        <li class="active">{{ entity.name }}</li>
+        <li class="active">{{ center.name }}</li>
     </ol>
 
-    <h1>{{ entity.name }}</h1>
+    <h1>{{ center.name }}</h1>
 
     <strong>Address</strong>
     <address>
-        {{ entity.address }}<br />
-        {{ entity.city }}, {{ entity.state }} {{ entity.postcode }}<br />
-        <abbr title="Phone">P:</abbr> {{ entity.phone }}
+        {{ center.address }}<br />
+        {{ center.city }}, {{ center.state }} {{ center.postcode }}<br />
+        <abbr title="Phone">P:</abbr> {{ center.phone }}
     </address>
 
     <div class="row">
         <div class="col-md-6">
             <strong>Dorms</strong>
             <ul class="list-unstyled">
-                {% for dorm in entity.dorms %}
+                {% for dorm in center.dorms %}
                     <li>{{ dorm.name }}</li>
                 {% endfor %}
             </ul>
@@ -29,19 +29,19 @@
         <div class="col-mid-6">
             <strong>Vocations</strong>
             <ul class="list-unstyled">
-                {% for vocation in entity.vocations %}
+                {% for vocation in center.vocations %}
                     <li>{{ vocation.name }}</li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 
-    <p>Created {{ entity.created | date('Y-m-d H:i:s') }} by {{ entity.createdBy.username }}</p>
-    <p>Last Updated {{ entity.updated | date('Y-m-d H:i:s') }} by {{ entity.updatedBy.username }}</p>
+    <p>Created {{ center.created | date('Y-m-d H:i:s') }} by {{ center.createdBy.username }}</p>
+    <p>Last Updated {{ center.updated | date('Y-m-d H:i:s') }} by {{ center.updatedBy.username }}</p>
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <a class="btn btn-default btn-center-edit" href="{{ path('center_edit', { 'id': entity.id }) }}">Edit</a>
+            <a class="btn btn-default btn-center-edit" href="{{ path('center_edit', { 'id': center.id }) }}">Edit</a>
             <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
         </div>
     </div>
@@ -71,7 +71,7 @@
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ path('center_edit', { 'id': entity.id }) }}"
+                    url: "{{ path('center_edit', { 'id': center.id }) }}"
                     success: function(data,textStatus){
                         if ( textStatus == 'success' ) {
                             // reload page

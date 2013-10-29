@@ -44,7 +44,7 @@ class CenterController extends Controller
         );
     }
     /**
-     * Creates a new Center entity.
+     * Creates a new Center.
      *
      * @Route("/", name="center_create")
      * @Method("POST")
@@ -52,17 +52,17 @@ class CenterController extends Controller
      */
     public function createAction(Request $request)
     {
-        $entity  = new Center();
-        $form = $this->createForm(new CenterType(), $entity);
+        $center  = new Center();
+        $form = $this->createForm(new CenterType(), $center);
         $form->submit($request);
 
-        if ($form->isValid()) {
+        if ( $form->isValid() ) {
             $em = $this->getDoctrine()->getManager();
 
-            $entity->setCreatedBy($this->getUser());
-            $entity->setUpdatedBy($this->getUser());
+            $center->setCreatedBy($this->getUser());
+            $center->setUpdatedBy($this->getUser());
 
-            $em->persist($entity);
+            $em->persist($center);
             $em->flush();
 
             $this->get('session')->getFlashBag()->add(
@@ -70,17 +70,17 @@ class CenterController extends Controller
                 'Center created successfully!'
             );
 
-            return $this->redirect($this->generateUrl('center_show', array('id' => $entity->getId())));
+            return $this->redirect($this->generateUrl('center_show', array('id' => $center->getId())));
         }
 
         return array(
-            'entity' => $entity,
+            'center' => $center,
             'form'   => $form->createView(),
         );
     }
 
     /**
-     * Displays a form to create a new Center entity.
+     * Displays a form to create a new Center.
      *
      * @Route("/new", name="center_new")
      * @Method("GET")
@@ -88,17 +88,17 @@ class CenterController extends Controller
      */
     public function newAction()
     {
-        $entity = new Center();
-        $form   = $this->createForm(new CenterType(), $entity);
+        $center = new Center();
+        $form   = $this->createForm(new CenterType(), $center);
 
         return array(
-            'entity' => $entity,
+            'center' => $center,
             'form'   => $form->createView(),
         );
     }
 
     /**
-     * Finds and displays a Center entity.
+     * Finds and displays a Center.
      *
      * @Route("/{id}", name="center_show")
      * @Method("GET")
@@ -108,22 +108,22 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+        $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Center entity.');
+        if ( !$center ) {
+            throw $this->createNotFoundException('Unable to find Center.');
         }
 
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
-            'entity'      => $entity,
+            'center' => $center,
             'delete_form' => $deleteForm->createView(),
         );
     }
 
     /**
-     * Displays a form to edit an existing Center entity.
+     * Displays a form to edit an existing Center.
      *
      * @Route("/{id}/edit", name="center_edit")
      * @Method("GET")
@@ -133,24 +133,24 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+        $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Center entity.');
+        if (!$center) {
+            throw $this->createNotFoundException('Unable to find Center.');
         }
 
-        $editForm = $this->createForm(new CenterType(), $entity);
+        $editForm = $this->createForm(new CenterType(), $center);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
-            'entity'      => $entity,
+            'center'      => $center,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );
     }
 
     /**
-     * Edits an existing Center entity.
+     * Edits an existing Center.
      *
      * @Route("/{id}", name="center_update")
      * @Method("PUT")
@@ -160,61 +160,53 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+        $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Center entity.');
+        if (!$center) {
+            throw $this->createNotFoundException('Unable to find Center.');
         }
-
-        $entity->setUpdatedBy($this->getUser());
 
         // Create an array of the current Dorm objects in the database
         $originalDorms = array();
-        foreach ($entity->getDorms() as $dorm) {
-            $originalDorms[] = $dorm;
+        foreach ($center->getDorms() as $dorm) {
+            $originalDorms[] = $dorm->getId();
         }
 
         // Create an array of the current Vocation objects in the database
         $originalVocations = array();
-        foreach ($entity->getVocations() as $vocation) {
-            $originalVocations[] = $vocation;
+        foreach ($center->getVocations() as $vocation) {
+            $originalVocations[] = $vocation->getId();
         }
 
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new CenterType(), $entity);
+        $editForm = $this->createForm(new CenterType(), $center);
         $editForm->submit($request);
 
         if ( $editForm->isValid() ) {
 
-            $em->flush();
+            $center->setUpdatedBy($this->getUser());
 
             // filter $originalDorms to contain Dorms no longer present
-            $removedDorms = array();
-            foreach ($entity->getDorms() as $dorm) {
-                foreach ($originalDorms as $key => $toDel) {
-                    if ($toDel->getId() === $dorm->getId()) {
-                        $removedDorms[] = $originalDorms[$key];
-                    }
-                }
+            $newDorms = array();
+            foreach ( $center->getDorms() as $dorm ) {
+                $newDorms[] = $dorm->getId();
             }
 
             // remove the relationship between the Dorm and the Center
-            foreach ($removedDorms as $dorm) {
+            foreach ( array_diff($originalDorms,$newDorms) as $dormId ) {
+                $dorm = $em->getRepository('CssrMainBundle:Dorm')->find($dormId);
                 $em->remove($dorm);
             }
 
             // filter $originalVocations to contain Vocations no longer present
-            $removedVocations = array();
-            foreach ($entity->getVocations() as $vocation) {
-                foreach ($originalVocations as $key => $toDel) {
-                    if ($toDel->getId() === $vocation->getId()) {
-                        $removedVocations[] = $originalVocations[$key];
-                    }
-                }
+            $newVocations = array();
+            foreach ( $center->getVocations() as $vocation ) {
+                $newVocations[] = $vocation->getId();
             }
 
             // remove the relationship between the Vocation and the Center
-            foreach ($removedVocations as $vocation) {
+            foreach ( array_diff($originalVocations,$newVocations) as $vocationId ) {
+                $vocation = $em->getRepository('CssrMainBundle:Vocation')->find($vocationId);
                 $em->remove($vocation);
             }
 
@@ -229,14 +221,14 @@ class CenterController extends Controller
         }
 
         return array(
-            'entity'      => $entity,
+            'center'      => $center,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );
     }
 
     /**
-     * Deletes a Center entity.
+     * Deletes a Center.
      *
      * @Route("/{id}", name="center_delete")
      * @Method("DELETE")
@@ -248,13 +240,13 @@ class CenterController extends Controller
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:Center')->find($id);
+            $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Center entity.');
+            if (!$center) {
+                throw $this->createNotFoundException('Unable to find Center.');
             }
 
-            $entity->setActive(0); // logical delete
+            $center->setActive(0); // logical delete
 
             $em->flush();
 
@@ -284,9 +276,9 @@ class CenterController extends Controller
     }
 
     /**
-     * Creates a form to delete a Center entity by id.
+     * Creates a form to delete a Center by id.
      *
-     * @param mixed $id The entity id
+     * @param mixed $id The center id
      *
      * @return \Symfony\Component\Form\Form The form
      */

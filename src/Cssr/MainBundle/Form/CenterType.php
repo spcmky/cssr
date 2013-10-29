@@ -21,6 +21,7 @@ class CenterType extends AbstractType
         $builder->add('dorms', 'collection', array(
             'type' => new DormType(),
             'allow_add' => true,
+            'allow_delete' => true,
             'by_reference' => false,
             'required' => false
         ));
@@ -28,6 +29,7 @@ class CenterType extends AbstractType
         $builder->add('vocations', 'collection', array(
             'type' => new VocationType(),
             'allow_add' => true,
+            'allow_delete' => true,
             'by_reference' => false,
             'required' => false
         ));
