@@ -22,7 +22,7 @@ class MessageType extends AbstractType
 
         $builder->add('body','textarea',array(
             'attr' => array(
-                'rows' => 5
+                'rows' => 10
             )
         ));
 
