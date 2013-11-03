@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset={{ _charset }}"/>
     <meta name="robots" content="noindex,nofollow" />
-    <title>Career Success Standards Rating</title>
+    <title>An Error Occurred: {{ status_text }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {% stylesheets '@css_bootstrap' %}
@@ -46,8 +46,6 @@
 
 <body>
 
-<a class="sr-only" href="#content">Skip navigation</a>
-
 <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
     <div class="container cssr-header">
         <div class="navbar-header">
@@ -59,57 +57,20 @@
             </button>
             <a href="{{ path('cssr_main_default_index') }}" class="navbar-brand sr-only">Career Success Standards Rating</a>
         </div>
-        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
-            <p class="navbar-text pull-right">
-                {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                    {{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }} |
-                    <a class="navbar-link" href="{{ path('fos_user_security_logout') }}">
-                        {{ 'layout.logout'|trans({}, 'FOSUserBundle') }}
-                    </a>
-                {% else %}
-                    <a class="navbar-link" href="{{ path('fos_user_security_login') }}">{{ 'layout.login'|trans({}, 'FOSUserBundle') }}</a>
-                {% endif %}
-            </p>
-            {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                {{ render(controller('CssrMainBundle:Center:showMenu')) }}
-            {% endif %}
-        </nav>
     </div>
 </header>
 
 <div class="container">
-    <div class="row">
 
-        {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-        <div class="hidden-print col-lg-2">
+    <h1>Oops! An Error Occurred</h1>
+    <h2>The server returned a "{{ status_code }} {{ status_text }}".</h2>
+    <p>
+        Something is broken. Please e-mail us at [email] and let us know
+        what you were doing when this error occurred. We will fix it as soon
+        as possible. Sorry for any inconvenience caused.
+    </p>
 
-            {{ render(controller('CssrMainBundle:Default:showMenu')) }}
-
-        </div>
-        {% endif %}
-
-        <div class="col-lg-10 {% if not is_granted("IS_AUTHENTICATED_REMEMBERED") %}col-lg-offset-2{% endif %}" role="main">
-
-            {% block breadcrumb %}{% endblock %}
-
-            {% block page_header %}{% endblock %}
-
-            {% for type, messages in app.session.flashbag.all() %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ type }} alert-dismissable">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endfor %}
-
-            {% block body %}{% endblock %}
-            {% block content %}{% endblock %}
-
-        </div>
-    </div>
 </div>
-
 
 <footer role="contentinfo">
     <div class="container">

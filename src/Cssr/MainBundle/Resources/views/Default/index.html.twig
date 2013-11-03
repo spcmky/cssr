@@ -22,16 +22,16 @@
     {% for message in messages %}
         <div class="panel panel-primary">
             <div class="panel-heading">
-                <h3 class="panel-title">{{ message.title|escape }}</h3>
+                <h3 class="panel-title">{{ message.title|raw }}</h3>
             </div>
             <div class="panel-body">
-                {{ message.body|escape }}
+                {{ message.body|raw|nl2br }}
             </div>
             <div class="panel-footer">
                 {% if message.updated %}
-                Updated by <a href="{{ path('staff_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> on {{ message.updated|date('m/d/Y') }}
+                Updated by <a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> on {{ message.updated|date('m/d/Y') }}
                 {% else %}
-                Posted by <a href="{{ path('staff_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> on {{ message.created|date('m/d/Y') }}
+                Posted by <a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> on {{ message.created|date('m/d/Y') }}
                 {% endif %}</td>
             </div>
         </div>
