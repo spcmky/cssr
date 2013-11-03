@@ -32,6 +32,10 @@ class Report {
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        if ( !$students ) {
+            return array();
+        }
+
         $studentIds = array();
         foreach ( $students as $student ) {
             $studentIds[] = $student['id'];
@@ -49,6 +53,10 @@ class Report {
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $scoreIds = array();
         $commentIds = array();
@@ -148,6 +156,10 @@ class Report {
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        if ( !$students ) {
+            return array();
+        }
+
         $studentIds = array();
         foreach ( $students as $student ) {
             $studentIds[] = $student['id'];
@@ -163,6 +175,10 @@ class Report {
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $student_scores = array();
         foreach ( $students as $student ) {
@@ -207,7 +223,7 @@ class Report {
     }
 
     public static function getFridayCaution ( $em, $activeCenter, $areas, $period ) {
-        $reports = null;
+        $reports = array();
 
         if ( isset($_GET['comments']) ) {
             $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
@@ -225,7 +241,7 @@ class Report {
     }
 
     public static function getFridayChallenge ( $em, $activeCenter, $areas, $period ) {
-        $reports = null;
+        $reports = array();
 
         if ( isset($_GET['comments']) ) {
             $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
@@ -243,7 +259,7 @@ class Report {
     }
 
     public static function getFridayMeetsExpectations ( $em, $activeCenter, $areas, $period ) {
-        $reports = null;
+        $reports = array();
 
         if ( isset($_GET['comments']) ) {
             $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
@@ -261,7 +277,7 @@ class Report {
     }
 
     public static function getFriday40 ( $em, $activeCenter, $areas, $period ) {
-        $reports = null;
+        $reports = array();
 
         if ( isset($_GET['comments']) ) {
             $allReports = self::getFridayAllComments($em,$activeCenter,$areas,$period);
@@ -317,6 +333,10 @@ class Report {
         $stmt->bindValue('period', $period, 'datetime');
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $student_scores = array();
         foreach ( $students as $student ) {
@@ -401,6 +421,10 @@ class Report {
         $stmt->bindValue('period', $period, 'datetime');
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $scoreIds = array();
         $commentIds = array();
@@ -503,6 +527,10 @@ class Report {
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
+        if ( !$scores ) {
+            return array();
+        }
+
         $students = array();
         $previous = null;
 
@@ -540,7 +568,7 @@ class Report {
 
     public static function getStudentRecord ( $em, $areas, $studentId ) {
 
-        // find students
+        // find student
         $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename ';
         $sql .= 'FROM cssr_user U ';
         $sql .= 'WHERE U.id = '.$studentId.' ';
@@ -562,6 +590,10 @@ class Report {
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $commentIds = array();
         foreach ( $scores as $score ) {
@@ -679,6 +711,10 @@ class Report {
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        if ( !$students ) {
+            return array();
+        }
+
         $studentIds = array();
         foreach ( $students as $student ) {
             $studentIds[] = $student['id'];
@@ -698,6 +734,10 @@ class Report {
         $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $commentIds = array();
         foreach ( $scores as $score ) {
@@ -839,15 +879,18 @@ class Report {
             $commentIds[] = $score['comment_id'];
         }
 
-        // get comment standards
-        $sql  = 'SELECT S.id, S.name, CS.comment_id ';
-        $sql .= 'FROM cssr_comment_standard CS ';
-        $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
-        $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
-        $sql .= 'ORDER BY CS.comment_id ';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $commentStandards = $stmt->fetchAll();
+        $commentStandards = array();
+        if ( !empty($commentIds) ) {
+            // get comment standards
+            $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+            $sql .= 'FROM cssr_comment_standard CS ';
+            $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+            $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+            $sql .= 'ORDER BY CS.comment_id ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $commentStandards = $stmt->fetchAll();
+        }
 
         // populate scores
         foreach ( $scores as $score ) {
@@ -940,6 +983,10 @@ class Report {
             'periods' => array()
         );
 
+        if ( empty($scores) ) {
+            return $studentScores;
+        }
+
         foreach ( $scores as $score ) {
 
             $period = new \DateTime($score['period']);
@@ -1005,13 +1052,13 @@ class Report {
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        if ( !$students ) {
+            return array();
+        }
+
         $studentIds = array();
         foreach ( $students as $student ) {
             $studentIds[] = $student['id'];
-        }
-
-        if ( empty($studentIds) ) {
-            return array();
         }
 
         // scores
@@ -1024,6 +1071,10 @@ class Report {
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $scores = $stmt->fetchAll();
+
+        if ( !$scores ) {
+            return array();
+        }
 
         $student_scores = array();
         foreach ( $students as $student ) {
@@ -1081,13 +1132,13 @@ class Report {
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        if ( !$students ) {
+            return array();
+        }
+
         $studentIds = array();
         foreach ( $students as $student ) {
             $studentIds[] = $student['id'];
-        }
-
-        if ( empty($studentIds) ) {
-            return array();
         }
 
         // scores
@@ -1103,6 +1154,10 @@ class Report {
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
+        if ( !$scores ) {
+            return array();
+        }
+
         $scoreIds = array();
         $commentIds = array();
         foreach ( $scores as $score ) {
@@ -1110,15 +1165,18 @@ class Report {
             $commentIds[] = $score['comment_id'];
         }
 
-        // get comment standards
-        $sql  = 'SELECT S.id, S.name, CS.comment_id ';
-        $sql .= 'FROM cssr_comment_standard CS ';
-        $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
-        $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
-        $sql .= 'ORDER BY CS.comment_id ';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $commentStandards = $stmt->fetchAll();
+        $commentStandards = array();
+        if ( !empty($commentIds) ) {
+            // get comment standards
+            $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+            $sql .= 'FROM cssr_comment_standard CS ';
+            $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+            $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+            $sql .= 'ORDER BY CS.comment_id ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $commentStandards = $stmt->fetchAll();
+        }
 
         $student_scores = array();
         foreach ( $students as $student ) {
@@ -1190,6 +1248,16 @@ class Report {
 
     public static function getWeeklyStatistics ( $em, $center_id, $periodStart, $periodEnd ) {
 
+        $center = $em->getRepository('CssrMainBundle:Center')->find($center_id);
+
+        $stats = array(
+            'center' => $center,
+            'caution' => 0,
+            'challenge' => 0,
+            'great' => 0,
+            'expected' => 0
+        );
+
         $sql  = 'SELECT DISTINCT(U.id) ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = student_id ';
@@ -1213,21 +1281,10 @@ class Report {
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
-        $center = $em->getRepository('CssrMainBundle:Center')->find($center_id);
-
-        $stats = array(
-            'center' => $center,
-            'caution' => 0,
-            'challenge' => 0,
-            'great' => 0,
-            'expected' => 0
-        );
-
         $student_scores = array();
         foreach ( $students as $student ) {
             $student_scores[$student['id']] = $student;
             $student_scores[$student['id']]['scores'] = array();
-
 
             // populate scores
             $studentTotalScore = 0;
