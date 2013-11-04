@@ -7,9 +7,11 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        {% if user_is_granted(user,'score admin') %}
         <li><a href="{{ path('score') }}">Scores</a></li>
         <li><a href="{{ path('score_student') }}">Students</a></li>
-        <li class="active">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</li>
+        {% endif %}
+        <li class="active">{{ staff.firstname|capitalize }} {{ staff.lastname|capitalize }}</li>
     </ol>
 {% endblock %}
 

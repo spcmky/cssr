@@ -450,7 +450,7 @@ class ScoreController extends Controller
         }
 
         $sql = "
-        SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname, U.middlename user_middlename
+        SELECT C.id, A.id area_id, A.name area_name, U.id student_id, U.firstname user_firstname, U.lastname user_lastname, U.middlename user_middlename
         FROM cssr_student_course UC
         LEFT JOIN cssr_course C ON C.id = UC.course_id
         LEFT JOIN cssr_area A ON A.id = C.area_id
@@ -473,17 +473,96 @@ class ScoreController extends Controller
             $scores = $stmt->fetchAll();
         }
 
+        $scoreIds = array();
+        foreach ( $scores as $s ) {
+            $scoreIds[] = $s['id'];
+        }
+        if ( !empty($scoreIds) ) {
+            $sql = "SELECT C.id, C.comment, C.score_id, C.updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname
+            FROM cssr_comment C
+            LEFT JOIN cssr_user U ON U.id = C.updated_by
+            WHERE score_id IN (".implode(',',$scoreIds).") ";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $comments = $stmt->fetchAll();
+        }
+
+        if ( !empty($comments) ) {
+            foreach ( $comments as $c ) {
+                $commentIds[] = $c['id'];
+            }
+
+            // get comment standards
+            $sql  = 'SELECT S.id, S.name, CS.comment_id ';
+            $sql .= 'FROM cssr_comment_standard CS ';
+            $sql .= 'LEFT JOIN cssr_standard S ON S.id = CS.standard_id ';
+            $sql .= 'WHERE CS.comment_id IN ('.implode(',',$commentIds).') ';
+            $sql .= 'ORDER BY CS.comment_id ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $commentStandards = $stmt->fetchAll();
+        }
+
+        $student_scores = array();
+        foreach ( $student_courses as $course ) {
+
+            $student_scores[$course['student_id']] = array(
+                'student' => array(
+                    'id' => $course['student_id'],
+                    'firstname' => $course['user_firstname'],
+                    'middlename' => $course['user_middlename'],
+                    'lastname' => $course['user_lastname']
+                ),
+                'course' => array(
+                    'id' => $course['id'],
+                    'name' => $course['area_name']
+                ),
+                'score' => array(
+                    'id' => null,
+                    'value' => null
+                ),
+                'comment' => null
+            );
+
+            foreach ( $scores as $score ) {
+                if ( $score['course_id'] == $course['id'] && $score['student_id'] == $course['student_id'] ) {
+                    $student_scores[$course['student_id']]['score']['value'] = $score['value'];
+                    $student_scores[$course['student_id']]['score']['id'] = $score['id'];
+
+                    foreach ( $comments as $comment ) {
+                        if ( $comment['score_id'] == $score['id'] ) {
+                            $student_scores[$course['student_id']]['comment'] = array(
+                                'id' => $comment['id'],
+                                'body' => $comment['comment'],
+                                'updated' => $comment['updated'],
+                                'updater' => array(
+                                    'id' => $comment['updater_id'],
+                                    'firstname' => $comment['updater_firstname'],
+                                    'lastname' => $comment['updater_lastname']
+                                ),
+                                'standards' => array()
+                            );
+
+                            foreach ( $commentStandards as $standard ) {
+                                if ( $standard['comment_id'] == $comment['id'] ) {
+                                    $student_scores[$course['student_id']]['comment']['standards'][] = $standard['name'];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         return array(
             'user' => $this->getUser(),
             'period' => $period,
             'period_start' => $period_start,
             'period_end' => $period_end,
             'periods' => $periods,
-            'students' => $students,
-            'student_courses' => $student_courses,
-            'courses' => $courses,
+            'scores' => $student_scores,
             'standards' => $standards,
-            'scores' => $scores,
             'staff' => $staff
         );
     }

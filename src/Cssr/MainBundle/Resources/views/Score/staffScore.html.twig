@@ -28,7 +28,12 @@
     {%  endif %}
 
     <h3><a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.firstname|capitalize }} {{ staff.lastname|capitalize }}</a></h3>
-    <form>
+
+    <form id="staff-student-scores" name="staff-student-scores">
+
+    <div style="display: none;" class="alert alert-success"></div>
+    <div style="display: none;" class="alert alert-danger"></div>
+
     <table class="table table-hover table-bordered">
         <thead>
         <tr>
@@ -40,24 +45,24 @@
         </tr>
         </thead>
         <tbody>
-        {% for course in student_courses %}
+        {% for score in scores %}
 
             {% set value = 'N/A' %}
-            {% for score in scores %}
-                {% if score.course_id == course.id and score.student_id == course.user_id %}
-                    {% set value = score.value %}
-                {% endif %}
-            {% endfor %}
+            {% set score_id = '-1' %}
+            {% if score.score.id %}
+                {% set value = score.score.value %}
+                {% set score_id = score.score.id %}
+            {% endif %}
 
-            <tr>
-                <td>{{ course.user_lastname|capitalize }}, {{ course.user_firstname|capitalize }} {{ course.user_middlename|capitalize }}</td>
-                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ course.area_name }}</td>
+            <tr data-scoreId="{{ score_id }}" data-studentId="{{ score.student.id }}" data-courseId="{{ score.course.id }}">
+                <td>{{ score.student.lastname|capitalize }}, {{ score.student.firstname|capitalize }} {{ score.student.middlename|capitalize }}</td>
+                <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ score.course.name }}</td>
                 <td style="text-align: center;">
-                    <select class="">
+                    <select class="score-value">
                         <option>N/A</option>
-                    {% for i in 1..5 %}
+                        {% for i in 1..5 %}
                         <option {% if value == i %}selected="selected"{% endif %}>{{ i }}</option>
-                    {% endfor %}}
+                        {% endfor %}}
                     </select>
                 </td>
                 <td style="font-size: 10px;">
@@ -67,8 +72,17 @@
                         <div class="col-lg-6">
                         {% endif %}
 
+                        {% set checked = '' %}
+                        {% if score.comment is iterable and score.comment.standards is iterable %}
+                            {% for standard_name in score.comment.standards %}
+                                {% if standard_name == standard.name %}
+                                    {% set checked = 'checked="checked"' %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
                         <label class="checkbox">
-                            <input type="checkbox" name="standards[]" value="{{ standard.id }}"> {{ standard.name }}
+                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}" {{ checked }}> {{ standard.name }}
                         </label>
 
                         {% if loop.index0 % 4 == 3 %}
@@ -78,7 +92,10 @@
                     </div>
                 </td>
                 <td>
-                    <textarea class="form-control" rows="5"></textarea>
+                    <textarea class="form-control score-comment" rows="5" data-commentId="{% if score.comment is iterable %}{{ score.comment.id }}{% else %}-1{% endif %}">{% if score.comment is iterable %}{{ score.comment.body }}{% endif %}</textarea>
+                    {% if score.comment is iterable %}
+                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
+                    {% endif %}
                 </td>
             </tr>
 
@@ -87,10 +104,182 @@
     </table>
     </form>
 
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <a class="btn btn-primary btn-score-save" href="javascript:void(0)">Save</a>
-        </div>
-    </div>
+    <script type="text/javascript">
+        // Get the ul that holds the collection of tags
+        (function() {
 
+            $(function() {
+
+                // check for value change
+                $('select.score-value').on('change', function(){
+
+                    var _this = this;
+                    var scoreId = $(this).parent().parent().data('scoreid');
+
+                    if ( scoreId < 0 ) {
+
+                        var data = {
+                            value: $(this).val(),
+                            student: $(this).parent().parent().data('studentid'),
+                            course: $(this).parent().parent().data('courseid'),
+                            period: $('#periodSelector').val()
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: '{{ path("score_create") }}',
+                            data: data,
+                            success: function(data,textStatus){
+                                if ( textStatus == 'success' && data.status == 'success' ) {
+                                    //console.log('success');
+                                    $(_this).parent().parent().data('scoreid',data.scoreId);
+
+                                    $('#staff-student-scores').find('.alert-success').html('Score created successfully!').show();
+                                    setTimeout(function(){
+                                        $('#staff-student-scores').find('.alert-success').hide();
+                                    },3000);
+
+                                } else {
+                                    $('#staff-student-scores').find('.alert-danger').html('Score creation failed!').show();
+                                    setTimeout(function(){
+                                        $('#staff-student-scores').find('.alert-danger').hide();
+                                    },3000);
+                                    //console.log('failed');
+                                }
+                            },
+                            dataType: 'json'
+                        });
+
+                    } else {
+
+                        var data = {
+                            value: $(this).val(),
+                            _method: 'PUT'
+                        };
+
+                        var url = '{{ path("score_update", {'id': 'score_id'}) }}';
+                        url = url.replace("score_id", scoreId);
+
+                        $.ajax({
+                            type: "PUT",
+                            url: url,
+                            data: data,
+                            success: function(data,textStatus){
+                                if ( textStatus == 'success' && data.status == 'success' ) {
+                                    //console.log('success');
+                                    $('#staff-student-scores').find('.alert-success').html('Score updated successfully!').show();
+                                    setTimeout(function(){
+                                        $('#staff-student-scores').find('.alert-success').hide();
+                                    },3000);
+
+                                } else {
+                                    $('#staff-student-scores').find('.alert-danger').html('Score update failed!').show();
+                                    setTimeout(function(){
+                                        $('#staff-student-scores').find('.alert-danger').hide();
+                                    },3000);
+                                    //console.log('failed');
+                                }
+                            },
+                            dataType: 'json'
+                        });
+                    }
+
+                });
+
+                // check for comment
+                $('textarea.score-comment').on('focus', function(){
+                    var initialValue = $(this).val();
+                    var _this = this;
+
+                    function testForChange() {
+                        if ( $(_this).val() != initialValue ) {
+                            var scoreId = $(_this).parent().parent().data('scoreid');
+                            if ( scoreId > 0 ) {
+                                // need a score id before we can submit
+
+                                var commentId = $(_this).data('commentid');
+
+                                if ( commentId < 0 ) {
+                                    var data = {
+                                        comment: $(_this).val(),
+                                        score: scoreId,
+                                        standards: []
+                                    };
+
+                                    var checked_standards = $(_this).parent().parent().find('input:checked');
+                                    $.each(checked_standards,function(){
+                                        data.standards.push($(this).val());
+                                    })
+
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '{{ path("comment_create") }}',
+                                        data: data,
+                                        success: function(data,textStatus){
+                                            if ( textStatus == 'success' && data.status == 'success' ) {
+                                                console.log('success');
+                                                $(_this).data('commentid',data.commentId);
+
+
+                                            } else {
+                                                console.log('failed');
+                                            }
+                                        },
+                                        dataType: 'json'
+                                    });
+                                } else {
+                                    var data = {
+                                        comment: $(_this).val(),
+                                        standards: [],
+                                        _method: 'PUT'
+                                    };
+
+                                    var checked_standards = $(_this).parent().parent().find('input:checked');
+                                    $.each(checked_standards,function(){
+                                        data.standards.push($(this).val());
+                                    })
+
+                                    var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
+                                    url = url.replace("comment_id", commentId);
+
+                                    $.ajax({
+                                        type: "PUT",
+                                        url: url,
+                                        data: data,
+                                        success: function(data,textStatus){
+                                            if ( textStatus == 'success' && data.status == 'success' ) {
+                                                console.log('success');
+
+                                                //$(_this).data('commentid',data.commentId);
+
+
+                                            } else {
+                                                console.log('failed');
+                                            }
+                                        },
+                                        dataType: 'json'
+                                    });
+                                }
+
+
+                            }
+                        }
+                    }
+
+                    $(this).on('blur',function() {
+                        window.clearInterval(timer);
+                        testForChange();
+                        $(_this).unbind("blur");
+                    });
+
+                    var timer = window.setInterval(function() {
+                        //testForChange();
+                    }, 500);
+                });
+
+
+            });
+
+        })();
+    </script>
 {% endblock %}
