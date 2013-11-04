@@ -102,7 +102,6 @@ footer .container a {
 }
 
 #stats-insights div.alert {
-    width: 250px;
     text-align: center;
 }
 
@@ -128,4 +127,29 @@ label {
 
 #cssr_mainbundle_studenttype_entry div.bootstrap-select {
     width: 100px;
+}
+
+.report-avg-score-value {
+    font-size: 1200%;
+}
+.report-avg-score {
+    font-size: 200%;
+}
+
+.stats-insight-name {
+    font-size: 150%;
+}
+
+.stats-insight-value {
+    font-size: 400%;
+}
+
+@media print {
+
+    body { padding-top: 2px; }
+    body .container { padding-bottom: 2px; }
+
+    .col-md-4{float:left;}
+    .col-md-2{float:left;}
+
 }

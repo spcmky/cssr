@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block breadcrumb %}
-    <ol class="breadcrumb">
+    <ol class="breadcrumb hidden-print">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         {% if center.id %}
         <li><a href="{{ path('report') }}">Reports</a></li>
@@ -18,11 +18,9 @@
 
     <h4>Statistics for the week of {{periodStart.format('m/d/Y')}} - {{periodEnd.format('m/d/Y')}}</h4>
 
-    <div class="panel panel-default">
+    <div class="panel panel-default hidden-print">
         <div class="panel-body">
-
             <form class="form-inline" role="form" id="periodRangeSelector">
-
                 <div class="form-group">
                     <label for="periodSelectorStart">Start at Week:</label>
                     <select class="form-control period-selector" name="periodSelectorStart" id="periodSelectorStart">
@@ -41,23 +39,20 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
-
         </div>
     </div>
 
     {% for report in reports %}
     <div class="panel panel-default weekly-report-card">
         <div class="panel-body">
-
-
     <h2>{{ report.center.name }}</h2>
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-md-4  col-md-offset-1">
             <h4>Derived from {{ report.total }} scores</h4>
-            <div style="font-size: 180px;">{{ report.avg }}</div>
-            <div style="font-size: 36px;">Average Score</div>
+            <div class="report-avg-score-value">{{ report.avg }}</div>
+            <div class="report-avg-score">Average Score</div>
         </div>
-        <div class="col-lg-2">
+        <div class="col-md-2">
             <h4>History</h4>
             {% for score in report.period_avgs %}
                 {% if score.period|date('U') >= periodStart.format('U') and score.period|date('U') <= periodEnd.format('U') %}
@@ -67,31 +62,26 @@
                 {% endif %}
             {% endfor %}
         </div>
-        <div class="col-lg-6" id="stats-insights">
+        <div class="col-md-4" id="stats-insights">
             <h4>Performance Insights</h4>
-
             <div class="alert alert-success">
-                <div style="font-size: 56px;">{{ report.greatp }}%</div>
-                <div style="font-size: 20px;">4.0</div>
+                <div class="stats-insight-value">{{ report.greatp }}%</div>
+                <div class="stats-insight-name">4.0</div>
             </div>
-
             <div class="alert alert-info">
-                <div style="font-size: 56px;">{{ report.expectedp }}%</div>
-                <div style="font-size: 20px;">Meets Expectations</div>
+                <div class="stats-insight-value">{{ report.expectedp }}%</div>
+                <div class="stats-insight-name">Meets Expectations</div>
             </div>
-
             <div class="alert alert-warning">
-                <div style="font-size: 56px;">{{ report.cautionp }}%</div>
-                <div style="font-size: 20px;">Caution</div>
+                <div class="stats-insight-value">{{ report.cautionp }}%</div>
+                <div class="stats-insight-name">Caution</div>
             </div>
-
             <div class="alert alert-danger">
-                <div style="font-size: 56px;">{{ report.challengep }}%</div>
-                <div style="font-size: 20px;">Challenge</div>
+                <div class="stats-insight-value">{{ report.challengep }}%</div>
+                <div class="stats-insight-name">Challenge</div>
             </div>
         </div>
     </div>
-
         </div>
     </div>
     {% endfor %}
