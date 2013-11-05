@@ -12,6 +12,8 @@ class ImportCommand extends ContainerAwareCommand
     protected $DB_Old;
     protected $DB_New;
 
+    protected $output;
+
     protected function configure()
     {
         $this
@@ -27,23 +29,24 @@ class ImportCommand extends ContainerAwareCommand
 
         // create db connections
         try {
-            $this->DB_Old = new \PDO('mysql:host=localhost;dbname=cssr_original', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
-            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
+            $this->DB_Old = new \PDO('mysql:host=localhost;dbname=cssr_import', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
+            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr_latest', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
         } catch ( \Exception $e ) {
             $this->output->writeln($e.getMessage());
         }
 
+        //$this->createAreas();
+        //$this->createStandards();
+        //$this->createGroups();
+
         //$this->createCenters();
         //$this->createDorms();
         //$this->createVocations();
-        //$this->createAreas();
-        //$this->createUsers();
 
-        $this->createMessages();
+        //$this->createUsers();
+        //$this->addUsersToGroups();
 
         //$this->createCourses();
-
-        //$this->addUsersToGroups();
 
         //$this->addCoursesToStudents();
 
@@ -51,7 +54,54 @@ class ImportCommand extends ContainerAwareCommand
 
         //$this->addStudentScoreComments();
 
+        //$this->createMessages();
 
+    }
+
+    protected function createStandards() {
+
+        $this->output->writeln('Adding standards...');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
+
+        $inserts = array(
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (1,'Workplace Relationships and Ethics')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (2,'Personal Growth and Development')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (3,'Communications')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (4,'Interpersonal Skills')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (5,'Information Management')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (6,'Multicultural Awareness')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (7,'Career and Personal Planning')",
+            "INSERT INTO `cssr_standard` (`id`,`name`) VALUES (8,'Independent Living')"
+        );
+
+        foreach ( $inserts as $sql ) {
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+        }
+    }
+
+    protected function createGroups() {
+
+        $this->output->writeln('Adding groups...');
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null); // turn off logger
+
+        $inserts = array(
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (1,'Corporate Administrator','a:0:{}')",
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (2,'Center Administrator','a:0:{}')",
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (3,'Center Account Coordinator','a:0:{}')",
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (4,'Center Management','a:0:{}')",
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (5,'Staff Member','a:0:{}')",
+            "INSERT INTO `cssr_group` (`id`,`name`,`roles`) VALUES (6,'Student','a:0:{}')"
+        );
+
+        foreach ( $inserts as $sql ) {
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+        }
     }
 
     protected function addStudentScoreComments() {
@@ -172,6 +222,9 @@ class ImportCommand extends ContainerAwareCommand
         foreach ( $students as $student ) {
 
             $scores = $this->DB_Old->query("SELECT * FROM sertblscores WHERE intUserID = ".$student['id'],\PDO::FETCH_OBJ);
+            if ( !$scores ) {
+                continue;
+            }
 
             $sql = "
             SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
@@ -253,8 +306,8 @@ class ImportCommand extends ContainerAwareCommand
                 $sql = "SELECT id FROM cssr_course WHERE user_id = ".$s->intStaffID." AND area_id = ".$s->intAreaID." ";
                 $course_id = $this->DB_New->query($sql)->fetchColumn();
 
-                $sql = 'INSERT INTO cssr_student_course (course_id,student_id)
-                    VALUES ('.$course_id.','.$s->intStudentID.')';
+                $sql = 'INSERT INTO cssr_student_course (course_id,student_id,enrolled)
+                    VALUES ('.$course_id.','.$s->intStudentID.',1)';
                 $this->DB_New->query($sql);
             } catch ( \Exception $e ) {
                 $this->output->writeln($e->getMessage());
@@ -329,8 +382,8 @@ class ImportCommand extends ContainerAwareCommand
 
         foreach ( $staff as $s ) {
             try {
-                $sql = 'INSERT INTO cssr_course (user_id,area_id)
-                    VALUES ('.$s->keyUserID.','.$s->intAreaID.')';
+                $sql = 'INSERT INTO cssr_course (user_id,area_id,active)
+                    VALUES ('.$s->keyUserID.','.$s->intAreaID.',1)';
 
                 $this->DB_New->query($sql);
             } catch ( \Exception $e ) {
@@ -530,9 +583,9 @@ class ImportCommand extends ContainerAwareCommand
             //    [varUserCreated] => Wolridgeba
             //    [dtDateCreated] => 2013-01-30 16:32:22
 
-            //$found = $this->DB_New->query('SELECT 1 FROM cssr_user WHERE id = '.$user->keyUserID)->fetchColumn();
+            $found = $this->DB_New->query('SELECT 1 FROM cssr_user WHERE id = '.$user->keyUserID)->fetchColumn();
 
-            if ( /*!$found*/ $user->keyUserID == 48705 ) {
+            if ( !$found ) {
 
                 $new_user = $userManager->createUser();
 
@@ -585,14 +638,6 @@ class ImportCommand extends ContainerAwareCommand
             }
 
             $count++;
-            /*
-            $sql = 'INSERT INTO cssr_user (id,username,)
-                    VALUES ('.$area->keyAreaID.',
-                            \''.$area->varAreaName.'\'
-                    )';
-            */
-            //$this->output->writeln($sql);
-            //$this->DB_New->query($sql);
         }
 
     }
