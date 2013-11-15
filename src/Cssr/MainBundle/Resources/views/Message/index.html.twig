@@ -44,17 +44,15 @@
                     </ul>
                 </td>
                 <td style="width: 100px;">
-                    {% if message.createdBy.id is defined %}
-                        <a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> {{ message.created|date('m/d/Y') }}
+                    {% if message.getCreatedBy.getId > 0 %}
+                        <a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> on {{ message.created|date('m/d/Y') }}
                     {% else %}
                         Unknown
                     {% endif %}
                 </td>
                 <td style="width: 100px;">
-                    {% if message.updatedBy.id is defined %}
-                        {% if message.updated %}
-                            <a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> {{ message.updated|date('m/d/Y') }}
-                        {% endif %}
+                    {% if message.getUpdatedBy.getId > 0 %}
+                        <a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> on {{ message.updated|date('m/d/Y') }}
                     {% else %}
                         Unknown
                     {% endif %}
