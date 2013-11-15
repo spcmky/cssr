@@ -197,6 +197,11 @@ class UserController extends Controller
         if ($editForm->isValid()) {
             $userManager->updateUser($user);
 
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Updated successfully!'
+            );
+
             return $this->redirect($this->generateUrl('user_edit', array('id' => $id)));
         }
 

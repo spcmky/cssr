@@ -21,18 +21,32 @@ class StudentType extends AbstractType
             ->add('middlename')
             ->add('lastname')
             ->add('username')
-            ->add('email')
-            ->add('phone')
-            ->add('entry','date');
+            ->add('email','email')
+            ->add('phone');
+
+            $builder->add('plainPassword', 'repeated', array(
+                'type' => 'password',
+                'options' => array('translation_domain' => 'FOSUserBundle'),
+                'first_options' => array('label' => 'form.new_password'),
+                'second_options' => array('label' => 'form.new_password_confirmation'),
+                'invalid_message' => 'fos_user.password.mismatch',
+            ));
+
+        $builder->add('entry','date');
 
         $builder->add('center', 'entity', array(
             'class' => 'CssrMainBundle:Center',
-            'choices' => $this->options['centers'],
+            'choices' => array($this->options['center']),
             'multiple'  => false,
             'expanded' => false
         ));
 
-        $builder->add('dorm');
+        $builder->add('dorm', 'entity', array(
+            'class' => 'CssrMainBundle:Dorm',
+            'choices' => $this->options['dorms'],
+            'multiple'  => false,
+            'expanded' => false
+        ));
 
 
         $builder->add('enrollment','choice',array(

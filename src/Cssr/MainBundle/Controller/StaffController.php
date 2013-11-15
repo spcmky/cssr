@@ -151,6 +151,11 @@ class StaffController extends Controller
             $em->persist($entity);
             $em->flush();
 
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'User created successfully!'
+            );
+
             return $this->redirect($this->generateUrl('staff_show', array('id' => $entity->getId())));
         }
 
@@ -208,14 +213,17 @@ class StaffController extends Controller
             $courseIds[] = $c['id'];
         }
 
-        $sql  = 'SELECT S.firstname, S.lastname ';
-        $sql .= 'FROM cssr_student_course SC ';
-        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
-        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
-        $sql .= 'ORDER BY S.firstname';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $students = $stmt->fetchAll();
+        $students = null;
+        if ( !empty($courseIds) ) {
+            $sql  = 'SELECT S.firstname, S.lastname ';
+            $sql .= 'FROM cssr_student_course SC ';
+            $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
+            $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
+            $sql .= 'ORDER BY S.firstname';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $students = $stmt->fetchAll();
+        }
 
         $deleteForm = $this->createDeleteForm($id);
 

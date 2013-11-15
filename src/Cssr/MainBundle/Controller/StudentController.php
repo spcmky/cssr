@@ -98,6 +98,8 @@ class StudentController extends Controller
         $form = $this->createForm(new StudentType(array(
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
+            'center' => $center,
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
@@ -141,6 +143,8 @@ class StudentController extends Controller
         $form = $this->createForm(new StudentType(array(
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
+            'center' => $center,
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
