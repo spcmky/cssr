@@ -308,7 +308,8 @@ class ScoreController extends Controller
             'periods' => $periods,
             'student' => $student,
             'standards' => $standards,
-            'scores' => $student_scores
+            'scores' => $student_scores,
+            'user' => $this->getUser()
         );
     }
 
