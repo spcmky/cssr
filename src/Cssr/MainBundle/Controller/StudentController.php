@@ -103,14 +103,19 @@ class StudentController extends Controller
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
-        //$form->add('submit', 'submit', array('label' => 'Create'));
-
         $form->submit($request);
 
         if ( $form->isValid() ) {
 
+            $student->setEnabled(true);
+            $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6)) ;
+
             $em->persist($student);
             $em->flush();
+
+            // take care of courses
+            $data = $request->request->get('cssr_mainbundle_studenttype');
+            Student::enroll($em,$student,$data['enrollment']);
 
             return $this->redirect($this->generateUrl('student_show', array('id' => $student->getId())));
         }
@@ -147,8 +152,6 @@ class StudentController extends Controller
             'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
-
-        //$form->add('submit', 'submit', array('label' => 'Create'));
 
         return array(
             'student' => $student,
@@ -221,6 +224,8 @@ class StudentController extends Controller
         $editForm = $this->createForm(new StudentType(array(
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
+            'center' => $center,
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
@@ -258,6 +263,8 @@ class StudentController extends Controller
         $editForm = $this->createForm(new StudentType(array(
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
+            'center' => $center,
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 

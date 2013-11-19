@@ -92,7 +92,7 @@ class StaffController extends Controller
         $session = $this->getRequest()->getSession();
         $center = $session->get('center');
 
-        if ( $center ) {
+        if ( $center && $group_id > 1 ) {
 
             $sql = "SELECT U.*
             FROM cssr_user_group UG
@@ -140,15 +140,34 @@ class StaffController extends Controller
      * @Method("POST")
      * @Template("CssrMainBundle:Staff:new.html.twig")
      */
-    public function createAction(Request $request)
+    public function createAction ( Request $request )
     {
-        $entity = new User();
-        $form = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
+        $params = $request->request->get('cssr_mainbundle_stafftype');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $group = $em->getRepository('CssrMainBundle:Group')->find($params['groupId']);
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $staff = new User();
+
+        $form = $this->createForm(new StaffType(array(
+            'center' => $center,
+            'group' => $group,
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll()
+        )), $staff);
+
         $form->submit($request);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($entity);
+        if ( $form->isValid() ) {
+
+            $staff->setEnabled(true) ;
+            $staff->addGroup($group);
+
+            $em->persist($staff);
             $em->flush();
 
             $this->get('session')->getFlashBag()->add(
@@ -156,11 +175,11 @@ class StaffController extends Controller
                 'User created successfully!'
             );
 
-            return $this->redirect($this->generateUrl('staff_show', array('id' => $entity->getId())));
+            return $this->redirect($this->generateUrl('staff_show', array('id' => $staff->getId())));
         }
 
         return array(
-            'entity' => $entity,
+            'entity' => $staff,
             'form'   => $form->createView(),
         );
     }
@@ -168,17 +187,29 @@ class StaffController extends Controller
     /**
      * Displays a form to create a new Staff entity.
      *
-     * @Route("/new", name="staff_new")
+     * @Route("/new/{groupId}", name="staff_new")
      * @Method("GET")
      * @Template()
      */
-    public function newAction()
+    public function newAction ( $groupId )
     {
-        $entity = new User();
-        $form = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
+        $em = $this->getDoctrine()->getManager();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $staff = new User();
+
+        $form = $this->createForm(new StaffType(array(
+            'center' => $center,
+            'group' => $em->getRepository('CssrMainBundle:Group')->find($groupId),
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll()
+        )), $staff);
+
 
         return array(
-            'entity' => $entity,
+            'staff' => $staff,
             'form'   => $form->createView(),
         );
     }
@@ -242,21 +273,29 @@ class StaffController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function editAction($id)
+    public function editAction ( $id )
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $user = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
+        if (!$user) {
+            throw $this->createNotFoundException('Unable to find user.');
         }
 
-        $editForm = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $editForm = $this->createForm(new StaffType(array(
+            'center' => $center,
+            'group' => $user->getGroups()->first(),
+        )), $user);
+
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
-            'entity'      => $entity,
+            'user'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );

@@ -7,7 +7,7 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li><a href="{{ path('user') }}">Admins</a></li>
+        <li><a href="{{ path('user') }}">Users</a></li>
         <li><a href="{{ path('user_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></li>
         <li class="active">Edit</li>
     </ol>
@@ -24,6 +24,7 @@
 
             <div class="panel panel-default">
                 <div class="panel-body">
+                    <a class="btn btn-default btn-user-cancel" href="{{ path('user') }}">Cancel</a>
                     <a class="btn btn-primary btn-user-save" href="javascript:void(0)">Save</a>
                     <a class="btn btn-danger btn-user-delete" data-toggle="modal" data-target="#modal-user-delete">Delete</a>
                 </div>

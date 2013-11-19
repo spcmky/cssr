@@ -2,16 +2,15 @@
 
 namespace Cssr\MainBundle\Form;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class StaffType extends AbstractType
-{
-    protected $em;
+class StaffType extends AbstractType {
 
-    public function __construct ( $em = null ) {
-        $this->em = $em;
+    public function __construct ( $options = array() ) {
+        $this->options = $options;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -35,16 +34,25 @@ class StaffType extends AbstractType
 
         $builder->add('center', 'entity', array(
             'class' => 'CssrMainBundle:Center',
-            'choices' => $this->getCenterChoices(),
+            'choices' => array($this->options['center']),
             'multiple'  => false,
-            'expanded' => false
+            'expanded' => false,
+            'required' => true
         ));
 
+        /*
         $builder->add('groups', 'entity', array(
             'class' => 'CssrMainBundle:Group',
-            'choices' => $this->getGroupChoices(),
-            'multiple'  => true,
-            'expanded' => true
+            'choices' => array($this->options['group']),
+            'multiple'  => false,
+            'expanded' => false,
+            'required' => true
+        ));
+        */
+
+        $builder->add('groupId', 'hidden', array(
+            'data' => $this->options['group']->getId(),
+            'mapped' => false
         ));
     }
 
@@ -53,16 +61,6 @@ class StaffType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
-    }
-
-    private function getGroupChoices() {
-        $groups = $this->em->getRepository('CssrMainBundle:Group')->findAll();
-        return $groups;
-    }
-
-    private function getCenterChoices() {
-        $centers = $this->em->getRepository('CssrMainBundle:Center')->findAll();
-        return $centers;
     }
 
     public function getName()

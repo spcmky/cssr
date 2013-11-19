@@ -14,7 +14,7 @@
 
 {% block body -%}
 
-    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('staff_new') }}" class="btn btn-primary">Add Member</a></div>
+    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('staff_new',{ 'groupId': group.id }) }}" class="btn btn-primary">Add Member</a></div>
 
     <table class="table table-striped table-bordered">
         <thead>
@@ -38,6 +38,6 @@
         </tbody>
     </table>
 
-    <div style="text-align: right; margin-top: 5px;"><a href="{{ path('staff_new') }}" class="btn btn-primary">Add Member</a></div>
+    <div style="text-align: right; margin-top: 5px;"><a href="{{ path('staff_new',{ 'groupId': group.id }) }}" class="btn btn-primary">Add Member</a></div>
 
 {% endblock %}

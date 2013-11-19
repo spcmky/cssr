@@ -38,7 +38,8 @@ class UserType extends AbstractType
             'class' => 'CssrMainBundle:Center',
             'choices' => $this->getCenterChoices(),
             'multiple'  => false,
-            'expanded' => false
+            'expanded' => false,
+            'required' =>false
         ));
 
         $builder->add('groups', 'entity', array(

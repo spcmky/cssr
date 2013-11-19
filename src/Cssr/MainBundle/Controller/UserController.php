@@ -33,7 +33,7 @@ class UserController extends Controller
         LEFT JOIN cssr_user U ON U.id = UG.user_id
         LEFT JOIN cssr_group G ON G.id = UG.group_id
         LEFT JOIN cssr_center C ON C.id = U.center_id
-        WHERE UG.group_id IN (1,2,3,4)";
+        WHERE UG.group_id = 1";
 
         $stmt = $em->getConnection()->prepare($sql);
 

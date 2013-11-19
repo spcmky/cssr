@@ -382,6 +382,8 @@ class ScoreController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
+        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
+
         // calculate current week and last completed week
         $today = new \DateTime();
 
@@ -431,6 +433,19 @@ class ScoreController extends Controller
         $stmt->execute();
         $courses = $stmt->fetchAll();
 
+        if ( empty($courses) ) {
+            return array(
+                'user' => $this->getUser(),
+                'period' => $period,
+                'period_start' => $period_start,
+                'period_end' => $period_end,
+                'periods' => $periods,
+                'scores' => array(),
+                'standards' => $standards,
+                'staff' => $staff
+            );
+        }
+
         $courseIds = array();
         foreach ( $courses as $c ) {
             $courseIds[] = $c['id'];
@@ -463,8 +478,6 @@ class ScoreController extends Controller
         $stmt->bindValue('userId', $id);
         $stmt->execute();
         $student_courses = $stmt->fetchAll();
-
-        $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
         $scores = null;
         if ( $periods ) {

@@ -12,6 +12,7 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
+            <a class="btn btn-default btn-user-cancel" href="{{ path('user') }}">Cancel</a>
             <a class="btn btn-default btn-user-edit" href="{{ path('user_edit', { 'id': entity.id }) }}">Edit</a>
             <a class="btn btn-danger btn-user-delete" data-toggle="modal" data-target="#modal-user-delete">Delete</a>
         </div>
