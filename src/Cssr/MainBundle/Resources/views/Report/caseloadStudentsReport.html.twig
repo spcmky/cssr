@@ -63,7 +63,7 @@
                                 </div>
                                 <div class="col-lg-7">
                                     <p>{{ score.comment.body }}</p>
-                                    <small>Updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</small>
+                                    <small>Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</small>
                                 </div>
                             </div>
 

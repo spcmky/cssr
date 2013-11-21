@@ -11,8 +11,9 @@
     <h1>{{ entity.firstname|capitalize }} {{ entity.lastname|capitalize }}</h1>
 
     <strong>Dorm</strong><br />
-    {{ entity.getDorm().getName() }} <br />
-
+    {% if entity.dorm.name is defined  %}
+        {{ entity.getDorm().getName() }} <br />
+    {% endif %}
     <br />
 
     <strong>Courses</strong>

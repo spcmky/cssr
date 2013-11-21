@@ -117,6 +117,11 @@ class StudentController extends Controller
             $data = $request->request->get('cssr_mainbundle_studenttype');
             Student::enroll($em,$student,$data['enrollment']);
 
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Student created successfully!'
+            );
+
             return $this->redirect($this->generateUrl('student_show', array('id' => $student->getId())));
         }
 
@@ -277,6 +282,11 @@ class StudentController extends Controller
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_studenttype');
             Student::enroll($em,$student,$data['enrollment']);
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Student updated successfully!'
+            );
 
             return $this->redirect($this->generateUrl('student_edit', array('id' => $id)));
         }

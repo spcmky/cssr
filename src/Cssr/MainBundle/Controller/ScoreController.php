@@ -71,7 +71,7 @@ class ScoreController extends Controller
         $period_end = clone $period;
         $period_end->add(new \DateInterval('P5D'));
 
-        $reports = Report::getFridayAll($em,$activeCenter,$areas,$period);
+        $reports = Report::getOverallScores($em,$activeCenter,$areas,$period);
 
         $vars = array(
             'period' => $period,

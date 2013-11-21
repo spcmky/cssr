@@ -154,3 +154,9 @@ label {
     .col-md-2{float:left;}
 
 }
+
+.score-comment-value {
+    font-weight: bold;
+    cursor:pointer;cursor:hand;
+    text-decoration: underline;
+}

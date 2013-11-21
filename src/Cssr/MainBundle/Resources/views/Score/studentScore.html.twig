@@ -92,7 +92,7 @@
                 <td>
                     <textarea class="form-control score-comment" rows="5" data-commentId="{% if score.comment is iterable %}{{ score.comment.id }}{% else %}-1{% endif %}">{% if score.comment is iterable %}{{ score.comment.body }}{% endif %}</textarea>
                     {% if score.comment is iterable %}
-                        <small>Updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
+                        <small>Last updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
                     {% endif %}
                 </td>
             </tr>

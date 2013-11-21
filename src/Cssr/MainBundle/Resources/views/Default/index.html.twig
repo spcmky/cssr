@@ -29,7 +29,7 @@
             </div>
             <div class="panel-footer">
                 {% if message.updated %}
-                Updated by <a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> on {{ message.updated|date('m/d/Y') }}
+                Last updated by <a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a> on {{ message.updated|date('m/d/Y') }}
                 {% else %}
                 Posted by <a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a> on {{ message.created|date('m/d/Y') }}
                 {% endif %}</td>
