@@ -312,25 +312,32 @@ class StaffController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $user = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
+        if (!$user) {
+            throw $this->createNotFoundException('Unable to find user.');
         }
 
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
         $deleteForm = $this->createDeleteForm($id);
-        $editForm = $this->createForm(new StaffType($this->getDoctrine()->getManager()), $entity);
+
+        $editForm = $this->createForm(new StaffType(array(
+            'center' => $center,
+            'group' => $user->getGroups()->first(),
+        )), $user);
+
         $editForm->submit($request);
 
-        if ($editForm->isValid()) {
-
+        if ( $editForm->isValid() ) {
             $em->flush();
-
             return $this->redirect($this->generateUrl('staff_edit', array('id' => $id)));
         }
 
         return array(
-            'entity'      => $entity,
+            'user'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
         );
