@@ -3,6 +3,10 @@ body {
     background-color: #efefef;
 }
 
+.container {
+    max-width: 1280px;
+}
+
 body .container {
     background-color: #ffffff;
     padding-bottom: 25px;
