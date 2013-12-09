@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="cssr_area")
+ * @ORM\Entity(repositoryClass="Cssr\MainBundle\Entity\Repository\AreaRepository")
  */
 class Area
 {

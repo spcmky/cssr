@@ -108,7 +108,7 @@ class StudentController extends Controller
         if ( $form->isValid() ) {
 
             $student->setEnabled(true);
-            $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6)) ;
+            $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6));
 
             $em->persist($student);
             $em->flush();

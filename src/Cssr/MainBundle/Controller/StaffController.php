@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StaffType;
+use Cssr\MainBundle\Model\Staff;
 
 /**
  * Staff controller.
@@ -146,18 +147,22 @@ class StaffController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $group = $em->getRepository('CssrMainBundle:Group')->find($params['groupId']);
+        $groupId = array_pop($params['groups']);
+        $group = $em->getRepository('CssrMainBundle:Group')->find($groupId);
 
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
 
         $staff = new User();
 
         $form = $this->createForm(new StaffType(array(
             'center' => $center,
             'group' => $group,
-            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll()
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
+            'centerCourses' => $areas,
+            'staffCourses' => Staff::getCourses($em,$staff)
         )), $staff);
 
         $form->submit($request);
@@ -169,6 +174,9 @@ class StaffController extends Controller
 
             $em->persist($staff);
             $em->flush();
+
+            $data = $request->request->get('cssr_mainbundle_stafftype');
+            Staff::updateCourses($em,$staff,array($data['area']));
 
             $this->get('session')->getFlashBag()->add(
                 'success',
@@ -200,11 +208,15 @@ class StaffController extends Controller
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
 
         $staff = new User();
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+
 
         $form = $this->createForm(new StaffType(array(
             'center' => $center,
             'group' => $em->getRepository('CssrMainBundle:Group')->find($groupId),
-            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll()
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
+            'centerCourses' => $areas,
+            'staffCourses' => Staff::getCourses($em,$staff)
         )), $staff);
 
 
@@ -287,9 +299,14 @@ class StaffController extends Controller
         $activeCenter = $session->get('center');
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
 
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+
         $editForm = $this->createForm(new StaffType(array(
             'center' => $center,
             'group' => $user->getGroups()->first(),
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
+            'centerCourses' => $areas,
+            'staffCourses' => Staff::getCourses($em,$user)
         )), $user);
 
         $deleteForm = $this->createDeleteForm($id);
@@ -322,17 +339,28 @@ class StaffController extends Controller
         $activeCenter = $session->get('center');
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
 
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+
         $deleteForm = $this->createDeleteForm($id);
 
         $editForm = $this->createForm(new StaffType(array(
             'center' => $center,
             'group' => $user->getGroups()->first(),
+            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
+            'centerCourses' => $areas,
+            'staffCourses' => Staff::getCourses($em,$user)
         )), $user);
 
         $editForm->submit($request);
 
         if ( $editForm->isValid() ) {
+
+
             $em->flush();
+
+            $data = $request->request->get('cssr_mainbundle_stafftype');
+            Staff::updateCourses($em,$user,array($data['area']));
+
             return $this->redirect($this->generateUrl('staff_edit', array('id' => $id)));
         }
 

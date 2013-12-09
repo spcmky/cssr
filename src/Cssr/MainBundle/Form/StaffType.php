@@ -20,7 +20,7 @@ class StaffType extends AbstractType {
             ->add('middlename')
             ->add('lastname')
             ->add('username')
-            ->add('email');
+            ->add('email','email');
 
         $builder->add('phone');
 
@@ -29,7 +29,7 @@ class StaffType extends AbstractType {
             'options' => array('translation_domain' => 'FOSUserBundle'),
             'first_options' => array('label' => 'form.new_password'),
             'second_options' => array('label' => 'form.new_password_confirmation'),
-            'invalid_message' => 'fos_user.password.mismatch',
+            'invalid_message' => 'fos_user.password.mismatch'
         ));
 
         $builder->add('center', 'entity', array(
@@ -40,20 +40,38 @@ class StaffType extends AbstractType {
             'required' => true
         ));
 
-        /*
         $builder->add('groups', 'entity', array(
+            'label' => 'Title',
             'class' => 'CssrMainBundle:Group',
-            'choices' => array($this->options['group']),
+            'choices' => $this->options['groups'],
+            'multiple'  => true,
+            'data' => new ArrayCollection(array($this->options['group']))
+        ));
+
+        $builder->add('area','choice',array(
+            'label' => 'Area',
+            'choices' => $this->getCourses($this->options['centerCourses']),
+            'mapped' => false,
             'multiple'  => false,
             'expanded' => false,
-            'required' => true
+            'data' => $this->getStaffCourses($this->options['staffCourses'])
         ));
-        */
+    }
 
-        $builder->add('groupId', 'hidden', array(
-            'data' => $this->options['group']->getId(),
-            'mapped' => false
-        ));
+    private function getCourses ( $courses ) {
+        $data = array();
+        foreach ( $courses as $course ) {
+            $data[$course->getId()] = $course->getName();
+        }
+        return $data;
+    }
+
+    private function getStaffCourses ( $courses ) {
+        $data = null;
+        foreach ( $courses as $course ) {
+            return $course['area_id'];
+        }
+        return $data;
     }
 
     public function setDefaultOptions(OptionsResolverInterface $resolver)

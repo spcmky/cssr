@@ -22,7 +22,7 @@ class UserType extends AbstractType
             ->add('middlename')
             ->add('lastname')
             ->add('username')
-            ->add('email');
+            ->add('email','email');
 
         $builder->add('phone');
 
@@ -43,10 +43,10 @@ class UserType extends AbstractType
         ));
 
         $builder->add('groups', 'entity', array(
+            'label' => 'Title',
             'class' => 'CssrMainBundle:Group',
             'choices' => $this->getGroupChoices(),
-            'multiple'  => true,
-            'expanded' => true
+            'multiple'  => true
         ));
 
     }

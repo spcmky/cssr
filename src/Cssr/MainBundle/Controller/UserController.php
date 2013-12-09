@@ -2,6 +2,7 @@
 
 namespace Cssr\MainBundle\Controller;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -79,15 +80,23 @@ class UserController extends Controller
     public function createAction(Request $request)
     {
         $userManager = $this->container->get('fos_user.user_manager');
-
         $user = $userManager->createUser();
-        $user->setEnabled(true);
+
+        $params = $request->request->get('cssr_mainbundle_usertype');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $group = $em->getRepository('CssrMainBundle:Group')->find($params['group']);
+        $groups = new ArrayCollection();
+        $groups->add($group);
+        $user->setGroups($groups);
 
         $form = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
         $form->submit($request);
 
         if ( $form->isValid() ) {
 
+            $user->setEnabled(true);
             $userManager->updateUser($user);
 
             return $this->redirect($this->generateUrl('user_show', array('id' => $user->getId())));
@@ -183,7 +192,6 @@ class UserController extends Controller
     public function updateAction(Request $request, $id)
     {
         $userManager = $this->container->get('fos_user.user_manager');
-
         $user = $userManager->findUserBy(array('id'=>$id));
 
         if (!$user) {
@@ -194,7 +202,8 @@ class UserController extends Controller
         $editForm = $this->createForm(new UserType($this->getDoctrine()->getManager()), $user);
         $editForm->submit($request);
 
-        if ($editForm->isValid()) {
+        if ( $editForm->isValid() ) {
+
             $userManager->updateUser($user);
 
             $this->get('session')->getFlashBag()->add(

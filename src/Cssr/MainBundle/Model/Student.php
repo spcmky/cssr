@@ -13,9 +13,10 @@ class Student {
         LEFT JOIN cssr_course C ON C.id = UC.course_id
         LEFT JOIN cssr_area A ON A.id = C.area_id
         LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE UC.student_id = :userId";
+        WHERE UC.student_id = :userId AND UC.enrolled = :enrolled ";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $student->getId());
+        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
