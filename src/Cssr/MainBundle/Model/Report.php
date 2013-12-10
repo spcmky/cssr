@@ -435,13 +435,13 @@ class Report {
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
-        //$sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period = :period ';
-        $sql .= 'WHERE U.center_id = :center AND S.period = :period ';
+        $sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period = :period ';
+        //$sql .= 'WHERE U.center_id = :center AND S.period = :period ';
 
         $sql .= 'ORDER BY S.student_id ';
 
         $stmt = $em->getConnection()->prepare($sql);
-        //$stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
+        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
         $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
         $stmt->bindValue('period', $period, 'datetime');
 
