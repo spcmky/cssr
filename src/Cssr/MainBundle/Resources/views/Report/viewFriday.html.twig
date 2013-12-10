@@ -37,6 +37,7 @@
         <thead>
         <tr>
             <th>Name</th>
+            <th>DOE</th>
             {% for area in areas %}
                 <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
             {% endfor %}
@@ -48,6 +49,7 @@
         {% for student in reports %}
             <tr>
                 <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for score in student.scores %}
                     {% if score is iterable %}
                         {% if score.comment is defined %}
