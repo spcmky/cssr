@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 
 use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
@@ -149,6 +150,7 @@ class ScoreController extends Controller
      *
      * @Route("/student/{id}", name="score_student_show")
      * @Method("GET")
+     * @Cache(maxage="0", smaxage="0", expires="now", public="false")
      * @Template()
      */
     public function studentScoreAction($id)
@@ -177,7 +179,7 @@ class ScoreController extends Controller
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
         // calculate current week and last completed week
-        $today = new \DateTime();
+        $today = new \DateTime(date('Y-m-d'));
 
         if ( $today->format('w') < 6 || ($today->format('w') == 6 && $today->format('H') < 14 ) ) {
             $offset = 0 - $today->format('w');
@@ -185,7 +187,7 @@ class ScoreController extends Controller
             $offset = 7 - $today->format('w');
         }
 
-        $period_current = new \DateTime('now');
+        $period_current = new \DateTime(date('Y-m-d'));
         if ( $offset > 0 ) {
             $period_current->add(new \DateInterval('P'.$offset.'D'));
         } else if ( $offset < 0 )   {
@@ -207,7 +209,7 @@ class ScoreController extends Controller
             if ( !empty($periods) ) {
                 $period = $periods[count($periods)-1];
             } else {
-                $period = new \DateTime('now');
+                $period = new \DateTime(date('Y-m-d'));
             }
         }
 
@@ -385,7 +387,7 @@ class ScoreController extends Controller
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
         // calculate current week and last completed week
-        $today = new \DateTime();
+        $today = new \DateTime(date('Y-m-d'));
 
         if ( $today->format('w') < 6 || ($today->format('w') == 6 && $today->format('H') < 14 ) ) {
             $offset = 0 - $today->format('w');
@@ -393,7 +395,7 @@ class ScoreController extends Controller
             $offset = 7 - $today->format('w');
         }
 
-        $period_current = new \DateTime('now');
+        $period_current = new \DateTime(date('Y-m-d'));
         if ( $offset > 0 ) {
             $period_current->add(new \DateInterval('P'.$offset.'D'));
         } else if ( $offset < 0 )   {
@@ -415,7 +417,7 @@ class ScoreController extends Controller
             if ( !empty($periods) ) {
                 $period = $periods[count($periods)-1];
             } else {
-                $period = new \DateTime('now');
+                $period = new \DateTime(date('Y-m-d'));
             }
         }
 
