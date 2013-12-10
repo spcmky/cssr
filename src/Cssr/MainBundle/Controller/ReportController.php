@@ -135,19 +135,27 @@ class ReportController extends Controller
         switch ( $_GET['type'] ) {
 
             case '4.0' :
-                $reports = Report::getFriday40($em,$activeCenter,$areas,$period);
+                $result = Report::getFriday40($em,$activeCenter,$areas,$period);
+                $reports = $result['reports'];
+                $overallAverage = $result['overallAverage'];
                 break;
 
             case 'Meets Expectations' :
-                $reports = Report::getFridayMeetsExpectations($em,$activeCenter,$areas,$period);
+                $result = Report::getFridayMeetsExpectations($em,$activeCenter,$areas,$period);
+                $reports = $result['reports'];
+                $overallAverage = $result['overallAverage'];
                 break;
 
             case 'Caution' :
-                $reports = Report::getFridayCaution($em,$activeCenter,$areas,$period);
+                $result = Report::getFridayCaution($em,$activeCenter,$areas,$period);
+                $reports = $result['reports'];
+                $overallAverage = $result['overallAverage'];
                 break;
 
             case 'Challenge' :
-                $reports = Report::getFridayChallenge($em,$activeCenter,$areas,$period);
+                $result = Report::getFridayChallenge($em,$activeCenter,$areas,$period);
+                $reports = $result['reports'];
+                $overallAverage = $result['overallAverage'];
                 break;
         }
 
@@ -168,7 +176,8 @@ class ReportController extends Controller
             'periods' => $periods,
             'areas' => $areas,
             'standards' => $standards,
-            'reports' => $reports
+            'reports' => $reports,
+            'overallAverage' => $overallAverage
         );
 
         if ( isset($_GET['type']) ) {

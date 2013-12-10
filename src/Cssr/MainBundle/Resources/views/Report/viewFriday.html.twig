@@ -14,13 +14,24 @@
 
 {% block body -%}
 
-    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="lead">Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+            <label for="periodSelector">
+                Period:
+                <select name="periodSelector" id="periodSelector">
+                    {% for date in periods %}
+                        <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="well well-sm col-md-2 col-md-offset-3 text-center">
+            <div class="friday-report-avg-score-value">{{ overallAverage }}</div>
+            <div class="friday-report-avg-score">Avg. Score</div>
+        </div>
+    </div>
 
-    <select name="periodSelector" id="periodSelector">
-        {% for date in periods %}
-            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
-        {% endfor %}
-    </select>
 
     <table id="friday-report{% if comments %}-comments{% endif %}" class="table table-hover table-bordered" style="font-size:11px;">
         <thead>
@@ -103,6 +114,32 @@
                     {% endif %}
                 </td>
             </tr>
+
+            {% if comments %}
+                {% for score in student.scores %}
+                    {% if score is iterable %}
+                        <tr>
+                            <td colspan="21" style="background-color: #f7f7f7;">
+
+                                <div class="row">
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
+                                    <div class="col-lg-1" style="text-align: center;">{{ score.value}}</div>
+                                    <div class="col-lg-3">
+                                        {% for standard in score.standards %}
+                                            {{ standard }}<br/>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="col-lg-7">
+                                        <p>{{ score.comment.body }}</p>
+                                        <small>Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</small>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

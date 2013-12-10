@@ -249,6 +249,7 @@ class Report {
                     // assign rating
                     $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
                     $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'id' => $score['id'],
                         'name' => $score['area_name'],
                         'value' => $score['value'],
                         'comment' => array(
@@ -418,13 +419,24 @@ class Report {
             $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         }
 
+        $total = 0.0;
+        $count = 0;
         foreach ( $allReports as $student_id => $report ) {
             // caution
             if ( $report['scoreStats']['2'] == 1 && $report['scoreStats']['1'] == 0 ) {
+                $total += $report['avgScore'];
+                $count++;
                 $reports[$student_id] = $allReports[$student_id];
             }
         }
-        return $reports;
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$reports,'overallAverage'=>$overallAverage);
     }
 
     public static function getFridayChallenge ( $em, $activeCenter, $areas, $period ) {
@@ -436,13 +448,24 @@ class Report {
             $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         }
 
+        $total = 0.0;
+        $count = 0;
         foreach ( $allReports as $student_id => $report ) {
             // challenge
             if ( $report['scoreStats']['1'] >= 1 && $report['scoreStats']['2'] >= 2 ) {
+                $total += $report['avgScore'];
+                $count++;
                 $reports[$student_id] = $allReports[$student_id];
             }
         }
-        return $reports;
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$reports,'overallAverage'=>$overallAverage);
     }
 
     public static function getFridayMeetsExpectations ( $em, $activeCenter, $areas, $period ) {
@@ -454,14 +477,24 @@ class Report {
             $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         }
 
+        $total = 0.0;
+        $count = 0;
         foreach ( $allReports as $student_id => $report ) {
             // meets expectations
             if ( $report['scoreStats']['1'] == 0 && $report['scoreStats']['2'] == 0 ) {
+                $total += $report['avgScore'];
+                $count++;
                 $reports[$student_id] = $allReports[$student_id];
             }
         }
-        return $reports;
-    }
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$reports,'overallAverage'=>$overallAverage);    }
 
     public static function getFriday40 ( $em, $activeCenter, $areas, $period ) {
         $reports = array();
@@ -472,13 +505,24 @@ class Report {
             $allReports = self::getFridayAll($em,$activeCenter,$areas,$period);
         }
 
+        $total = 0.0;
+        $count = 0;
         foreach ( $allReports as $student_id => $report ) {
             // 4.0
             if ( $report['avgScore'] >= 4.0 ) {
+                $total += $report['avgScore'];
+                $count++;
                 $reports[$student_id] = $allReports[$student_id];
             }
         }
-        return $reports;
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$reports,'overallAverage'=>$overallAverage);
     }
 
     public static function getCaseloadScores ( $staff, $em, $activeCenter, $areas, $period ) {
