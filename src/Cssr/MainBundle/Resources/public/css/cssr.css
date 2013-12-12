@@ -171,3 +171,8 @@ label {
 .friday-report-avg-score {
     font-size: 100%;
 }
+
+#cssr_mainbundle_studenttype_entry { display: inline; }
+#cssr_mainbundle_studenttype_entry_day { width: 45px; display: inline; }
+#cssr_mainbundle_studenttype_entry_month { width: 45px; display: inline; }
+#cssr_mainbundle_studenttype_entry_year { width: 60px; display: inline; }

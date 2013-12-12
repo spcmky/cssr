@@ -96,6 +96,7 @@ class StudentController extends Controller
         $centerCourses = Center::getCourses($em,$center);
 
         $form = $this->createForm(new StudentType(array(
+            'date' => new \DateTime(),
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
             'center' => $center,
@@ -109,6 +110,7 @@ class StudentController extends Controller
 
             $student->setEnabled(true);
             $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6));
+            $student->setCenter($center);
 
             $em->persist($student);
             $em->flush();
@@ -151,6 +153,7 @@ class StudentController extends Controller
         $centerCourses = Center::getCourses($em,$center);
 
         $form = $this->createForm(new StudentType(array(
+            'date' => new \DateTime(),
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
             'center' => $center,
@@ -227,6 +230,7 @@ class StudentController extends Controller
         $centerCourses = Center::getCourses($em,$center);
 
         $editForm = $this->createForm(new StudentType(array(
+            'date' => $student->getEntry(),
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
             'center' => $center,
@@ -266,6 +270,7 @@ class StudentController extends Controller
         $centerCourses = Center::getCourses($em,$center);
 
         $editForm = $this->createForm(new StudentType(array(
+            'date' => $student->getEntry(),
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
             'center' => $center,

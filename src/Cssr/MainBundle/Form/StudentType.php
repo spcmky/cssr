@@ -32,13 +32,12 @@ class StudentType extends AbstractType
                 'invalid_message' => 'fos_user.password.mismatch',
             ));
 
-        $builder->add('entry','date');
-
-        $builder->add('center', 'entity', array(
-            'class' => 'CssrMainBundle:Center',
-            'choices' => array($this->options['center']),
-            'multiple'  => false,
-            'expanded' => false
+        $builder->add('entry','date',array(
+            'widget' => 'text',
+            'format' => 'MM / dd / yyyy',
+            'input' => 'datetime',
+            'data'  => $this->options['date'],
+            'label' => 'Entry Date'
         ));
 
         $builder->add('dorm', 'entity', array(
