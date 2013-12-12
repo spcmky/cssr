@@ -371,6 +371,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
 
                     // score stats
                     $student_scores[$student['id']]['scoreStats'] = $scoreStats;
