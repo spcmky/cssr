@@ -74,6 +74,19 @@ class ScoreController extends Controller
 
         $reports = Report::getOverallScores($em,$activeCenter,$areas,$period);
 
+        $total = 0.0;
+        $count = 0;
+        foreach ( $reports as $student_id => $report ) {
+            $total += $report['avgScore'];
+            $count++;
+        }
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
         $vars = array(
             'period' => $period,
             'period_start' => $period_start,
@@ -81,7 +94,8 @@ class ScoreController extends Controller
             'periods' => $periods,
             'areas' => $areas,
             'standards' => $standards,
-            'reports' => $reports
+            'reports' => $reports,
+            'overallAverage' => $overallAverage
         );
 
         if ( isset($_GET['type']) ) {

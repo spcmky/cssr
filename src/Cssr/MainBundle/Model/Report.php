@@ -22,7 +22,7 @@ class Report {
 
     public static function getOverallScores ( $em, $activeCenter, $areas, $period ) {
         // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
@@ -112,6 +112,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
 
                     // score stats
                     $student_scores[$student['id']]['scoreStats'] = $scoreStats;
