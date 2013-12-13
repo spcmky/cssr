@@ -368,6 +368,19 @@ class ReportController extends Controller
             $type = 'scores';
         }
 
+        $total = 0.0;
+        $count = 0;
+        foreach ( $reports as $student_id => $report ) {
+            $total += $report['avgScore'];
+            $count++;
+        }
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
         $vars = array(
             'type_name' => Report::getCaseloadReportName($type),
             'type' => $type,
@@ -379,7 +392,8 @@ class ReportController extends Controller
             'standards' => $standards,
             'reports' => $reports,
             'comments' => $comments,
-            'staff' => $staff
+            'staff' => $staff,
+            'overallAverage' => $overallAverage
         );
 
         return $vars;

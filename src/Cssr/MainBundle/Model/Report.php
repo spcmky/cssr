@@ -532,7 +532,7 @@ class Report {
     public static function getCaseloadScores ( $staff, $em, $activeCenter, $areas, $period ) {
 
         // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
@@ -559,9 +559,10 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.student_id, C.area_id, S.value ';
+        $sql  = 'SELECT S.student_id, C.area_id, S.id, S.value, A.name ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'WHERE C.user_id = :staff AND S.period = :period AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
 
@@ -591,7 +592,13 @@ class Report {
             $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
             foreach ( $scores as $score ) {
                 if ( $score['student_id'] == $student['id'] ) {
-                    $student_scores[$student['id']]['scores'][$score['area_id']] = $score['value'];
+                    $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'id' => $score['id'],
+                        'name' => '',
+                        'value' => $score['value'],
+                        'comment' => null,
+                        'standards' => null
+                    );
 
                     $totalScore += $score['value'];
                     $scoreCount++;
@@ -611,6 +618,9 @@ class Report {
                 $student_scores[$student['id']]['avgScore'] = 0;
             }
 
+            $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+            $student_scores[$student['id']]['scoreTotal'] = $totalScore;
+
             // score stats
             $student_scores[$student['id']]['scoreStats'] = $scoreStats;
 
@@ -624,7 +634,7 @@ class Report {
     public static function getCaseloadComments ( $staff, $em, $activeCenter, $areas, $period ) {
 
         // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
@@ -717,6 +727,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
 
                     // score stats
                     $student_scores[$student['id']]['scoreStats'] = $scoreStats;
@@ -724,6 +736,7 @@ class Report {
                     // assign rating
                     $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
                     $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'id' => $score['id'],
                         'name' => $score['area_name'],
                         'value' => $score['value'],
                         'comment' => array(
