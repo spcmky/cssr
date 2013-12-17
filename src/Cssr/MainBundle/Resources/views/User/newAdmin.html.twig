@@ -1,15 +1,15 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Student Add</h1>
+    <h1>{{ group.getName() }}</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('user_setup') }}">Users</a></li>
-        <li><a href="{{ path('student') }}">Students</a></li>
-        <li class="active">Add</li>
+        <li><a href="{{ path('user_admin') }}">Admins</a></li>
+        <li class="active">New</li>
     </ol>
 {% endblock %}
 
@@ -17,13 +17,14 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form id="form-student-new" name="form-student-new" action="{{ path('student_create') }}" method="post" {{ form_enctype(form) }}>
+
+        <form id="form-admin-new" name="form-admin-new" action="{{ path('user_admin_create') }}" method="post" {{ form_enctype(form) }}>
             {{ form_widget(form) }}
 
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <a class="btn btn-default btn-user-cancel" href="{{ path('student') }}">Cancel</a>
-                    <input type="submit" value="Create" class="btn btn-primary btn-student-save"/>
+                    <a class="btn btn-default btn-admin-cancel" href="{{ path('user_admin') }}">Cancel</a>
+                    <input type="submit" value="Create" class="btn btn-primary btn-admin-save"/>
                 </div>
             </div>
 

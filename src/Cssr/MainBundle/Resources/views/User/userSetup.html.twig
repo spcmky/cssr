@@ -18,15 +18,9 @@
     <p>Pick a group:</p>
 
     <ul class="list-unstyled">
-        {% for group in groups %}
-            {% if group.id == 6 %}
-                <li><a href="{{ path('student') }}">{{ group.name }}</a></li>
-            {% elseif group.id == 1 %}
-                <li><a href="{{ path('user') }}">{{ group.name }}</a></li>
-            {% else %}
-                <li><a href="{{ path('staff_group',{'group_id':group.id}) }}">{{ group.name }}</a></li>
-            {% endif %}
-        {% endfor %}
+        <li><a href="{{ path('user_admin') }}">Administrators</a></li>
+        <li><a href="{{ path('staff') }}">Staff</a></li>
+        <li><a href="{{ path('student') }}">Students</a></li>
     </ul>
 
 {% endblock %}

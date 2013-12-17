@@ -20,17 +20,17 @@ class StudentType extends AbstractType
             ->add('firstname')
             ->add('middlename')
             ->add('lastname')
-            ->add('username')
             ->add('email','email')
             ->add('phone');
 
-            $builder->add('plainPassword', 'repeated', array(
-                'type' => 'password',
-                'options' => array('translation_domain' => 'FOSUserBundle'),
-                'first_options' => array('label' => 'form.new_password'),
-                'second_options' => array('label' => 'form.new_password_confirmation'),
-                'invalid_message' => 'fos_user.password.mismatch',
-            ));
+        $builder->add('username');
+        $builder->add('plainPassword', 'repeated', array(
+            'type' => 'password',
+            'options' => array('translation_domain' => 'FOSUserBundle'),
+            'first_options' => array('label' => 'form.new_password'),
+            'second_options' => array('label' => 'form.new_password_confirmation'),
+            'invalid_message' => 'fos_user.password.mismatch',
+        ));
 
         $builder->add('entry','date',array(
             'widget' => 'text',

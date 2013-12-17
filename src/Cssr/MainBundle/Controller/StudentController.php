@@ -2,6 +2,7 @@
 
 namespace Cssr\MainBundle\Controller;
 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -39,16 +40,17 @@ class StudentController extends Controller
 
         if ( $center ) {
 
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE U.center_id = :centerId AND UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname";
+            $sql  = "SELECT U.* ";
+            $sql .= "FROM cssr_user_group UG ";
+            $sql .= "LEFT JOIN cssr_user U ON U.id = UG.user_id ";
+            $sql .= "WHERE U.enabled = :enabled AND U.center_id = :centerId AND UG.group_id = :groupId ";
+            $sql .= "ORDER BY U.lastname, U.firstname, U.middlename ";
 
             $stmt = $em->getConnection()->prepare($sql);
 
-            $stmt->bindValue('centerId', $center->id);
-            $stmt->bindValue('groupId', 6);
+            $stmt->bindValue('enabled', 1,\PDO::PARAM_INT);
+            $stmt->bindValue('centerId', $center->id,\PDO::PARAM_INT);
+            $stmt->bindValue('groupId', 6, \PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -56,15 +58,16 @@ class StudentController extends Controller
 
         } else {
 
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname";
+            $sql  = "SELECT U.* ";
+            $sql .= "FROM cssr_user_group UG ";
+            $sql .= "LEFT JOIN cssr_user U ON U.id = UG.user_id ";
+            $sql .= "WHERE U.enabled = :enabled AND UG.group_id = :groupId ";
+            $sql .= "ORDER BY U.lastname, U.firstname, U.middlename ";
 
             $stmt = $em->getConnection()->prepare($sql);
 
-            $stmt->bindValue('groupId', 6);
+            $stmt->bindValue('enabled', 1,\PDO::PARAM_INT);
+            $stmt->bindValue('groupId', 6, \PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -100,8 +103,7 @@ class StudentController extends Controller
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
             'center' => $center,
-            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
-            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id)
         )), $student);
 
         $form->submit($request);
@@ -117,7 +119,9 @@ class StudentController extends Controller
 
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_studenttype');
-            Student::enroll($em,$student,$data['enrollment']);
+            if ( isset($data['enrollment']) ) {
+                Student::enroll($em,$student,$data['enrollment']);
+            }
 
             $this->get('session')->getFlashBag()->add(
                 'success',
@@ -157,8 +161,7 @@ class StudentController extends Controller
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
             'center' => $center,
-            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
-            'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id)
         )), $student);
 
         return array(
@@ -174,23 +177,22 @@ class StudentController extends Controller
      * @Method("GET")
      * @Template()
      */
-    public function showAction($id)
+    public function showAction ( $id )
     {
         $em = $this->getDoctrine()->getManager();
 
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if ( !$entity ) {
-            throw $this->createNotFoundException('Unable to find Student entity.');
+        if ( !$student ) {
+            throw $this->createNotFoundException('Unable to find Student.');
         }
 
-        $sql = "
-        SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
-        FROM cssr_student_course UC
-        LEFT JOIN cssr_course C ON C.id = UC.course_id
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE UC.student_id = :userId";
+        $sql  = "SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ";
+        $sql .= "FROM cssr_student_course UC ";
+        $sql .= "LEFT JOIN cssr_course C ON C.id = UC.course_id ";
+        $sql .= "LEFT JOIN cssr_area A ON A.id = C.area_id ";
+        $sql .= "LEFT JOIN cssr_user U ON U.id = C.user_id ";
+        $sql .= "WHERE UC.student_id = :userId ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $id);
@@ -199,7 +201,7 @@ class StudentController extends Controller
         $courses = $stmt->fetchAll();
 
         return array(
-            'entity' => $entity,
+            'student' => $student,
             'courses' => $courses
         );
     }
@@ -286,7 +288,9 @@ class StudentController extends Controller
 
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_studenttype');
-            Student::enroll($em,$student,$data['enrollment']);
+            if ( isset($data['enrollment']) ) {
+                Student::enroll($em,$student,$data['enrollment']);
+            }
 
             $this->get('session')->getFlashBag()->add(
                 'success',
@@ -301,30 +305,52 @@ class StudentController extends Controller
             'edit_form'   => $editForm->createView()
         );
     }
+
     /**
      * Deletes a Student entity.
      *
      * @Route("/{id}", name="student_delete")
      * @Method("DELETE")
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction ( Request $request, $id )
     {
-        $form = $this->createDeleteForm($id);
-        $form->submit($request);
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('CssrMainBundle:User')->find($id);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+        if ( !$user ) {
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'failed';
 
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Student entity.');
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                throw $this->createNotFoundException('Unable to find Student.');
             }
-
-            $em->remove($entity);
-            $em->flush();
         }
 
-        return $this->redirect($this->generateUrl('student'));
+        $user->setEnabled(0); // logical delete
+
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            'Student deleted successfully!'
+        );
+
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'success';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        } else {
+            return $this->redirect($this->generateUrl('student'));
+        }
     }
 
     /**

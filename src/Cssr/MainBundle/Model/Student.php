@@ -23,6 +23,10 @@ class Student {
 
     public static function enroll ( $em, $student, $courses ) {
 
+        if ( $courses === null ) {
+            return;
+        }
+
         $currentCourses = array();
         foreach ( self::getCourses($em,$student) as $c ) {
             $currentCourses[] = $c['id'];

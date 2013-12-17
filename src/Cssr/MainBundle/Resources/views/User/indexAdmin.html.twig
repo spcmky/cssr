@@ -1,0 +1,74 @@
+{% extends '::base.html.twig' %}
+
+{% block page_header %}
+    <h1>Admins</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user_setup') }}">Users</a></li>
+        <li class="active">Admins</li>
+    </ol>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-lg-2 col-lg-offset-10">
+            <!-- Split button -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    Add <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a href="{{ path('user_admin_new',{'groupId': 1}) }}">Corporate Administrator</a></li>
+                    <li><a href="{{ path('user_admin_new',{'groupId': 2}) }}">Center Administrator</a></li>
+                    <li><a href="{{ path('user_admin_new',{'groupId': 3}) }}">Center Account Coordinator</a></li>
+                    <li><a href="{{ path('user_admin_new',{'groupId': 4}) }}">Center Management</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <table id="admin-list" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Center</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td><a href="{{ path('user_admin_show', { 'id': user.id }) }}">{{ user.firstname }} {{ user.lastname }}</a></td>
+                <td>{{ user.group_name }}</td>
+                <td>{{ user.center_name }}</td>
+                <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                <td>{{ user.phone }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="row" style="margin-top:5px;">
+        <div class="col-lg-2 col-lg-offset-10">
+            <!-- Split button -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    Add <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right" role="menu">
+                    <li><a href="{{ path('user_new') }}">Corporate Administrator</a></li>
+                    <li><a href="{{ path('user_new') }}">Center Administrator</a></li>
+                    <li><a href="{{ path('user_new') }}">Center Account Coordinator</a></li>
+                    <li><a href="{{ path('user_new') }}">Center Management</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

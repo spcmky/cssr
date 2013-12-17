@@ -13,7 +13,9 @@
 
 {% block body -%}
 
-    <table class="table table-striped">
+    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a></div>
+
+    <table class="table table-striped table-bordered">
         <thead>
         <tr>
             <th>Name</th>
@@ -35,6 +37,9 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a></div>
+
 
     <a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a>
 

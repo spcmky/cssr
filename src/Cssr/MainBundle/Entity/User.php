@@ -233,6 +233,16 @@ class User extends BaseUser
     }
 
     /**
+     * Get first group
+     *
+     * @return Group
+     */
+    public function getFirstGroup()
+    {
+        return $this->groups[0];
+    }
+
+    /**
      * Set groups
      *
      * @param \Doctrine\Common\Collections\ArrayCollection $groups

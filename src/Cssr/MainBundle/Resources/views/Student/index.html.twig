@@ -1,12 +1,13 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Student List</h1>
+    <h1>Students</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user_setup') }}">Users</a></li>
         <li class="active">Students</li>
     </ol>
 {% endblock %}

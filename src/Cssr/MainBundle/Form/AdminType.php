@@ -7,8 +7,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
-class UserType extends AbstractType {
-
+class AdminType extends AbstractType
+{
     protected $options;
 
     public function __construct ( $options = array() ) {
@@ -31,6 +31,11 @@ class UserType extends AbstractType {
             'second_options' => array('label' => 'form.new_password_confirmation'),
             'invalid_message' => 'fos_user.password.mismatch',
         ));
+
+        $builder->add('group','hidden',array(
+            'data' => $this->getGroup(),
+            'mapped' => false
+        ));
     }
 
     public function setDefaultOptions ( OptionsResolverInterface $resolver ) {
@@ -39,7 +44,11 @@ class UserType extends AbstractType {
         ));
     }
 
+    private function getGroup() {
+        return $this->options['group']->getId();
+    }
+
     public function getName() {
-        return 'cssr_mainbundle_usertype';
+        return 'cssr_mainbundle_admintype';
     }
 }

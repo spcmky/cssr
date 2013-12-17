@@ -7,13 +7,14 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li><a href="{{ path('staff_group',{'group_id':user.groups.first.id}) }}">Staff</a></li>
+        <li><a href="{{ path('user_setup') }}">Users</a></li>
+        <li><a href="{{ path('staff') }}">Staff</a></li>
         <li><a href="{{ path('staff_show', { 'id': user.id }) }}">{{ user.firstname|capitalize }} {{ user.middlename|capitalize }} {{ user.lastname|capitalize }}</a></li>
         <li class="active">Edit</li>
     </ol>
 {% endblock %}
 
-{% block body -%}
+{% block body %}
 
     <div class="row">
         <div class="col-md-8">
@@ -52,18 +53,17 @@
         // Get the ul that holds the collection of tags
         (function() {
 
-
             $('button.btn-user-delete').on('click', function(e){
                 // prevent the link from creating a "#" on the URL
                 e.preventDefault();
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ path('user_delete', { 'id': user.id }) }}",
+                    url: "{{ path('staff_delete', { 'id': user.id }) }}",
                     success: function(data,textStatus){
                         if ( textStatus == 'success' ) {
                             // reload page
-                            location.href = "{{ path('user') }}";
+                            location.href = "{{ path('staff') }}";
                         }
                     },
                     dataType: 'json'

@@ -1,12 +1,13 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Staff List</h1>
+    <h1>Staff</h1>
 {% endblock %}
 
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user_setup') }}">Users</a></li>
         <li class="active">Staff</li>
     </ol>
 {% endblock %}
@@ -22,9 +23,9 @@
         </tr>
         </thead>
         <tbody>
-        {% for entity in entities %}
+        {% for staff in staffers %}
             <tr>
-                <td><a href="{{ path('staff_show', { 'id': entity.id }) }}">{{ entity.lastname|capitalize }}, {{ entity.firstname|capitalize }} {{ entity.middlename }}</a></td>
+                <td><a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename }}</a></td>
             </tr>
         {% endfor %}
         </tbody>

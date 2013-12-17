@@ -19,33 +19,16 @@ class StaffType extends AbstractType {
             ->add('firstname')
             ->add('middlename')
             ->add('lastname')
-            ->add('username')
-            ->add('email','email');
+            ->add('email','email')
+            ->add('phone');
 
-        $builder->add('phone');
-
+        $builder->add('username');
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
             'first_options' => array('label' => 'form.new_password'),
             'second_options' => array('label' => 'form.new_password_confirmation'),
             'invalid_message' => 'fos_user.password.mismatch'
-        ));
-
-        $builder->add('center', 'entity', array(
-            'class' => 'CssrMainBundle:Center',
-            'choices' => array($this->options['center']),
-            'multiple'  => false,
-            'expanded' => false,
-            'required' => true
-        ));
-
-        $builder->add('groups', 'entity', array(
-            'label' => 'Title',
-            'class' => 'CssrMainBundle:Group',
-            'choices' => $this->options['groups'],
-            'multiple'  => true,
-            'data' => new ArrayCollection(array($this->options['group']))
         ));
 
         $builder->add('area','choice',array(

@@ -56,13 +56,27 @@
 
     //$('a.score-comment-popover').popover();
 
-    $('#friday-report').dataTable({
+    var reportTable = $('#friday-report').dataTable({
+        "bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": false,
         "bSort": true,
         "bInfo": false,
-        "bAutoWidth": false
+        "bAutoWidth": false,
+        "bProcessing": true
+    });
+
+    $('#admin-list').dataTable({
+        "bJQueryUI": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bSort": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "bProcessing": true
+
     });
 
 })();

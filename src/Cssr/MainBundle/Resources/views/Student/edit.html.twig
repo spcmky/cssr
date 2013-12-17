@@ -7,6 +7,7 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+        <li><a href="{{ path('user_setup') }}">Users</a></li>
         <li><a href="{{ path('student') }}">Students</a></li>
         <li><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.middlename|capitalize }} {{ student.lastname|capitalize }}</a></li>
         <li class="active">Edit</li>
@@ -52,71 +53,17 @@
         // Get the ul that holds the collection of tags
         (function() {
 
-
-            $(function() {
-                initSubForm($('#cssr_mainbundle_usertype_dorms'));
-                initSubForm($('#cssr_mainbundle_usertype_vocations'));
-            });
-
-            function initSubForm(collectionHolder) {
-
-                // count the current form inputs we have (e.g. 2), use that as the new
-                // index when inserting a new item (e.g. 2)
-                collectionHolder.data('index', collectionHolder.find('ul').children.length);
-
-                var addLink = collectionHolder.parent().find('a.add');
-
-                addLink.on('click', function(e) {
-                    // prevent the link from creating a "#" on the URL
-                    e.preventDefault();
-
-                    // add a new tag form (see next code block)
-                    addSubForm(collectionHolder);
-                });
-
-                collectionHolder.find('a.remove').on('click', function(e){
-                    // prevent the link from creating a "#" on the URL
-                    e.preventDefault();
-                    $(this).parent().parent().parent().remove();
-                });
-
-            }
-
-            function addSubForm(collectionHolder) {
-                // Get the data-prototype explained earlier
-                var prototype = collectionHolder.data('prototype');
-
-                // get the new index
-                var index = collectionHolder.data('index');
-
-                // Replace '__name__' in the prototype's HTML to
-                // instead be a number based on how many items we have
-                var newForm = $(prototype.replace(/__name__/g, index));
-
-                // increase the index with one for the next item
-                collectionHolder.data('index', index + 1);
-
-                newForm.find('a.remove').on('click', function(e){
-                    // prevent the link from creating a "#" on the URL
-                    e.preventDefault();
-                    $(this).parent().parent().parent().remove();
-                });
-
-                // Display the form in the page in an li, before the "Add a tag" link li
-                collectionHolder.find('ul').append(newForm);
-            }
-
             $('button.btn-user-delete').on('click', function(e){
                 // prevent the link from creating a "#" on the URL
                 e.preventDefault();
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ path('user_delete', { 'id': student.id }) }}",
+                    url: "{{ path('student_delete', { 'id': student.id }) }}",
                     success: function(data,textStatus){
                         if ( textStatus == 'success' ) {
                             // reload page
-                            location.href = "{{ path('user') }}";
+                            location.href = "{{ path('student') }}";
                         }
                     },
                     dataType: 'json'
