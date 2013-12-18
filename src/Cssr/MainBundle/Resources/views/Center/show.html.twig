@@ -4,7 +4,9 @@
 
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li><a href="{{ path('center') }}">Centers</a></li>
+        {% if user_is_granted(user,'center create') %}
+            <li><a href="{{ path('center') }}">Centers</a></li>
+        {% endif %}
         <li class="active">{{ center.name }}</li>
     </ol>
 
@@ -41,7 +43,9 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <a class="btn btn-default btn-center-cancel" href="{{ path('center') }}">Cancel</a>
+            {% if user_is_granted(user,'center create') %}
+                <a class="btn btn-default btn-center-cancel" href="{{ path('center') }}">Cancel</a>
+            {% endif %}
             <a class="btn btn-primary btn-center-edit" href="{{ path('center_edit', { 'id': center.id }) }}">Edit</a>
             {% if activeCenterId and activeCenterId != center.id %}
                 <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>

@@ -14,13 +14,32 @@
 {% block body -%}
 
     <p><a href="{{ path('user_edit',{ 'id': app.user.id }) }}"><span class="glyphicon glyphicon-user"></span> Your Account</a></p>
-    <p><strong>OR</strong></p>
-    <p>Pick a group:</p>
 
-    <ul class="list-unstyled">
-        <li><a href="{{ path('user_admin') }}">Administrators</a></li>
-        <li><a href="{{ path('staff') }}">Staff</a></li>
-        <li><a href="{{ path('student') }}">Students</a></li>
-    </ul>
+    {% if user_is_granted(user,'student update') %}
+
+        <p><strong>OR</strong></p>
+
+
+        <p>Pick a group:</p>
+
+        <ul class="list-unstyled">
+
+            {% if user_is_granted(user,'corp admin update') or
+                  user_is_granted(user,'center admin update') or
+                  user_is_granted(user,'center act update') or
+                  user_is_granted(user,'center mgr update') %}
+                <li><a href="{{ path('user_admin') }}">Administrators</a></li>
+            {% endif %}
+
+            {% if user_is_granted(user,'staff update') %}
+                <li><a href="{{ path('staff') }}">Staff</a></li>
+            {% endif %}
+
+            {% if user_is_granted(user,'student update') %}
+                <li><a href="{{ path('student') }}">Students</a></li>
+            {% endif %}
+
+        </ul>
+    {% endif %}
 
 {% endblock %}

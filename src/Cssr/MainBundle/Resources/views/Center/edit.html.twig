@@ -7,7 +7,9 @@
 {% block breadcrumb %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
-        <li><a href="{{ path('center') }}">Centers</a></li>
+        {% if user_is_granted(user,'center create') %}
+            <li><a href="{{ path('center') }}">Centers</a></li>
+        {% endif %}
         <li><a href="{{ path('center_show', { 'id': center.id }) }}">{{ center.name }}</a></li>
         <li class="active">Edit</li>
     </ol>

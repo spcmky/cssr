@@ -22,10 +22,18 @@
                     Add <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a href="{{ path('user_admin_new',{'groupId': 1}) }}">Corporate Administrator</a></li>
-                    <li><a href="{{ path('user_admin_new',{'groupId': 2}) }}">Center Administrator</a></li>
-                    <li><a href="{{ path('user_admin_new',{'groupId': 3}) }}">Center Account Coordinator</a></li>
-                    <li><a href="{{ path('user_admin_new',{'groupId': 4}) }}">Center Management</a></li>
+                    {% if user_is_granted(user,'corp admin update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 1}) }}">Corporate Administrator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center admin update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 2}) }}">Center Administrator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center act update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 3}) }}">Center Account Coordinator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center mgr update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 4}) }}">Center Management</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -42,19 +50,31 @@
         </tr>
         </thead>
         <tbody>
-        {% for user in users %}
+        {% for account in users %}
             <tr>
-                <td><a href="{{ path('user_admin_show', { 'id': user.id }) }}">{{ user.firstname }} {{ user.lastname }}</a></td>
-                <td>{{ user.group_name }}</td>
-                <td>{{ user.center_name }}</td>
-                <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
-                <td>{{ user.phone }}</td>
+                <td>
+                    {% if account.group_id == 1 and user_is_granted(user,'corp admin update') %}
+                        <a href="{{ path('user_admin_show', { 'id': account.id }) }}">{{ account.firstname }} {{ account.lastname }}</a>
+                    {% elseif account.group_id == 2 and user_is_granted(user,'center admin update') %}
+                        <a href="{{ path('user_admin_show', { 'id': account.id }) }}">{{ account.firstname }} {{ account.lastname }}</a>
+                    {% elseif account.group_id == 3 and user_is_granted(user,'center act update') %}
+                        <a href="{{ path('user_admin_show', { 'id': account.id }) }}">{{ account.firstname }} {{ account.lastname }}</a>
+                    {% elseif account.group_id == 4 and user_is_granted(user,'center mgr update') %}
+                        <a href="{{ path('user_admin_show', { 'id': account.id }) }}">{{ account.firstname }} {{ account.lastname }}</a>
+                    {% else %}
+                        {{ account.firstname }} {{ account.lastname }}
+                    {% endif %}
+                </td>
+                <td>{{ account.group_name }}</td>
+                <td>{{ account.center_name }}</td>
+                <td><a href="mailto:{{ account.email }}">{{ account.email }}</a></td>
+                <td>{{ account.phone }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <div class="row" style="margin-top:5px;">
+    <div class="row" style="margin-bottom: 5px;">
         <div class="col-lg-2 col-lg-offset-10">
             <!-- Split button -->
             <div class="btn-group">
@@ -62,10 +82,18 @@
                     Add <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right" role="menu">
-                    <li><a href="{{ path('user_new') }}">Corporate Administrator</a></li>
-                    <li><a href="{{ path('user_new') }}">Center Administrator</a></li>
-                    <li><a href="{{ path('user_new') }}">Center Account Coordinator</a></li>
-                    <li><a href="{{ path('user_new') }}">Center Management</a></li>
+                    {% if user_is_granted(user,'corp admin update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 1}) }}">Corporate Administrator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center admin update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 2}) }}">Center Administrator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center act update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 3}) }}">Center Account Coordinator</a></li>
+                    {% endif %}
+                    {% if user_is_granted(user,'center mgr update') %}
+                        <li><a href="{{ path('user_admin_new',{'groupId': 4}) }}">Center Management</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

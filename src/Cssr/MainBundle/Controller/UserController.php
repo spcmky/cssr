@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\UserType;
 use Cssr\MainBundle\Form\AdminType;
+use Cssr\MainBundle\Model\Group;
 
 /**
  * User controller.
@@ -29,6 +30,7 @@ class UserController extends Controller {
      */
     public function indexAction()
     {
+
         $em = $this->getDoctrine()->getManager();
 
         $sql  = "SELECT U.*, G.name group_id, G.name group_name, C.id center_id, C.name center_name ";
@@ -60,22 +62,36 @@ class UserController extends Controller {
     {
         $em = $this->getDoctrine()->getManager();
 
-        $sql  = "SELECT U.*, G.name group_id, G.name group_name, C.id center_id, C.name center_name ";
-        $sql .= "FROM cssr_user_group UG ";
-        $sql .= "LEFT JOIN cssr_user U ON U.id = UG.user_id ";
-        $sql .= "LEFT JOIN cssr_group G ON G.id = UG.group_id ";
-        $sql .= "LEFT JOIN cssr_center C ON C.id = U.center_id ";
-        $sql .= "WHERE UG.group_id < 5 AND U.enabled = 1 ";
-        $sql .= "ORDER BY U.lastname, U.firstname, U.middlename ";
+        if ( Group::isGranted($this->getUser(),'center create') ) {
+            $sql  = "SELECT U.*, G.id group_id, G.name group_name, C.id center_id, C.name center_name ";
+            $sql .= "FROM cssr_user_group UG ";
+            $sql .= "LEFT JOIN cssr_user U ON U.id = UG.user_id ";
+            $sql .= "LEFT JOIN cssr_group G ON G.id = UG.group_id ";
+            $sql .= "LEFT JOIN cssr_center C ON C.id = U.center_id ";
+            $sql .= "WHERE UG.group_id < 5 AND U.enabled = 1 ";
+            $sql .= "ORDER BY U.lastname, U.firstname, U.middlename ";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $users = $stmt->fetchAll();
+        } else if ( Group::isGranted($this->getUser(),'center update') ) {
+            $session = $this->getRequest()->getSession();
+            $center = $em->getRepository('CssrMainBundle:Center')->find($session->get('center')->id);
 
-        $stmt = $em->getConnection()->prepare($sql);
-
-        $stmt->execute();
-
-        $result = $stmt->fetchAll();
+            $sql  = "SELECT U.*, G.id group_id, G.name group_name, C.id center_id, C.name center_name ";
+            $sql .= "FROM cssr_user_group UG ";
+            $sql .= "LEFT JOIN cssr_user U ON U.id = UG.user_id ";
+            $sql .= "LEFT JOIN cssr_group G ON G.id = UG.group_id ";
+            $sql .= "LEFT JOIN cssr_center C ON C.id = U.center_id ";
+            $sql .= "WHERE UG.group_id < 5 AND UG.group_id > 1 AND U.enabled = 1 AND U.center_id = ".$center->getId()." ";
+            $sql .= "ORDER BY U.lastname, U.firstname, U.middlename ";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+            $users = $stmt->fetchAll();
+        }
 
         return array(
-            'users' => $result
+            'user' => $this->getUser(),
+            'users' => $users
         );
     }
 
@@ -98,6 +114,7 @@ class UserController extends Controller {
         $result = $stmt->fetchAll();
 
         return array(
+            'user' => $this->getUser(),
             'groups' => $result
         );
     }

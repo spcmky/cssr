@@ -34,10 +34,14 @@ class CenterController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $centers = $em->getRepository('CssrMainBundle:Center')->findBy(
-            array('active' => 1),
-            array('name' => 'ASC')
-        );
+        if ( Group::isGranted($this->getUser(),'center create') ) {
+            $centers = $em->getRepository('CssrMainBundle:Center')->findBy(
+                array('active' => 1),
+                array('name' => 'ASC')
+            );
+        } else {
+            return $this->redirect($this->generateUrl('cssr_main_default_index'));
+        }
 
         return array(
             'centers' => $centers,
@@ -125,6 +129,7 @@ class CenterController extends Controller
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
+            'user' => $this->getUser(),
             'activeCenterId' => $activeCenterId,
             'center' => $center,
             'delete_form' => $deleteForm->createView(),
@@ -160,6 +165,7 @@ class CenterController extends Controller
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
+            'user' => $this->getUser(),
             'activeCenterId' => $activeCenterId,
             'center'      => $center,
             'edit_form'   => $editForm->createView(),
@@ -239,6 +245,7 @@ class CenterController extends Controller
         }
 
         return array(
+            'user' => $this->getUser(),
             'center'      => $center,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
