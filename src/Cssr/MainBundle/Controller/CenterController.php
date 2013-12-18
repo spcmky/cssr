@@ -114,9 +114,18 @@ class CenterController extends Controller
             throw $this->createNotFoundException('Unable to find Center.');
         }
 
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        if ( $activeCenter ) {
+            $activeCenterId = $activeCenter->id;
+        } else {
+            $activeCenterId = null;
+        }
+
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
+            'activeCenterId' => $activeCenterId,
             'center' => $center,
             'delete_form' => $deleteForm->createView(),
         );
@@ -139,10 +148,19 @@ class CenterController extends Controller
             throw $this->createNotFoundException('Unable to find Center.');
         }
 
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        if ( $activeCenter ) {
+            $activeCenterId = $activeCenter->id;
+        } else {
+            $activeCenterId = null;
+        }
+
         $editForm = $this->createForm(new CenterType(), $center);
         $deleteForm = $this->createDeleteForm($id);
 
         return array(
+            'activeCenterId' => $activeCenterId,
             'center'      => $center,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -235,36 +253,34 @@ class CenterController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
-        $form = $this->createDeleteForm($id);
-        $form->submit($request);
+        $em = $this->getDoctrine()->getManager();
+        $center = $em->getRepository('CssrMainBundle:Center')->find($id);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $center = $em->getRepository('CssrMainBundle:Center')->find($id);
-
-            if (!$center) {
-                throw $this->createNotFoundException('Unable to find Center.');
-            }
-
-            $center->setActive(0); // logical delete
-
-            $em->flush();
-
-            if ($request->isXmlHttpRequest()) {
+        if ( !$center ) {
+            if ( $request->isXmlHttpRequest() ) {
                 $api_response = new \stdClass();
-                $api_response->status = 'success';
+                $api_response->status = 'failed';
 
                 // create a JSON-response with a 200 status code
                 $response = new Response(json_encode($api_response));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
+            } else {
+                throw $this->createNotFoundException('Unable to find Center.');
             }
-
         }
 
-        if ($request->isXmlHttpRequest()) {
+        $center->setActive(0); // logical delete
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            'Center deleted successfully!'
+        );
+
+        if ( $request->isXmlHttpRequest() ) {
             $api_response = new \stdClass();
-            $api_response->status = 'failed';
+            $api_response->status = 'success';
 
             // create a JSON-response with a 200 status code
             $response = new Response(json_encode($api_response));

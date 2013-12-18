@@ -10,7 +10,7 @@
 
     <h1>{{ center.name }}</h1>
 
-    <strong>Address</strong>
+    <h3>Address</h3>
     <address>
         {{ center.address }}<br />
         {{ center.city }}, {{ center.state }} {{ center.postcode }}<br />
@@ -19,7 +19,7 @@
 
     <div class="row">
         <div class="col-md-6">
-            <strong>Dorms</strong>
+            <h3>Dorms</h3>
             <ul class="list-unstyled">
                 {% for dorm in center.dorms %}
                     <li>{{ dorm.name }}</li>
@@ -27,7 +27,7 @@
             </ul>
         </div>
         <div class="col-mid-6">
-            <strong>Vocations</strong>
+            <h3>Vocations</h3>
             <ul class="list-unstyled">
                 {% for vocation in center.vocations %}
                     <li>{{ vocation.name }}</li>
@@ -36,14 +36,16 @@
         </div>
     </div>
 
-    <p>Created {{ center.created | date('m/d/Y') }} by {{ center.createdBy.username }}</p>
-    <p>Last Updated {{ center.updated | date('m/d/Y') }} by {{ center.updatedBy.username }}</p>
+    <p>Created on {{ center.created | date('m/d/Y') }} by {{ center.createdBy.username }}</p>
+    <p>Last Updated on {{ center.updated | date('m/d/Y') }} by {{ center.updatedBy.username }}</p>
 
     <div class="panel panel-default">
         <div class="panel-body">
             <a class="btn btn-default btn-center-cancel" href="{{ path('center') }}">Cancel</a>
             <a class="btn btn-primary btn-center-edit" href="{{ path('center_edit', { 'id': center.id }) }}">Edit</a>
-            <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
+            {% if activeCenterId and activeCenterId != center.id %}
+                <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
+            {% endif %}
         </div>
     </div>
 
@@ -72,7 +74,7 @@
 
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ path('center_edit', { 'id': center.id }) }}"
+                    url: "{{ path('center_delete', { 'id': center.id }) }}",
                     success: function(data,textStatus){
                         if ( textStatus == 'success' ) {
                             // reload page

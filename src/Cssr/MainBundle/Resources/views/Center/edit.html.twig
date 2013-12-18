@@ -24,14 +24,15 @@
 
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <a class="btn btn-default btn-center-cancel" href="{{ path('center') }}">Cancel</a>
+                    <a class="btn btn-default btn-center-cancel" href="{{ path('center_show',{ 'id': center.id }) }}">Cancel</a>
                     <a class="btn btn-primary btn-center-save" href="javascript:void(0)">Save</a>
-                    <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
+                    {% if activeCenterId and activeCenterId != center.id %}
+                        <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- Modal -->
     <div class="modal fade" id="modal-center-delete" tabindex="-1" role="dialog" aria-labelledby="centerDeleteModal" aria-hidden="true">
