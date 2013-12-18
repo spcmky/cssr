@@ -56,10 +56,7 @@
                     {% if score is iterable %}
                         {% if score.comment is defined %}
                             <td style="text-align: center;">
-
                                 <a class="score-comment-value" data-toggle="modal" data-target="#score-comment-model-{{ score.id }}">{{ score.value }}</a>
-
-                                <!-- Modal -->
                                 <div class="modal fade" id="score-comment-model-{{ score.id }}" tabindex="-1" role="dialog" aria-labelledby="score-comment-model-{{ score.id }}-label" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -70,9 +67,7 @@
                                             <div class="modal-body" style="font-size: 120%;">
                                                 <div class="row">
                                                     <div class="col-sm-8" style="text-align: left;">
-
                                                         <p style="font-size: 120%; margin-bottom: 20px;">{{ score.comment.body }}</p>
-
                                                         <div><strong>Standards</strong></div>
                                                         {% if score.comment.standards is defined %}
                                                             {% for standard in score.comment.standards %}
@@ -81,22 +76,19 @@
                                                         {% else  %}
                                                             None
                                                         {% endif %}
-
                                                     </div>
                                                     <div class="col-sm-4" style="text-align: center;">
                                                         <div style="font-weight: bold; font-size: 400%;">{{ score.value }}</div>
                                                         <div><strong>Score</strong></div>
                                                     </div>
-
                                                 </div>
                                             </div>
                                             <div class="modal-footer" style="text-align:right">
                                                 Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}
                                             </div>
-                                        </div><!-- /.modal-content -->
-                                    </div><!-- /.modal-dialog -->
-                                </div><!-- /.modal -->
-
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         {% else %}
                             <td style="text-align: center;">{{ score.value }}</td>
