@@ -12,8 +12,11 @@
     </ol>
 {% endblock %}
 
-{% block body -%}
+{% block body %}
 
+{% if report|length == 0 %}
+    <p>No scores found.</p>
+{% else %}
     {% for student in report %}
         <h3>Scores for <a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></h3>
         <table class="table table-hover table-bordered" style="font-size:11px;">
@@ -74,6 +77,7 @@
             {% endfor %}
         </table>
     {% endfor %}
+{% endif %}
 
 
 {% endblock %}
