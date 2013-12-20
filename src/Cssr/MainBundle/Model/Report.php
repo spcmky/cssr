@@ -765,7 +765,7 @@ class Report {
 
     public static function getCaseloadEsp ( $staff, $em, $activeCenter, $periods ) {
 
-        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, S.value, S.period ';
+        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, U.entry, S.value, S.period ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
@@ -795,6 +795,7 @@ class Report {
                     'firstname' => $score['firstname'],
                     'lastname' => $score['lastname'],
                     'middlename' => $score['middlename'],
+                    'entry' => $score['entry'],
                     'periods' => array()
                 );
             }
@@ -957,7 +958,7 @@ class Report {
     public static function getCaseloadStudents ( $em,$staff,$areas,$studentIds ) {
 
         // find students
-        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_user U ';
         $sql .= 'WHERE U.id IN ('.$studentIds.') ';
 
@@ -975,7 +976,7 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname ';
+        $sql  = 'SELECT S.id, S.student_id, A.id area_id, A.name area_name, S.value, S.period, CM.id comment_id, CM.comment, CM.updated comment_updated, U.id updater_id, U.firstname updater_firstname, U.lastname updater_lastname, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
@@ -1035,6 +1036,8 @@ class Report {
                             'scores' => array(),
                             'avgScore' => null,
                             'scoreStats' => null,
+                            'scoreTotal' => null,
+                            'scoreCount' => null,
                             'rating' => null
                         );
 
@@ -1060,6 +1063,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['avgScore'] = round($totalScore/$scoreCount,2);
+                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
 
                     // score stats
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scoreStats'] = $scoreStats;
@@ -1067,6 +1072,7 @@ class Report {
                     // assign rating
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['rating'] = self::getRating($student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['avgScore']);
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scores'][$score['area_id']] = array(
+                        'id' => $score['id'],
                         'name' => $score['area_name'],
                         'value' => $score['value'],
                         'comment' => array(

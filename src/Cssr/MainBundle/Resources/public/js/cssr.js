@@ -56,7 +56,18 @@
 
     //$('a.score-comment-popover').popover();
 
-    var reportTable = $('#friday-report').dataTable({
+    $('#friday-report').dataTable({
+        "bJQueryUI": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bSort": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "bProcessing": true
+    });
+
+    $('table.sortable-report').dataTable({
         "bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,

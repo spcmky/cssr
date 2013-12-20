@@ -44,32 +44,34 @@
         </div>
     </div>
 
-    <table id="caseload-esp-report" class="table table-hover table-bordered">
+    <table id="caseload-esp-report" class="table table-hover table-bordered sortable-report" style="font-size:11px;">
         <thead>
             <tr>
-                <th>Name</th>
+                <th>#</th>
+                <th class="sortable">Name</th>
+                <th class="sortable">DOE</th>
                 {% for ds in selectedPeriods %}
-                    <th>{{ ds|date("m/d/Y") }}</th>
+                    <th class="sortable" style="font-size: 10px;">{{ ds|date("m/d/Y") }}</th>
                 {% endfor %}
-                <th>Final</th>
+                <th class="sortable">Final</th>
             </tr>
         </thead>
         <tbody>
         {% for student in students %}
             <tr>
+                <td>{{ loop.index }}</td>
                 <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for ds in selectedPeriods %}
-                    <td>
+                    <td style="text-align: center;">
                     {% for period in student.periods %}
                         {% if period.date == ds %}
                             {{ period.score }}
-                        {% else %}
-                            &nbsp;
                         {% endif %}
                     {% endfor %}
                     </td>
                 {% endfor %}
-                <td>{{ student.avgScore }}</td>
+                <td style="text-align:center; font-size:110%;"><strong>{{ student.avgScore }}</strong></td>
             </tr>
         {% endfor %}
         </tbody>

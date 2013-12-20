@@ -14,7 +14,7 @@
     </ol>
 {% endblock %}
 
-{% block body -%}
+{% block body %}
 
     {% for student in students %}
     <h3>Scores for <a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></h3>
@@ -22,36 +22,96 @@
     {% for period, report in student.periods %}
         <thead>
         <tr>
+            <th>#</th>
             <th>Date</th>
+            <th>DOE</th>
             {% for area in areas %}
-                <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
+                <th style="font-size: 9px;">{{ area.name }}</th>
             {% endfor %}
-            <th style="padding: 8px 14px 8px 2px;">Final</th>
+            <th>Total</th>
+            <th>Units</th>
+            <th>Final</th>
             <th>Merit</th>
         </tr>
         </thead>
         <tbody>
             <tr>
+                <td>{{ loop.index }}</td>
                 <td>{{ period|date("m/d/Y") }}</td>
+                <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for score in report.scores %}
                     {% if score is iterable %}
-                        {% if score.comment %}
-                            <td style="text-align: center;"><span class="score-comment-popover">{{ score.value }}</span></td>
+                        {% if score.comment is defined %}
+                            <td style="text-align: center;">
+
+                                <a class="score-comment-value" data-toggle="modal" data-target="#score-comment-model-{{ score.id }}">{{ score.value }}</a>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="score-comment-model-{{ score.id }}" tabindex="-1" role="dialog" aria-labelledby="score-comment-model-{{ score.id }}-label" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="score-comment-model-{{ score.id }}-label">Comment on {{ student.firstname|capitalize }} {{ student.lastname|capitalize }} for {{ score.name }}</h4>
+                                            </div>
+                                            <div class="modal-body" style="font-size: 120%;">
+                                                <div class="row">
+                                                    <div class="col-sm-8" style="text-align: left;">
+
+                                                        <p style="font-size: 120%; margin-bottom: 20px;">{{ score.comment.body }}</p>
+
+                                                        <div><strong>Standards</strong></div>
+                                                        {% if score.comment.standards is defined %}
+                                                            {% for standard in score.comment.standards %}
+                                                                {{ loop.index }}. {{ standard }}<br/>
+                                                            {% endfor %}
+                                                        {% else  %}
+                                                            None
+                                                        {% endif %}
+
+                                                    </div>
+                                                    <div class="col-sm-4" style="text-align: center;">
+                                                        <div style="font-weight: bold; font-size: 400%;">{{ score.value }}</div>
+                                                        <div><strong>Score</strong></div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer" style="text-align:right">
+                                                Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal-dialog -->
+                                </div><!-- /.modal -->
+
+                            </td>
                         {% else %}
-                            <td style="font-size:9px; text-align: center;">{{ score.value }}</td>
+                            <td style="text-align: center;">{{ score.value }}</td>
                         {% endif %}
                     {% else %}
-                        <td style="font-size:9px; text-align: center;">{{ score }}</td>
+                        <td>&nbsp;</td>
                     {% endif %}
                 {% endfor %}
-                <td style="text-align: center;"><strong>{{ report.avgScore }}</strong></td>
-                <td style="text-align: center;">{{ report.rating }}</td>
+                <td style="text-align:center;">{{ report.scoreTotal }}</td>
+                <td style="text-align:center;">{{ report.scoreCount }}</td>
+                <td style="text-align:center; font-size:110%;"><strong>{{ report.avgScore }}</strong></td>
+                <td style="text-align:center; font-size:110%;">
+                    {% if report.rating == 'Gold' %}
+                        <span style="color:#FFD700;">{{ report.rating }}</span>
+                    {% elseif report.rating == 'Blue' %}
+                        <span style="color:#0000FF;">{{ report.rating }}</span>
+                    {% elseif report.rating == 'Green' %}
+                        <span style="color:#008000;">{{ report.rating }}</span>
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
             </tr>
 
             {% for score in report.scores %}
                 {% if score is iterable and score.comment.body %}
                     <tr>
-                        <td colspan="21" style="background-color: #f7f7f7;">
+                        <td colspan="24" style="background-color: #f7f7f7;">
 
                             <div class="row">
                                 <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
