@@ -40,11 +40,11 @@
             <th>Name</th>
             <th>DOE</th>
             {% for area in areas %}
-                <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
+                <th style="font-size: 9px;">{{ area.name }}</th>
             {% endfor %}
             <th>Total</th>
             <th>Units</th>
-            <th style="padding: 8px 14px 8px 2px;">Final</th>
+            <th>Final</th>
             <th>Merit</th>
         </tr>
         </thead>
@@ -108,8 +108,6 @@
                         <td>&nbsp;</td>
                     {% endif %}
                 {% endfor %}
-
-
 
                 <td style="text-align:center;">{{ student.scoreTotal }}</td>
                 <td style="text-align:center;">{{ student.scoreCount }}</td>
