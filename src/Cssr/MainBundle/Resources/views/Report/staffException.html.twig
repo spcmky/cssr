@@ -29,15 +29,13 @@
         <tr>
             <th>Name</th>
             <th>Course</th>
-
         </tr>
         </thead>
         <tbody>
         {% for user in report %}
             <tr>
-                <td><a href="{{ path('staff_show', { 'id': user.id }) }}">{{ user.lastname|capitalize }}, {{ user.firstname|capitalize }} {{ user.middlename|capitalize }}</a></td>
+                <td>{{ user.lastname|capitalize }}, {{ user.firstname|capitalize }} {{ user.middlename|capitalize }}</td>
                 <td>{{ user.course_name }}</td>
-
             </tr>
         {% endfor %}
         </tbody>

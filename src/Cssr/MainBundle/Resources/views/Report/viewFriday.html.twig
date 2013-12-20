@@ -36,15 +36,15 @@
         <thead>
         <tr>
             <th>#</th>
-            <th>Name</th>
-            <th>DOE</th>
+            <th class="sortable">Name</th>
+            <th class="sortable">DOE</th>
             {% for area in areas %}
-                <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
+                <th class="sortable" style="font-size: 9px;">{{ area.name }}</th>
             {% endfor %}
-            <th>Total</th>
-            <th>Units</th>
-            <th style="padding: 8px 14px 8px 2px;">Final</th>
-            <th>Merit</th>
+            <th class="sortable">Total</th>
+            <th class="sortable">Units</th>
+            <th class="sortable">Final</th>
+            <th class="sortable">Merit</th>
         </tr>
         </thead>
         <tbody>
