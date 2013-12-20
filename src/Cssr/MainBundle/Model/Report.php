@@ -158,7 +158,7 @@ class Report {
 
     public static function getFridayAllComments ( $em, $activeCenter, $areas, $period ) {
         // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
@@ -244,6 +244,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
+                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
 
                     // score stats
                     $student_scores[$student['id']]['scoreStats'] = $scoreStats;
@@ -1319,12 +1321,12 @@ class Report {
     public static function getHistoryStaffScores ( $staff, $em, $activeCenter, $areas, $period ) {
 
         // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename ';
+        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND C.user_id = '.$staff->getId().' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
-        $sql .= 'ORDER BY S.student_id ';
+        $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
@@ -1340,9 +1342,10 @@ class Report {
         }
 
         // scores
-        $sql  = 'SELECT S.student_id, C.area_id, S.value ';
+        $sql  = 'SELECT S.id, S.student_id, S.value, A.id area_id, A.name area_name ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
 
@@ -1370,7 +1373,11 @@ class Report {
             $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
             foreach ( $scores as $score ) {
                 if ( $score['student_id'] == $student['id'] ) {
-                    $student_scores[$student['id']]['scores'][$score['area_id']] = $score['value'];
+                    $student_scores[$student['id']]['scores'][$score['area_id']] = array(
+                        'id' => $score['id'],
+                        'name' => $score['area_name'],
+                        'value' => $score['value']
+                    );
 
                     $totalScore += $score['value'];
                     $scoreCount++;
@@ -1385,6 +1392,9 @@ class Report {
 
             // calculate average
             $student_scores[$student['id']]['avgScore'] = round($totalScore/$scoreCount,2);
+            $student_scores[$student['id']]['scoreTotal'] = $totalScore;
+            $student_scores[$student['id']]['scoreCount'] = $scoreCount;
+
 
             // score stats
             $student_scores[$student['id']]['scoreStats'] = $scoreStats;
@@ -1392,6 +1402,21 @@ class Report {
             // assign rating
             $student_scores[$student['id']]['rating'] = self::getRating($student_scores[$student['id']]['avgScore']);
         }
+
+        $total = 0.0;
+        $count = 0;
+        foreach ( $student_scores as $report ) {
+            $total += $report['avgScore'];
+            $count++;
+        }
+
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$student_scores,'overallAverage'=>$overallAverage);
 
         return $student_scores;
     }

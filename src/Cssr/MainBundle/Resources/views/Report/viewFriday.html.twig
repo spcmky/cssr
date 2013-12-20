@@ -36,15 +36,15 @@
         <thead>
         <tr>
             <th>#</th>
-            <th class="sortable">Name</th>
-            <th class="sortable">DOE</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Name</th>
+            <th {% if not comments %}class="sortable"{% endif %}>DOE</th>
             {% for area in areas %}
-                <th class="sortable" style="font-size: 9px;">{{ area.name }}</th>
+                <th {% if not comments %}class="sortable"{% endif %} style="font-size: 9px;">{{ area.name }}</th>
             {% endfor %}
-            <th class="sortable">Total</th>
-            <th class="sortable">Units</th>
-            <th class="sortable">Final</th>
-            <th class="sortable">Merit</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Total</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Units</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Final</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Merit</th>
         </tr>
         </thead>
         <tbody>
@@ -125,8 +125,7 @@
                 {% for score in student.scores %}
                     {% if score is iterable %}
                         <tr>
-                            <td colspan="21" style="background-color: #f7f7f7;">
-
+                            <td colspan="24" style="background-color: #f7f7f7;">
                                 <div class="row">
                                     <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
                                     <div class="col-lg-1" style="text-align: center;">{{ score.value}}</div>
@@ -140,7 +139,6 @@
                                         <small>Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</small>
                                     </div>
                                 </div>
-
                             </td>
                         </tr>
                     {% endif %}

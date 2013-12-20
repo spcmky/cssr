@@ -817,14 +817,7 @@ class ReportController extends Controller
         $period_end = clone $period;
         $period_end->add(new \DateInterval('P5D'));
 
-        $reports = Report::getHistoryStaffScores($staff,$em,$activeCenter,$areas,$period);
-
-        usort($reports,function($a,$b){
-            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
-                return strnatcmp($a['lastname'],$b['lastname']);
-            }
-            return strnatcasecmp($a['lastname'],$b['lastname']);
-        });
+        $report = Report::getHistoryStaffScores($staff,$em,$activeCenter,$areas,$period);
 
         $vars = array(
             'staff' => $staff,
@@ -835,7 +828,8 @@ class ReportController extends Controller
             'periods' => $periods,
             'areas' => $areas,
             'standards' => $standards,
-            'reports' => $reports
+            'reports' => $report['reports'],
+            'overallAverage' => $report['overallAverage']
         );
 
         if ( isset($_GET['type']) ) {

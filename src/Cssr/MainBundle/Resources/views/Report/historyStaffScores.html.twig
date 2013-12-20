@@ -13,53 +13,123 @@
     </ol>
 {% endblock %}
 
-{% block body -%}
+{% block body %}
 
-    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="lead">Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+            <label for="periodSelector">
+                Period:
+                <select name="periodSelector" id="periodSelector">
+                    {% for date in periods %}
+                        <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+                    {% endfor %}
+                </select>
+            </label>
 
-    <select name="periodSelector" id="periodSelector">
-        {% for date in periods %}
-            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
-        {% endfor %}
-    </select>
+            <h3>Scores for <a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename|capitalize }}</a></h3>
 
-    <h3>Scores for <a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename|capitalize }}</a></h3>
+        </div>
+        <div class="well well-sm col-md-2 col-md-offset-3 text-center">
+            <div class="friday-report-avg-score-value">{{ overallAverage }}</div>
+            <div class="friday-report-avg-score">Avg. Score</div>
+        </div>
+    </div>
 
     <table id="friday-report{% if comments %}-comments{% endif %}" class="table table-hover table-bordered" style="font-size:11px;">
         <thead>
-            <tr>
-                <th>Name</th>
-                {% for area in areas %}
-                    <th style="font-size: 9px; padding: 8px 14px 8px 2px;{% if course.name == area.name %}background-color: #efefef;{% endif %}">{{ area.name }}</th>
-                {% endfor %}
-                <th style="padding: 8px 14px 8px 2px;">Final</th>
-                <th>Merit</th>
-            </tr>
+        <tr>
+            <th>#</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Name</th>
+            <th {% if not comments %}class="sortable"{% endif %}>DOE</th>
+            {% for area in areas %}
+                <th {% if not comments %}class="sortable"{% endif %} style="font-size: 9px;">{{ area.name }}</th>
+            {% endfor %}
+            <th {% if not comments %}class="sortable"{% endif %}>Total</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Units</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Final</th>
+            <th {% if not comments %}class="sortable"{% endif %}>Merit</th>
+        </tr>
         </thead>
         <tbody>
-        {% for row in reports %}
+        {% for student in reports %}
             <tr>
-                <td><a href="{{ path('student_show', { 'id': row.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
-                {% for area_id, score in row.scores %}
+                <td>{{ loop.index }}</td>
+                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
+                {% for score in student.scores %}
                     {% if score is iterable %}
-                        {% if score.comment %}
-                            <td style="text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}"><span class="score-comment-popover">{{ score.value }}</span></td>
+                        {% if score.comment is defined %}
+                            <td style="text-align: center;">
+
+                                <a class="score-comment-value" data-toggle="modal" data-target="#score-comment-model-{{ score.id }}">{{ score.value }}</a>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="score-comment-model-{{ score.id }}" tabindex="-1" role="dialog" aria-labelledby="score-comment-model-{{ score.id }}-label" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="score-comment-model-{{ score.id }}-label">Comment on {{ student.firstname|capitalize }} {{ student.lastname|capitalize }} for {{ score.name }}</h4>
+                                            </div>
+                                            <div class="modal-body" style="font-size: 120%;">
+                                                <div class="row">
+                                                    <div class="col-sm-8" style="text-align: left;">
+
+                                                        <p style="font-size: 120%; margin-bottom: 20px;">{{ score.comment.body }}</p>
+
+                                                        <div><strong>Standards</strong></div>
+                                                        {% if score.comment.standards is defined %}
+                                                            {% for standard in score.comment.standards %}
+                                                                {{ loop.index }}. {{ standard }}<br/>
+                                                            {% endfor %}
+                                                        {% else  %}
+                                                            None
+                                                        {% endif %}
+
+                                                    </div>
+                                                    <div class="col-sm-4" style="text-align: center;">
+                                                        <div style="font-weight: bold; font-size: 400%;">{{ score.value }}</div>
+                                                        <div><strong>Score</strong></div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer" style="text-align:right">
+                                                Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}
+                                            </div>
+                                        </div><!-- /.modal-content -->
+                                    </div><!-- /.modal-dialog -->
+                                </div><!-- /.modal -->
+
+                            </td>
                         {% else %}
-                            <td style="font-size:9px; text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}">{{ score.value }}</td>
+                            <td style="text-align: center;">{{ score.value }}</td>
                         {% endif %}
                     {% else %}
-                        <td style="font-size:9px; text-align: center; {% if course.id == area_id %}background-color: #efefef;{% endif %}">{{ score }}</td>
+                        <td>&nbsp;</td>
                     {% endif %}
                 {% endfor %}
-                <td style="text-align: center;"><strong>{{ row.avgScore }}</strong></td>
-                <td style="text-align: center;">{{ row.rating }}</td>
+                <td style="text-align:center;">{{ student.scoreTotal }}</td>
+                <td style="text-align:center;">{{ student.scoreCount }}</td>
+                <td style="text-align:center; font-size:110%;"><strong>{{ student.avgScore }}</strong></td>
+                <td style="text-align:center; font-size:110%;">
+                    {% if student.rating == 'Gold' %}
+                        <span style="color:#FFD700;">{{ student.rating }}</span>
+                    {% elseif student.rating == 'Blue' %}
+                        <span style="color:#0000FF;">{{ student.rating }}</span>
+                    {% elseif student.rating == 'Green' %}
+                        <span style="color:#008000;">{{ student.rating }}</span>
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
             </tr>
-
-                {% for score in row.scores %}
+            {% if comments %}
+                {% for score in student.scores %}
                     {% if score is iterable %}
                         <tr>
-                            <td colspan="21" style="background-color: #f7f7f7;">
-
+                            <td colspan="24" style="background-color: #f7f7f7;">
                                 <div class="row">
                                     <div class="col-lg-1" style="text-align: center;">{{ score.name}}</div>
                                     <div class="col-lg-1" style="text-align: center;">{{ score.value}}</div>
@@ -73,15 +143,13 @@
                                         <small>Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</small>
                                     </div>
                                 </div>
-
                             </td>
                         </tr>
                     {% endif %}
                 {% endfor %}
-
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>
-
 
 {% endblock %}
