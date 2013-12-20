@@ -1240,6 +1240,7 @@ class Report {
             'firstname' => $student->getFirstname(),
             'lastname' => $student->getLastname(),
             'middlename' => $student->getMiddlename(),
+            'entry' => $student->getEntry(),
             'periods' => array()
         );
 
@@ -1256,6 +1257,8 @@ class Report {
                     'scores' => array(),
                     'avgScore' => null,
                     'scoreStats' => null,
+                    'scoreTotal' => null,
+                    'scoreCount' => null,
                     'rating' => null
                 );
 
@@ -1281,6 +1284,8 @@ class Report {
 
             // calculate average
             $studentScores['periods'][$period->format('Y-m-d')]['avgScore'] = round($totalScore/$scoreCount,2);
+            $studentScores['periods'][$period->format('Y-m-d')]['scoreTotal'] = $totalScore;
+            $studentScores['periods'][$period->format('Y-m-d')]['scoreCount'] = $scoreCount;
 
             // score stats
             $studentScores['periods'][$period->format('Y-m-d')]['scoreStats'] = $scoreStats;
@@ -1293,9 +1298,22 @@ class Report {
             );
         }
 
-        //echo '<pre>'.print_r($studentScores,true).'</pre>'; die();
+        $total = 0.0;
+        $count = 0;
+        foreach ( $studentScores['periods'] as $period => $report ) {
+            $total += $report['avgScore'];
+            $count++;
+        }
 
-        return $studentScores;
+        if ( $count ) {
+            $overallAverage = round($total/$count,2);
+        } else {
+            $overallAverage = 0.0;
+        }
+
+        return array('reports'=>$studentScores,'overallAverage'=>$overallAverage);
+
+        //echo '<pre>'.print_r($studentScores,true).'</pre>'; die();
     }
 
     public static function getHistoryStaffScores ( $staff, $em, $activeCenter, $areas, $period ) {

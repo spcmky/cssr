@@ -19,39 +19,63 @@
 
     <h3>Scores for <a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></h3>
 
+    <div class="row">
+        <div class="col-md-6"></div>
+        <div class="well well-sm col-md-2 col-md-offset-3 text-center">
+            <div class="friday-report-avg-score-value">{{ overallAverage }}</div>
+            <div class="friday-report-avg-score">Avg. Score</div>
+        </div>
+    </div>
+
     {% if student.periods|length > 0 %}
 
-    <table class="table table-hover table-bordered" style="font-size:11px;">
+    <table class="table table-hover table-bordered sortable" style="font-size:11px;">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th class="sortable">Date</th>
+            {% for area in areas %}
+                <th class="sortable" style="font-size: 9px;">{{ area.name }}</th>
+            {% endfor %}
+            <th class="sortable">Total</th>
+            <th class="sortable">Units</th>
+            <th class="sortable">Final</th>
+            <th class="sortable">Merit</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for period, report in student.periods %}
-            <thead>
             <tr>
-                <th>Date</th>
-                {% for area in areas %}
-                    <th style="font-size: 9px; padding: 8px 14px 8px 2px;">{{ area.name }}</th>
-                {% endfor %}
-                <th style="padding: 8px 14px 8px 2px;">Final</th>
-                <th>Merit</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
+                <td>{{ loop.index }}</td>
                 <td>{{ period|date("m/d/Y") }}</td>
                 {% for score in report.scores %}
                     {% if score is iterable %}
                         {% if score.comment is defined %}
                             <td style="text-align: center;"><span class="score-comment-popover">{{ score.value }}</span></td>
                         {% else %}
-                            <td style="font-size:9px; text-align: center;">{{ score.value }}</td>
+                            <td style="text-align: center;">{{ score.value }}</td>
                         {% endif %}
                     {% else %}
-                        <td style="font-size:9px; text-align: center;">{{ score }}</td>
+                        <td style="text-align: center;">{{ score }}</td>
                     {% endif %}
                 {% endfor %}
-                <td style="text-align: center;"><strong>{{ report.avgScore }}</strong></td>
-                <td style="text-align: center;">{{ report.rating }}</td>
+                <td style="text-align:center;">{{ report.scoreTotal }}</td>
+                <td style="text-align:center;">{{ report.scoreCount }}</td>
+                <td style="text-align:center; font-size:110%;"><strong>{{ report.avgScore }}</strong></td>
+                <td style="text-align:center; font-size:110%;">
+                    {% if report.rating == 'Gold' %}
+                        <span style="color:#FFD700;">{{ report.rating }}</span>
+                    {% elseif report.rating == 'Blue' %}
+                        <span style="color:#0000FF;">{{ report.rating }}</span>
+                    {% elseif report.rating == 'Green' %}
+                        <span style="color:#008000;">{{ report.rating }}</span>
+                    {% else %}
+                        &nbsp;
+                    {% endif %}
+                </td>
             </tr>
-            </tbody>
         {% endfor %}
+        </tbody>
     </table>
     {% else %}
         <p>No scores found.</p>

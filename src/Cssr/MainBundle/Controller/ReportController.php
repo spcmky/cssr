@@ -685,13 +685,14 @@ class ReportController extends Controller
             throw $this->createNotFoundException('Unable to find Student.');
         }
 
-        $report = Report::getHistoryStudent($em,$areas,$student);
+        $result = Report::getHistoryStudent($em,$areas,$student);
 
         return array(
             'user' => $this->getUser(),
             'areas' => $areas,
             'standards' => $standards,
-            'student' => $report
+            'student' => $result['reports'],
+            'overallAverage' => $result['overallAverage']
         );
     }
 
