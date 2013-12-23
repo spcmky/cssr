@@ -686,6 +686,10 @@ class ReportController extends Controller
         }
 
         $result = Report::getHistoryStudent($em,$areas,$student);
+        if ( empty($result) ) {
+            $result['reports'] = array();
+            $result['overallAverage'] = 0.0;
+        }
 
         return array(
             'user' => $this->getUser(),
@@ -818,6 +822,11 @@ class ReportController extends Controller
         $period_end->add(new \DateInterval('P5D'));
 
         $report = Report::getHistoryStaffScores($staff,$em,$activeCenter,$areas,$period);
+
+        if ( empty($report) ) {
+            $report['reports'] = array();
+            $report['overallAverage'] = 0.0;
+        }
 
         $vars = array(
             'staff' => $staff,

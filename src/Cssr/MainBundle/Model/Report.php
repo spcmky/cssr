@@ -1417,8 +1417,6 @@ class Report {
         }
 
         return array('reports'=>$student_scores,'overallAverage'=>$overallAverage);
-
-        return $student_scores;
     }
 
     public static function getHistoryStaffComments ( $staff, $em, $activeCenter, $areas, $period ) {
