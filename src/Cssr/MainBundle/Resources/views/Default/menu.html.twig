@@ -7,53 +7,46 @@
 
                 {% block sidebar %}
 
-                    {% if admin %}
-
-                        {% if center.id < 1 %}
-                            {% if user_is_granted(user,'center update') %}
-                                <a class="btn btn-primary" href="{{ path('center') }}"><span class="glyphicon glyphicon-home pull-left"></span> Centers</a>
-                            {% endif %}
-
-                            {% if user_is_granted(user,'messages') %}
-                                <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
-                            {% endif %}
-
-                            {% if user_is_granted(user,'reports') %}
-                                <a class="btn btn-primary" href="{{ path('report_statistics') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Weekly Stats</a>
-                            {% endif %}
-                        {% else %}
-                            {% if user_is_granted(user,'center update') %}
-                                <a class="btn btn-primary" href="{{ path('center_show', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> {{ center.name }}</a>
-                            {% endif %}
-
-                            {% if user_is_granted(user,'user update') %}
-                                <a class="btn btn-primary" href="{{ path('user_setup') }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
-                            {% endif %}
-
-                            {% if user_is_granted(user,'score admin') %}
-                                <a class="btn btn-primary" href="{{ path('score') }}"><span class="glyphicon glyphicon-pencil pull-left"></span> Update Scores</a>
-                            {% elseif user_is_granted(user,'score update') %}
-                                <a class="btn btn-primary" href="{{ path('score_staff_show') }}"><span class="glyphicon glyphicon-pencil pull-left"></span> Update Scores</a>
-                            {% endif %}
-
-                            <a class="btn btn-primary" href="{{ path('score_overall') }}"><span class="glyphicon glyphicon-record pull-left"></span> View Scores</a>
-
-                            {% if user_is_granted(user,'reports') %}
-                                <a class="btn btn-primary" href="{{ path('report') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Reports</a>
-                            {% endif %}
-
-                            {% if user_is_granted(user,'messages') %}
-                                <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
-                            {% endif %}
-
+                    {% if center.id < 1 %}
+                        {% if user_is_granted(user,'center update') %}
+                            <a class="btn btn-primary" href="{{ path('center') }}"><span class="glyphicon glyphicon-home pull-left"></span> Centers</a>
                         {% endif %}
 
-                    {% else %}
-                        <a class="btn btn-primary" href="{{ path('user_edit',{ 'id': user.id }) }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
-                        <a class="btn btn-primary" href="{{ path('score_overall') }}"><span class="glyphicon glyphicon-record pull-left"></span> View Scores</a>
-                        <a class="btn btn-primary" href="{{ path('report') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Reports</a>
-                    {% endif %}
+                        {% if user_is_granted(user,'messages') %}
+                            <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
+                        {% endif %}
 
+                        {% if user_is_granted(user,'reports') %}
+                            <a class="btn btn-primary" href="{{ path('report_statistics') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Weekly Stats</a>
+                        {% endif %}
+                    {% else %}
+                        {% if user_is_granted(user,'center update') %}
+                            <a class="btn btn-primary" href="{{ path('center_show', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> {{ center.name }}</a>
+                        {% endif %}
+
+                        {% if admin %}
+                            <a class="btn btn-primary" href="{{ path('user_setup') }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
+                        {% else %}
+                            <a class="btn btn-primary" href="{{ path('user_edit',{ 'id': user.id }) }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
+                        {% endif %}
+
+                        {% if user_is_granted(user,'score admin') %}
+                            <a class="btn btn-primary" href="{{ path('score') }}"><span class="glyphicon glyphicon-pencil pull-left"></span> Update Scores</a>
+                        {% elseif user_is_granted(user,'score update') %}
+                            <a class="btn btn-primary" href="{{ path('score_staff_show',{'id': user.id}) }}"><span class="glyphicon glyphicon-pencil pull-left"></span> Update Scores</a>
+                        {% endif %}
+
+                        <a class="btn btn-primary" href="{{ path('score_overall') }}"><span class="glyphicon glyphicon-record pull-left"></span> View Scores</a>
+
+                        {% if user_is_granted(user,'reports') %}
+                            <a class="btn btn-primary" href="{{ path('report') }}"><span class="glyphicon glyphicon-stats pull-left"></span> Reports</a>
+                        {% endif %}
+
+                        {% if user_is_granted(user,'messages') %}
+                            <a class="btn btn-primary" href="{{ path('message') }}"><span class="glyphicon glyphicon-envelope pull-left"></span> Messages</a>
+                        {% endif %}
+
+                    {% endif %}
 
                 {% endblock %}
 
