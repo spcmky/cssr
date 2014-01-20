@@ -625,11 +625,12 @@ class ReportController extends Controller
         $sql  = 'SELECT U.* ';
         $sql .= 'FROM cssr_user_group UG ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
-        $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
-        $sql .= 'ORDER BY U.lastname, U.firstname ';
+        $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId AND U.enabled = :enabled ';
+        $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('centerId', $center->id,\PDO::PARAM_INT);
         $stmt->bindValue('groupId', 6, \PDO::PARAM_INT);
+        $stmt->bindValue('enabled', 1, \PDO::PARAM_INT);
         $stmt->execute();
 
         $students = $stmt->fetchAll();
@@ -679,7 +680,8 @@ class ReportController extends Controller
             'user' => $this->getUser(),
             'areas' => $areas,
             'standards' => $standards,
-            'student' => $result['reports'],
+            'history' => $result['reports'],
+            'student' => $student,
             'overallAverage' => $result['overallAverage']
         );
     }
