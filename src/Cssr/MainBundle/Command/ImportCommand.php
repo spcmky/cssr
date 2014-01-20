@@ -219,6 +219,17 @@ class ImportCommand extends ContainerAwareCommand
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+
+        $sql = "
+            SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
+            FROM cssr_student_course SC
+            LEFT JOIN cssr_course C ON C.id = SC.course_id
+            LEFT JOIN cssr_area A ON A.id = C.area_id
+            LEFT JOIN cssr_user U ON U.id = C.user_id
+            WHERE SC.student_id = :userId";
+
+            $stmt = $em->getConnection()->prepare($sql);
+
         foreach ( $students as $student ) {
 
             $scores = $this->DB_Old->query("SELECT * FROM sertblscores WHERE intUserID = ".$student['id'],\PDO::FETCH_OBJ);
@@ -226,15 +237,6 @@ class ImportCommand extends ContainerAwareCommand
                 continue;
             }
 
-            $sql = "
-            SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
-            FROM cssr_student_course UC
-            LEFT JOIN cssr_course C ON C.id = UC.course_id
-            LEFT JOIN cssr_area A ON A.id = C.area_id
-            LEFT JOIN cssr_user U ON U.id = C.user_id
-            WHERE UC.student_id = :userId";
-
-            $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('userId', $student['id'], \PDO::PARAM_INT);
             $stmt->execute();
             $courses = $stmt->fetchAll();

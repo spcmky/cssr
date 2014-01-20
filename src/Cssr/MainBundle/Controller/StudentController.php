@@ -187,15 +187,17 @@ class StudentController extends Controller
             throw $this->createNotFoundException('Unable to find Student.');
         }
 
-        $sql  = "SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ";
-        $sql .= "FROM cssr_student_course UC ";
-        $sql .= "LEFT JOIN cssr_course C ON C.id = UC.course_id ";
-        $sql .= "LEFT JOIN cssr_area A ON A.id = C.area_id ";
-        $sql .= "LEFT JOIN cssr_user U ON U.id = C.user_id ";
-        $sql .= "WHERE UC.student_id = :userId ";
+        $sql  = 'SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ';
+        $sql .= 'FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'WHERE SC.student_id = :userId AND SC.enrolled = :enrolled AND C.active = :active ';
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $id);
+        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
         $stmt->execute();
 
         $courses = $stmt->fetchAll();

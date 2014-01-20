@@ -6,17 +6,17 @@ namespace Cssr\MainBundle\Model;
 class Student {
 
     public static function getCourses ( $em, $student ) {
-
-        $sql = "
-        SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname
-        FROM cssr_student_course UC
-        LEFT JOIN cssr_course C ON C.id = UC.course_id
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE UC.student_id = :userId AND UC.enrolled = :enrolled ";
+        $sql  = 'SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname ';
+        $sql .= 'FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'WHERE SC.student_id = :userId AND SC.enrolled = :enrolled AND C.active = :active ';
+        $sql .= 'ORDER BY A.name  ';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $student->getId());
         $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }

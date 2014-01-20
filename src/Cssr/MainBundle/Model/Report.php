@@ -25,10 +25,12 @@ class Report {
         $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
-        $sql .= 'WHERE U.center_id = '.$activeCenter->id.' AND S.period = "'.$period->format("Y-m-d H:i:s").'" ';
+        $sql .= 'WHERE U.center_id = :center AND S.period = :period ';
         $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
-
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('period', $period, "datetime");
+        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
+
         $stmt->execute();
         $students = $stmt->fetchAll();
 
@@ -48,8 +50,9 @@ class Report {
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'LEFT JOIN cssr_comment CM ON CM.score_id = S.id ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
-        $sql .= 'WHERE S.period = "'.$period->format("Y-m-d H:i:s").'" AND S.student_id IN ('.implode(',',$studentIds).') ';
+        $sql .= 'WHERE S.period = :period AND S.student_id IN ('.implode(',',$studentIds).') ';
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('period', $period, "datetime");
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
@@ -149,8 +152,6 @@ class Report {
                 }
             }
         }
-
-        //echo '<pre>'.print_r($student_scores,true).'</pre>'; die();
 
         return $student_scores;
     }
@@ -539,8 +540,6 @@ class Report {
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period = :period ';
-        //$sql .= 'WHERE U.center_id = :center AND S.period = :period ';
-
         $sql .= 'ORDER BY S.student_id ';
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -1100,8 +1099,6 @@ class Report {
             }
 
         }
-
-        //echo '<pre>'.print_r($student_scores,true).'</pre>'; die();
 
         return $student_scores;
     }

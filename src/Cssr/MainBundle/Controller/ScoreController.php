@@ -14,6 +14,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
 use Cssr\MainBundle\Model\Report;
+use Cssr\MainBundle\Model\Student;
+
 
 /**
  * Score controller.
@@ -52,13 +54,16 @@ class ScoreController extends Controller
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
-        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $sql = 'SELECT DISTINCT(period) period FROM cssr_score ORDER BY period ';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
         $periods = array();
         foreach ( $stmt->fetchAll() as $p ) {
             $periods[] = new \DateTime($p['period']);
         }
+        $periods = array_reverse($periods);
+        $periods = array_slice($periods,0,10);
+        $periods = array_reverse($periods);
 
         if ( isset($_GET['period']) ) {
             $period = new \DateTime($_GET['period']);
@@ -76,7 +81,7 @@ class ScoreController extends Controller
 
         $total = 0.0;
         $count = 0;
-        foreach ( $reports as $student_id => $report ) {
+        foreach ( $reports as $report ) {
             $total += $report['avgScore'];
             $count++;
         }
@@ -120,37 +125,25 @@ class ScoreController extends Controller
         $center = $session->get('center');
 
         if ( $center ) {
-
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE U.center_id = :centerId AND UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname ";
-
+            $sql  = 'SELECT U.* ';
+            $sql .= 'FROM cssr_user_group UG ';
+            $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+            $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
-
             $stmt->bindValue('centerId', $center->id);
             $stmt->bindValue('groupId', 6);
-
             $stmt->execute();
-
             $result = $stmt->fetchAll();
-
         } else {
-
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname ";
-
-
+            $sql  = 'SELECT U.* ';
+            $sql .= 'FROM cssr_user_group UG ';
+            $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+            $sql .= 'WHERE UG.group_id = :groupId ';
+            $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
-
             $stmt->bindValue('groupId', 6);
-
             $stmt->execute();
-
             $result = $stmt->fetchAll();
         }
 
@@ -177,18 +170,7 @@ class ScoreController extends Controller
             throw $this->createNotFoundException('Unable to find Student entity.');
         }
 
-        $sql = "
-        SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
-        FROM cssr_student_course UC
-        LEFT JOIN cssr_course C ON C.id = UC.course_id
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE UC.student_id = :userId";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('userId', $id);
-        $stmt->execute();
-        $courses = $stmt->fetchAll();
+        $courses = Student::getCourses($em,$student);
 
         $standards = $em->getRepository('CssrMainBundle:Standard')->findAll();
 
@@ -235,8 +217,10 @@ class ScoreController extends Controller
 
         $scores = array();
         if ( $periods ) {
-            $sql = "SELECT * FROM cssr_score WHERE student_id = ".$id." AND period = '".$period->format("Y-m-d H:i:s")."'";
+            $sql = 'SELECT * FROM cssr_score WHERE student_id = :studentId AND period = :period ';
             $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue("studentId",$id,\PDO::PARAM_INT);
+            $stmt->bindValue('period', $period, "datetime");
             $stmt->execute();
             $scores = $stmt->fetchAll();
         }
@@ -278,7 +262,7 @@ class ScoreController extends Controller
             $student_scores[$course['id']] = array(
                 'course' => array(
                     'id' => $course['id'],
-                    'name' => $course['area_name']
+                    'name' => $course['name']
                 ),
                 'score' => array(
                     'id' => null,
@@ -344,36 +328,25 @@ class ScoreController extends Controller
         $center = $session->get('center');
 
         if ( $center ) {
-
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE U.center_id = :centerId AND UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname ";
-
+            $sql  = 'SELECT U.* ';
+            $sql .= 'FROM cssr_user_group UG ';
+            $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+            $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
-
             $stmt->bindValue('centerId', $center->id);
             $stmt->bindValue('groupId', 5);
-
             $stmt->execute();
-
             $result = $stmt->fetchAll();
-
         } else {
-
-            $sql = "SELECT U.*
-            FROM cssr_user_group UG
-            LEFT JOIN cssr_user U ON U.id = UG.user_id
-            WHERE UG.group_id = :groupId
-            ORDER BY U.lastname, U.firstname ";
-
+            $sql  = 'SELECT U.* ';
+            $sql .= 'FROM cssr_user_group UG ';
+            $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
+            $sql .= 'WHERE UG.group_id = :groupId ';
+            $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
-
             $stmt->bindValue('groupId', 5);
-
             $stmt->execute();
-
             $result = $stmt->fetchAll();
         }
 
@@ -444,8 +417,10 @@ class ScoreController extends Controller
         $sql  = 'SELECT C.id, A.name ';
         $sql .= 'FROM cssr_course C ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
-        $sql .= 'WHERE C.user_id = '.$id;
+        $sql .= 'WHERE C.user_id = :userId AND C.active = :active ';
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('userId', $id);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
         $stmt->execute();
         $courses = $stmt->fetchAll();
 
@@ -467,31 +442,17 @@ class ScoreController extends Controller
             $courseIds[] = $c['id'];
         }
 
-        $sql  = 'SELECT S.id, S.firstname, S.lastname ';
+        $sql  = 'SELECT C.id, A.id area_id, A.name area_name, U.id student_id, U.firstname user_firstname, U.lastname user_lastname, U.middlename user_middlename ';
         $sql .= 'FROM cssr_student_course SC ';
-        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
-        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
-        $sql .= 'ORDER BY S.firstname';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $students = $stmt->fetchAll();
-
-        $studentIds = array();
-        foreach ( $students as $s ) {
-            $studentIds[] = $s['id'];
-        }
-
-        $sql = "
-        SELECT C.id, A.id area_id, A.name area_name, U.id student_id, U.firstname user_firstname, U.lastname user_lastname, U.middlename user_middlename
-        FROM cssr_student_course UC
-        LEFT JOIN cssr_course C ON C.id = UC.course_id
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = UC.student_id
-        WHERE C.id IN (".implode(',',$courseIds).")
-        ORDER BY area_id, U.lastname, U.firstname";
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = SC.student_id ';
+        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') AND SC.enrolled = :enrolled ';
+        $sql .= 'ORDER BY area_name, U.lastname, U.firstname, U.middlename ';
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('userId', $id);
+        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+
         $stmt->execute();
         $student_courses = $stmt->fetchAll();
 

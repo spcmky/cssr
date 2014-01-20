@@ -11,6 +11,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use Cssr\MainBundle\Model\Report;
+use Cssr\MainBundle\Model\Staff;
+
 
 /**
  * Center controller.
@@ -511,25 +513,7 @@ class ReportController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
-        $sql  = 'SELECT C.id, A.name FROM cssr_course C ';
-        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
-        $sql .= 'WHERE C.user_id = '.$id;
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $courses = $stmt->fetchAll();
-
-        $courseIds = array();
-        foreach ( $courses as $c ) {
-            $courseIds[] = $c['id'];
-        }
-
-        $sql  = 'SELECT S.id, S.firstname, S.lastname, S.middlename FROM cssr_student_course SC ';
-        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
-        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') ';
-        $sql .= 'ORDER BY S.lastname, S.firstname ';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-        $students = $stmt->fetchAll();
+        $students = Staff::getStudents($em,$staff);
 
         $vars = array(
             'type_name' => Report::getCaseloadReportName($type),
@@ -979,12 +963,14 @@ class ReportController extends Controller
         INNER JOIN cssr_course C ON C.user_id = U.id
         LEFT JOIN cssr_area A ON A.id = C.area_id
         LEFT JOIN cssr_score S ON S.course_id = C.id
-        WHERE G.id = 5 AND U.center_id = :center
+        WHERE G.id = :group AND U.center_id = :center AND C.active = :active
         GROUP BY U.id, S.period
-        ORDER BY U.lastname";
+        ORDER BY U.lastname, U.firstname ";
 
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('group', 5, \PDO::PARAM_INT);
         $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
         $stmt->execute();
         $staff = $stmt->fetchAll();
 
@@ -1012,7 +998,6 @@ class ReportController extends Controller
             }
         }
 
-
         $report = array();
         foreach ( $scored as $score ) {
             if ( $score['periods'][$period->format('Y-m-d')] == 0 ) {
@@ -1025,8 +1010,6 @@ class ReportController extends Controller
                 );
             }
         }
-
-        //echo "<pre>".print_r($report,true)."</pre>"; die();
 
         $vars = array(
             'period' => $period,

@@ -6,13 +6,11 @@ namespace Cssr\MainBundle\Model;
 class Staff {
 
     public static function getCourses ( $em, $staff ) {
-
-        $sql = "
-        SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname
-        FROM cssr_course C
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_user U ON U.id = C.user_id
-        WHERE C.user_id = :userId AND C.active = :active";
+        $sql  = 'SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname ';
+        $sql .= 'FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'WHERE C.user_id = :userId AND C.active = :active ';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $staff->getId());
         $stmt->bindValue('active', 1, \PDO::PARAM_INT);
@@ -77,16 +75,17 @@ class Staff {
     }
 
     public static function getStudents ( $em, $staff ) {
-
-        $sql = "
-        SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname
-        FROM cssr_course C
-        LEFT JOIN cssr_student_course SC ON SC.course_id = C.id
-        LEFT JOIN cssr_user U ON U.id = SC.student_id
-        WHERE C.user_id = :userId AND C.active = :active";
+        $sql  = 'SELECT S.id, S.firstname, S.lastname, S.middlename ';
+        $sql .= 'FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_student_course SC ON SC.course_id = C.id ';
+        $sql .= 'LEFT JOIN cssr_user S ON S.id = SC.student_id ';
+        $sql .= 'WHERE C.user_id = :userId AND C.active = :active AND SC.enrolled = :enrolled AND S.enabled = :enabled ';
+        $sql .= 'ORDER BY S.lastname, S.firstname, S.middlename ';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('userId', $staff->getId());
         $stmt->bindValue('active', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('enabled', 1, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
