@@ -288,8 +288,15 @@ class StudentController extends Controller
 
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_studenttype');
-            if ( isset($data['enrollment']) ) {
-                Student::enroll($em,$student,$data['enrollment']);
+
+            if ( isset($data['courses']) ) {
+                $courseList = array();
+                foreach ( $data['courses'] as $cid ) {
+                    if ( !empty($cid) ) {
+                        $courseList[] = (int) $cid;
+                    }
+                }
+                Student::enroll($em,$student,$courseList);
             }
 
             $this->get('session')->getFlashBag()->add(

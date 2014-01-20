@@ -182,3 +182,9 @@ th.sortable {
     cursor: pointer;
     text-align: center;
 }
+
+label.studentEditCourseLabel { width: 45px; }
+
+div.form-group fieldset > div:first-of-type {
+    padding-left: 10px;
+}

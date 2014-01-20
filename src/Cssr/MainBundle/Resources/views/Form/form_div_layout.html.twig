@@ -95,6 +95,15 @@
     {% endspaceless %}
 {% endblock collection_item_widget %}
 
+{% block fieldset_widget %}
+    {% spaceless %}
+        <fieldset {{ block('widget_container_attributes') }}>
+            {% if title is defined %}<legend>{{ title }}</legend>{% endif %}
+            {{ form_widget(form) }}
+        </fieldset>
+    {% endspaceless %}
+{% endblock %}
+
 {% block textarea_widget %}
 {% spaceless %}
     <textarea class="form-control" {{ block('widget_attributes') }}>{{ value }}</textarea>

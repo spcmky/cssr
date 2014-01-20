@@ -6,6 +6,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
+use Cssr\MainBundle\Form\Type\FieldsetType;
+
+
 class StudentType extends AbstractType
 {
     protected $options;
@@ -47,14 +50,12 @@ class StudentType extends AbstractType
             'expanded' => false
         ));
 
-
-        $builder->add('enrollment','choice',array(
-            'label' => 'Course Enrollment',
-            'choices' => $this->getCourseChoices($this->options['centerCourses']),
+        $builder->add('courses',new FieldsetType(),array(
+            'label' => false,
+            'required' => false,
             'mapped' => false,
-            'multiple'  => true,
-            'expanded' => true,
-            'data' => $this->getCourseEnrollment($this->options['studentCourses']),
+            'title' => 'Courses',
+            'subforms' => $this->addCourseForms()
         ));
     }
 
@@ -65,24 +66,55 @@ class StudentType extends AbstractType
         ));
     }
 
-    private function getCourseChoices ( $courses ) {
-        $options = array();
-        foreach ( $courses as $course ) {
-            $options[$course['id']] = $course['name'].' - '.$course['lastname'].', '.$course['firstname'];
+    private function addCourseForms() {
+        $centerCourses = $this->options['centerCourses'];
+        $studentCourses = $this->options['studentCourses'];
+
+        $courses = array();
+        $courseStaff = array();
+        $courseStudent = array();
+        foreach ( $centerCourses as $course ) {
+            if ( !isset($courses[$course['name']]) ) {
+                $courses[$course['name']] = array();
+                $courseStaff[$course['name']] = array();
+
+                $courseStudent[$course['name']] = null;
+                foreach ( $studentCourses as $sc ) {
+                    if ( $course['id'] === $sc['id'] ) {
+                        $courseStudent[$course['name']] = $course['id'];
+                    }
+                }
+            }
+            $courses[$course['name']] = $course['name'];
+            $courseStaff[$course['name']][$course['id']] = $course['lastname'].', '.$course['firstname'];
+
+
         }
-        return $options;
+
+        $forms = array();
+        foreach ( $courses as $c ) {
+            $forms[] = array(
+                'name' => $c,
+                'type' => 'choice',
+                'attr' => array(
+                    'label_attr' => array('class' => 'studentEditCourseLabel'),
+                    'label' => $c,
+                    'choices' => $courseStaff[$c],
+                    'mapped' => false,
+                    'multiple'  => false,
+                    'expanded' => false,
+                    'data' => $courseStudent[$c],
+                    'empty_value' => 'Select Staff',
+                    'empty_data'  => null,
+                    'required' => false
+                )
+            );
+        }
+
+        return $forms;
     }
 
-    private function getCourseEnrollment ( $courses ) {
-        $data = array();
-        foreach ( $courses as $course ) {
-            $data[] = $course['id'];
-        }
-        return $data;
-    }
-
-    public function getName()
-    {
+    public function getName() {
         return 'cssr_mainbundle_studenttype';
     }
 }
