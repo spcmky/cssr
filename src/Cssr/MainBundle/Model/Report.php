@@ -459,7 +459,7 @@ class Report {
         $count = 0;
         foreach ( $allReports as $student_id => $report ) {
             // challenge
-            if ( $report['scoreStats']['1'] >= 1 && $report['scoreStats']['2'] >= 2 ) {
+            if ( $report['scoreStats']['1'] >= 1 || $report['scoreStats']['2'] >= 2 ) {
                 $total += $report['avgScore'];
                 $count++;
                 $reports[$student_id] = $allReports[$student_id];
