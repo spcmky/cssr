@@ -74,7 +74,7 @@ class Staff {
         }
     }
 
-    public static function getStudents ( $em, $staff ) {
+    public static function getStudents ( $em, $staffId ) {
         $sql  = 'SELECT S.id, S.firstname, S.lastname, S.middlename ';
         $sql .= 'FROM cssr_course C ';
         $sql .= 'LEFT JOIN cssr_student_course SC ON SC.course_id = C.id ';
@@ -82,11 +82,61 @@ class Staff {
         $sql .= 'WHERE C.user_id = :userId AND C.active = :active AND SC.enrolled = :enrolled AND S.enabled = :enabled ';
         $sql .= 'ORDER BY S.lastname, S.firstname, S.middlename ';
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('userId', $staff->getId());
+        $stmt->bindValue('userId', $staffId);
         $stmt->bindValue('active', 1, \PDO::PARAM_INT);
         $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
         $stmt->bindValue('enabled', 1, \PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public static function getStaffWithCaseload ( $em, $centerId, $period ) {
+
+        // find staff with courses
+        $sql  = 'SELECT U.id, U.lastname, U.firstname, U.middlename, C.id AS course_id, A.name AS course_name ';
+        $sql .= 'FROM cssr_user U ';
+        $sql .= 'LEFT JOIN cssr_user_group UG ON UG.user_id = U.id ';
+        $sql .= 'LEFT JOIN cssr_group G ON G.id = UG.group_id ';
+        $sql .= 'INNER JOIN cssr_course C ON C.user_id = U.id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'WHERE U.enabled = :enabled AND G.id = :group AND U.center_id = :center AND C.active = :active ';
+        $sql .= 'ORDER BY U.lastname, U.firstname ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('enabled', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('group', 5, \PDO::PARAM_INT);
+        $stmt->bindValue('center', $centerId, \PDO::PARAM_INT);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
+        $stmt->execute();
+        $staff = $stmt->fetchAll();
+
+        // find those with enrolled students
+        $staff_students = array();
+        foreach ( $staff as $s ) {
+            $students = self::getStudents($em,$s['id']);
+            if ( $students ) {
+                $staff_students[$s['id']] = $s;
+                $staff_students[$s['id']]['students'] = $students;
+            }
+        }
+
+        // find those with scores for a period
+        foreach ( $staff_students as $ss ) {
+
+            $sql  = 'SELECT COUNT(id) ';
+            $sql .= 'FROM cssr_score ';
+            $sql .= 'WHERE course_id = :courseId AND period = :period ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('courseId', $ss['course_id'], \PDO::PARAM_INT);
+            $stmt->bindValue('period', new \DateTime($period), "datetime");
+            $stmt->execute();
+            $scoreCount = $stmt->fetchColumn();
+
+            $staff_students[$ss['id']]['scoreCount'] = $scoreCount;
+        }
+
+        return $staff_students;
+
+
     }
 } 

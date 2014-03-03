@@ -513,7 +513,7 @@ class ReportController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
-        $students = Staff::getStudents($em,$staff);
+        $students = Staff::getStudents($em,$staff->getId());
 
         $vars = array(
             'type_name' => Report::getCaseloadReportName($type),
@@ -958,57 +958,18 @@ class ReportController extends Controller
 
         // get staff
 
-        $sql = "SELECT U.id, U.lastname, U.firstname, U.middlename, A.name AS course_name, S.period, COUNT(S.id) score_count
-        FROM cssr_user U
-        LEFT JOIN cssr_user_group UG ON UG.user_id = U.id
-        LEFT JOIN cssr_group G ON G.id = UG.group_id
-        INNER JOIN cssr_course C ON C.user_id = U.id
-        LEFT JOIN cssr_area A ON A.id = C.area_id
-        LEFT JOIN cssr_score S ON S.course_id = C.id
-        WHERE G.id = :group AND U.center_id = :center AND C.active = :active
-        GROUP BY U.id, S.period
-        ORDER BY U.lastname, U.firstname ";
+        $staff = Staff::getStaffWithCaseload($em,$activeCenter->id,$period->format('Y-m-d'));
 
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('group', 5, \PDO::PARAM_INT);
-        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
-        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
-        $stmt->execute();
-        $staff = $stmt->fetchAll();
-
-        // score all periods
-        $scored = array();
-        foreach ( $staff as $user ) {
-            if ( !isset($scored[$user['id']]) ) {
-                $scored[$user['id']] = array(
-                    'id' => $user['id'],
-                    'firstname' => $user['firstname'],
-                    'lastname' => $user['lastname'],
-                    'middlename' => $user['middlename'],
-                    'course_name' => $user['course_name'],
-                    'periods' => array()
-                );
-            }
-
-            foreach ( $periods as $date ) {
-                $user_period = new \DateTime($user['period']);
-                if ( $user_period->format('Y-m-d') == $date->format('Y-m-d') ) {
-                    $scored[$user['id']]['periods'][$date->format('Y-m-d')] = $user['score_count'];
-                } else if ( !isset($scored[$user['id']]['periods'][$date->format('Y-m-d')]) ) {
-                    $scored[$user['id']]['periods'][$date->format('Y-m-d')] = 0;
-                }
-            }
-        }
-
-        $report = array();
-        foreach ( $scored as $score ) {
-            if ( $score['periods'][$period->format('Y-m-d')] == 0 ) {
+        foreach ( $staff as $s ) {
+            if ( !$s['scoreCount'] || $s['scoreCount'] < count($s['students']) ) {
                 $report[] = array(
-                    'id' => $score['id'],
-                    'firstname' => $score['firstname'],
-                    'lastname' => $score['lastname'],
-                    'middlename' => $score['middlename'],
-                    'course_name' => $score['course_name']
+                    'id' => $s['id'],
+                    'firstname' => $s['firstname'],
+                    'lastname' => $s['lastname'],
+                    'middlename' => $s['middlename'],
+                    'course_name' => $s['course_name'],
+                    'studentCount' => count($s['students']),
+                    'scoreCount' => $s['scoreCount']
                 );
             }
         }

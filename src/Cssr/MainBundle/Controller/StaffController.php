@@ -248,7 +248,7 @@ class StaffController extends Controller {
         }
 
         $courses = Staff::getCourses($em,$entity);
-        $students = Staff::getStudents($em,$entity);
+        $students = Staff::getStudents($em,$entity->getId());
 
         $deleteForm = $this->createDeleteForm($id);
 

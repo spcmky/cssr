@@ -30,7 +30,7 @@ class ImportCommand extends ContainerAwareCommand
         // create db connections
         try {
             $this->DB_Old = new \PDO('mysql:host=localhost;dbname=cssr_import', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
-            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr_latest', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
+            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr_2014_03_02', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
         } catch ( \Exception $e ) {
             $this->output->writeln($e.getMessage());
         }
@@ -43,18 +43,18 @@ class ImportCommand extends ContainerAwareCommand
         //$this->createDorms();
         //$this->createVocations();
 
-        //$this->createUsers();
-        //$this->addUsersToGroups();
+        $this->createUsers();
+        $this->addUsersToGroups();
 
-        //$this->createCourses();
+        $this->createCourses();
 
-        //$this->addCoursesToStudents();
+        $this->addCoursesToStudents();
 
-        //$this->addStudentScores();
+        $this->addStudentScores();
 
-        //$this->addStudentScoreComments();
+        $this->addStudentScoreComments();
 
-        //$this->createMessages();
+        $this->createMessages();
 
     }
 
@@ -219,8 +219,14 @@ class ImportCommand extends ContainerAwareCommand
         $stmt->execute();
         $students = $stmt->fetchAll();
 
+        foreach ( $students as $student ) {
 
-        $sql = "
+            $scores = $this->DB_Old->query("SELECT * FROM sertblscores WHERE intUserID = ".$student['id'],\PDO::FETCH_OBJ);
+            if ( !$scores ) {
+                continue;
+            }
+
+            $sql = "
             SELECT C.id, A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname
             FROM cssr_student_course SC
             LEFT JOIN cssr_course C ON C.id = SC.course_id
@@ -229,14 +235,6 @@ class ImportCommand extends ContainerAwareCommand
             WHERE SC.student_id = :userId";
 
             $stmt = $em->getConnection()->prepare($sql);
-
-        foreach ( $students as $student ) {
-
-            $scores = $this->DB_Old->query("SELECT * FROM sertblscores WHERE intUserID = ".$student['id'],\PDO::FETCH_OBJ);
-            if ( !$scores ) {
-                continue;
-            }
-
             $stmt->bindValue('userId', $student['id'], \PDO::PARAM_INT);
             $stmt->execute();
             $courses = $stmt->fetchAll();
@@ -330,6 +328,16 @@ class ImportCommand extends ContainerAwareCommand
         foreach ( $messages as $m ) {
             try {
 
+                $sql = 'SELECT id FROM cssr_center WHERE id = :center_id ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('center_id', $m->intCenterID, \PDO::PARAM_INT);
+                $stmt->execute();
+                $center_id = $stmt->fetchColumn();
+
+                if ( !$center_id ) {
+                    continue;
+                }
+
                 $sql = 'SELECT id FROM cssr_user WHERE username = :username ';
                 $stmt = $em->getConnection()->prepare($sql);
                 $stmt->bindValue('username', $m->varUserCreated, \PDO::PARAM_STR);
@@ -380,14 +388,16 @@ class ImportCommand extends ContainerAwareCommand
 
         $this->output->writeln('Creating Courses...');
 
-        $staff = $this->DB_Old->query("SELECT keyUserID, intAreaID FROM sertblusers WHERE intAreaID > 0",\PDO::FETCH_OBJ);
+        $staff = $this->DB_Old->query("SELECT keyUserID, intAreaID, boolActive FROM sertblusers WHERE intAreaID > 0",\PDO::FETCH_OBJ);
 
         foreach ( $staff as $s ) {
             try {
-                $sql = 'INSERT INTO cssr_course (user_id,area_id,active)
-                    VALUES ('.$s->keyUserID.','.$s->intAreaID.',1)';
-
-                $this->DB_New->query($sql);
+                $found = $this->DB_New->query('SELECT 1 FROM cssr_course WHERE user_id = '.$s->keyUserID.' AND area_id = '.$s->intAreaID)->fetchColumn();
+                if ( !$found ) {
+                    $sql = 'INSERT INTO cssr_course (user_id,area_id,active)
+                    VALUES ('.$s->keyUserID.','.$s->intAreaID.','.(int)$s->boolActive.')';
+                    $this->DB_New->query($sql);
+                }
             } catch ( \Exception $e ) {
                 $this->output->writeln($e->getMessage());
             }
@@ -630,7 +640,11 @@ class ImportCommand extends ContainerAwareCommand
                         }
                     }
 
-                    $new_user->setEnabled(true);
+                    if ( $user->boolActive ) {
+                        $new_user->setEnabled(true);
+                    } else {
+                        $new_user->setEnabled(false);
+                    }
 
                     $userManager->updateUser($new_user);
                 } catch ( \Exception $e ) {

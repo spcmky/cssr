@@ -25,15 +25,21 @@
     <table class="table table-striped table-bordered">
         <thead>
         <tr>
+            <th>#</th>
             <th>Name</th>
             <th>Course</th>
+            <th>Students</th>
+            <th>Scored</th>
         </tr>
         </thead>
         <tbody>
         {% for user in report %}
             <tr>
-                <td>{{ user.lastname|capitalize }}, {{ user.firstname|capitalize }} {{ user.middlename|capitalize }}</td>
+                <td>{{ loop.index }}</td>
+                <td><a href="{{ path('staff_show', { 'id': user.id }) }}">{{ user.lastname|capitalize }}, {{ user.firstname|capitalize }} {{ user.middlename|capitalize }}</a></td>
                 <td>{{ user.course_name }}</td>
+                <td>{{ user.studentCount }}</td>
+                <td>{{ user.scoreCount }}</td>
             </tr>
         {% endfor %}
         </tbody>
