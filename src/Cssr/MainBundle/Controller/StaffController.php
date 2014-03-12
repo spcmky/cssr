@@ -145,13 +145,9 @@ class StaffController extends Controller {
      */
     public function createAction ( Request $request )
     {
-        $params = $request->request->get('cssr_mainbundle_stafftype');
-
         $em = $this->getDoctrine()->getManager();
 
-        $groupId = array_pop($params['groups']);
-        $group = $em->getRepository('CssrMainBundle:Group')->find($groupId);
-
+        $group = $em->getRepository('CssrMainBundle:Group')->find(5);
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
@@ -162,7 +158,6 @@ class StaffController extends Controller {
         $form = $this->createForm(new StaffType(array(
             'center' => $center,
             'group' => $group,
-            'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
             'centerCourses' => $areas,
             'staffCourses' => Staff::getCourses($em,$staff)
         )), $staff);
