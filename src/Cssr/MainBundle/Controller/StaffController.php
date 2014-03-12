@@ -337,6 +337,11 @@ class StaffController extends Controller {
             $data = $request->request->get('cssr_mainbundle_stafftype');
             Staff::updateCourses($em,$user,array($data['area']));
 
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'User updated successfully!'
+            );
+
             return $this->redirect($this->generateUrl('staff_edit', array('id' => $id)));
         }
 
