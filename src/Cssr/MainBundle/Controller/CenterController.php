@@ -333,7 +333,7 @@ class CenterController extends Controller
         if (!$current) {
             $current = new \stdClass();
             $current->id = null;
-            $current->name = 'All Centers';
+            $current->name = 'Select Center';
         }
 
         return array(
@@ -357,7 +357,7 @@ class CenterController extends Controller
             if (!$center) {
                 $sess_center = new \stdClass();
                 $sess_center->id = -1;
-                $sess_center->name = 'All Centers';
+                $sess_center->name = 'Select Center';
             } else {
                 $sess_center = new \stdClass();
                 $sess_center->id = $center->getId();
@@ -367,7 +367,7 @@ class CenterController extends Controller
         } else {
             $sess_center = new \stdClass();
             $sess_center->id = -1;
-            $sess_center->name = 'All Centers';
+            $sess_center->name = 'Select Center';
         }
 
         $session = $this->getRequest()->getSession();

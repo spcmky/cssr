@@ -82,7 +82,7 @@ class DefaultController extends Controller
         if (!$center) {
             $center = new \stdClass();
             $center->id = null;
-            $center->name = 'All Centers';
+            $center->name = 'Select Center';
         }
 
         $user = $this->getUser();

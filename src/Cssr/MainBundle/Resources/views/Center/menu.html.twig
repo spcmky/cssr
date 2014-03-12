@@ -7,10 +7,10 @@
             <li class="nav-header disabled"><a>Centers</a></li>
             <li>
                 <a class="selectable-center" rel="-1" href="javascript:void(0)">
-                    {% if current_center and current_center.name == "All Centers" %}
+                    {% if current_center and current_center.name == "Select Center" %}
                         <span class="glyphicon glyphicon-ok"></span>
                     {% endif %}
-                    All Centers
+                    Select Center
                 </a>
             </li>
             {% for center in centers %}

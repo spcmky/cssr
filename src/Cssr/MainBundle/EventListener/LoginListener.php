@@ -55,7 +55,7 @@ class LoginListener implements EventSubscriberInterface
         } else {
             $center = new \stdClass();
             $center->id = null;
-            $center->name = 'All Centers';
+            $center->name = 'Select Center';
 
             $logger->debug('OnLogin: User has no center affiliation');
         }
