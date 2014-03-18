@@ -238,7 +238,7 @@ class StudentController extends Controller
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
             'center' => $center,
-            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id),
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($center->getId()),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll()
         )), $student);
 
