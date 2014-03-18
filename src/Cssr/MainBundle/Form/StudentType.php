@@ -62,7 +62,8 @@ class StudentType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\User'
+            'data_class' => 'Cssr\MainBundle\Entity\User',
+            'validation_groups' =>  array('Registration', 'Default')
         ));
     }
 
