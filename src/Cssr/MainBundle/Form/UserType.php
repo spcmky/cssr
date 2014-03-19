@@ -16,27 +16,32 @@ class UserType extends AbstractType {
     }
 
     public function buildForm ( FormBuilderInterface $builder, array $options ) {
-        $builder
-            ->add('firstname')
-            ->add('middlename')
-            ->add('lastname')
-            ->add('email','email')
-            ->add('phone');
+
+        $builder->add('firstname');
+
+        //$builder->add('middlename');
+
+        $builder->add('lastname');
+
+        //$builder->add('email','email');
+
+        //$builder->add('phone');
 
         $builder->add('username');
+
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
             'first_options' => array('label' => 'form.new_password'),
-            'second_options' => array('label' => 'form.new_password_confirmation'),
+            'second_options' => array('label' => 'Re-enter Password'),
             'invalid_message' => 'fos_user.password.mismatch',
+            'required' => false
         ));
     }
 
     public function setDefaultOptions ( OptionsResolverInterface $resolver ) {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\User',
-            'validation_groups' =>  array('Registration', 'Default')
+            'data_class' => 'Cssr\MainBundle\Entity\User'
         ));
     }
 
