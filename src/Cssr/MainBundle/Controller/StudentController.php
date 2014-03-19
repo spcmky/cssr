@@ -79,6 +79,40 @@ class StudentController extends Controller
             'students' => $result
         );
     }
+
+    /**
+     * Displays a form to create a new Student entity.
+     *
+     * @Route("/new", name="student_new")
+     * @Method("GET")
+     * @Template()
+     */
+    public function newAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $student = new User();
+
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $centerCourses = Center::getCourses($em,$center);
+
+        $form = $this->createForm(new StudentType(array(
+            'date' => new \DateTime(),
+            'studentCourses' => array(),
+            'centerCourses' => $centerCourses,
+            'center' => $center,
+            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id)
+        )), $student);
+
+        return array(
+            'student' => $student,
+            'form'   => $form->createView(),
+        );
+    }
+
     /**
      * Creates a new Student entity.
      *
@@ -117,10 +151,19 @@ class StudentController extends Controller
             $em->persist($student);
             $em->flush();
 
+            $em->flush();
+
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_studenttype');
-            if ( isset($data['enrollment']) ) {
-                Student::enroll($em,$student,$data['enrollment']);
+
+            if ( isset($data['courses']) ) {
+                $courseList = array();
+                foreach ( $data['courses'] as $cid ) {
+                    if ( !empty($cid) ) {
+                        $courseList[] = (int) $cid;
+                    }
+                }
+                Student::enroll($em,$student,$courseList);
             }
 
             $this->get('session')->getFlashBag()->add(
@@ -130,39 +173,6 @@ class StudentController extends Controller
 
             return $this->redirect($this->generateUrl('student_show', array('id' => $student->getId())));
         }
-
-        return array(
-            'student' => $student,
-            'form'   => $form->createView(),
-        );
-    }
-
-    /**
-     * Displays a form to create a new Student entity.
-     *
-     * @Route("/new", name="student_new")
-     * @Method("GET")
-     * @Template()
-     */
-    public function newAction()
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $student = new User();
-
-        $session = $this->getRequest()->getSession();
-        $activeCenter = $session->get('center');
-        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
-
-        $centerCourses = Center::getCourses($em,$center);
-
-        $form = $this->createForm(new StudentType(array(
-            'date' => new \DateTime(),
-            'studentCourses' => array(),
-            'centerCourses' => $centerCourses,
-            'center' => $center,
-            'dorms' => $em->getRepository('CssrMainBundle:Dorm')->findByCenter($activeCenter->id)
-        )), $student);
 
         return array(
             'student' => $student,
