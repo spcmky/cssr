@@ -137,59 +137,6 @@ class StaffController extends Controller {
     }
 
     /**
-     * Creates a new Staff entity.
-     *
-     * @Route("/", name="staff_create")
-     * @Method("POST")
-     * @Template("CssrMainBundle:Staff:new.html.twig")
-     */
-    public function createAction ( Request $request )
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $group = $em->getRepository('CssrMainBundle:Group')->find(5);
-        $session = $this->getRequest()->getSession();
-        $activeCenter = $session->get('center');
-        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
-        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
-
-        $staff = new User();
-
-        $form = $this->createForm(new StaffType(array(
-            'center' => $center,
-            'group' => $group,
-            'centerCourses' => $areas,
-            'staffCourses' => Staff::getCourses($em,$staff)
-        )), $staff);
-
-        $form->submit($request);
-
-        if ( $form->isValid() ) {
-
-            $staff->setEnabled(true) ;
-            $staff->addGroup($group);
-
-            $em->persist($staff);
-            $em->flush();
-
-            $data = $request->request->get('cssr_mainbundle_stafftype');
-            Staff::updateCourses($em,$staff,array($data['area']));
-
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                'User created successfully!'
-            );
-
-            return $this->redirect($this->generateUrl('staff_show', array('id' => $staff->getId())));
-        }
-
-        return array(
-            'entity' => $staff,
-            'form'   => $form->createView(),
-        );
-    }
-
-    /**
      * Displays a form to create a new Staff entity.
      *
      * @Route("/new", name="staff_new")
@@ -221,6 +168,60 @@ class StaffController extends Controller {
             'center' => $center,
             'group' => $group,
             'staff' => $staff,
+            'form'   => $form->createView(),
+        );
+    }
+
+    /**
+     * Creates a new Staff entity.
+     *
+     * @Route("/", name="staff_create")
+     * @Method("POST")
+     * @Template("CssrMainBundle:Staff:new.html.twig")
+     */
+    public function createAction ( Request $request )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $group = $em->getRepository('CssrMainBundle:Group')->find(5);
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+        $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
+
+        $staff = new User();
+
+        $form = $this->createForm(new StaffType(array(
+            'center' => $center,
+            'group' => $group,
+            'centerCourses' => $areas,
+            'staffCourses' => Staff::getCourses($em,$staff)
+        )), $staff);
+
+        $form->submit($request);
+
+        if ( $form->isValid() ) {
+
+            $staff->setCenter($center);
+            $staff->setEnabled(true);
+            $staff->addGroup($group);
+
+            $em->persist($staff);
+            $em->flush();
+
+            $data = $request->request->get('cssr_mainbundle_stafftype');
+            Staff::updateCourses($em,$staff,array($data['area']));
+
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'User created successfully!'
+            );
+
+            return $this->redirect($this->generateUrl('staff_show', array('id' => $staff->getId())));
+        }
+
+        return array(
+            'entity' => $staff,
             'form'   => $form->createView(),
         );
     }
