@@ -130,10 +130,6 @@ label {
     width: 400px;
 }
 
-#cssr_mainbundle_studenttype_entry div.bootstrap-select {
-    width: 100px;
-}
-
 .report-avg-score-value {
     font-size: 1200%;
 }
@@ -172,10 +168,19 @@ label {
     font-size: 100%;
 }
 
-#cssr_mainbundle_studenttype_entry { display: inline; }
-#cssr_mainbundle_studenttype_entry_day { width: 45px; display: inline; }
-#cssr_mainbundle_studenttype_entry_month { width: 45px; display: inline; }
-#cssr_mainbundle_studenttype_entry_year { width: 60px; display: inline; }
+#cssr_mainbundle_student_update_type_entry div.bootstrap-select, #cssr_mainbundle_student_create_type_entry div.bootstrap-select {
+    width: 100px;
+}
+
+#cssr_mainbundle_student_update_type_entry { display: inline; }
+#cssr_mainbundle_student_update_type_entry_day { width: 45px; display: inline; }
+#cssr_mainbundle_student_update_type_entry_month { width: 45px; display: inline; }
+#cssr_mainbundle_student_update_type_entry_year { width: 60px; display: inline; }
+
+#cssr_mainbundle_student_create_type_entry { display: inline; }
+#cssr_mainbundle_student_create_type_entry_day { width: 45px; display: inline; }
+#cssr_mainbundle_student_create_type_entry_month { width: 45px; display: inline; }
+#cssr_mainbundle_student_create_type_entry_year { width: 60px; display: inline; }
 
 th.sortable {
     text-decoration: underline;

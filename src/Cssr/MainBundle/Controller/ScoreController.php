@@ -128,21 +128,23 @@ class ScoreController extends Controller
             $sql  = 'SELECT U.* ';
             $sql .= 'FROM cssr_user_group UG ';
             $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
-            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId AND U.enabled = :enabled ';
             $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('centerId', $center->id);
             $stmt->bindValue('groupId', 6);
+            $stmt->bindValue('enabled', 1);
             $stmt->execute();
             $result = $stmt->fetchAll();
         } else {
             $sql  = 'SELECT U.* ';
             $sql .= 'FROM cssr_user_group UG ';
             $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
-            $sql .= 'WHERE UG.group_id = :groupId ';
+            $sql .= 'WHERE UG.group_id = :groupId AND U.enabled = :enabled ';
             $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('groupId', 6);
+            $stmt->bindValue('enabled', 1);
             $stmt->execute();
             $result = $stmt->fetchAll();
         }
@@ -331,21 +333,23 @@ class ScoreController extends Controller
             $sql  = 'SELECT U.* ';
             $sql .= 'FROM cssr_user_group UG ';
             $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
-            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId ';
+            $sql .= 'WHERE U.center_id = :centerId AND UG.group_id = :groupId AND U.enabled = :enabled ';
             $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('centerId', $center->id);
             $stmt->bindValue('groupId', 5);
+            $stmt->bindValue('enabled', 1);
             $stmt->execute();
             $result = $stmt->fetchAll();
         } else {
             $sql  = 'SELECT U.* ';
             $sql .= 'FROM cssr_user_group UG ';
             $sql .= 'LEFT JOIN cssr_user U ON U.id = UG.user_id ';
-            $sql .= 'WHERE UG.group_id = :groupId ';
+            $sql .= 'WHERE UG.group_id = :groupId AND U.enabled = :enabled ';
             $sql .= 'ORDER BY U.lastname, U.firstname, U.middlename ';
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('groupId', 5);
+            $stmt->bindValue('enabled', 1);
             $stmt->execute();
             $result = $stmt->fetchAll();
         }
@@ -447,10 +451,11 @@ class ScoreController extends Controller
         $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = SC.student_id ';
-        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') AND SC.enrolled = :enrolled ';
+        $sql .= 'WHERE SC.course_id IN ('.implode(',',$courseIds).') AND U.enabled = :enabled AND SC.enrolled = :enrolled ';
         $sql .= 'ORDER BY area_name, U.lastname, U.firstname, U.middlename ';
 
         $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('enabled', 1, \PDO::PARAM_INT);
         $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
 
         $stmt->execute();

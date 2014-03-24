@@ -5,9 +5,8 @@ namespace Cssr\MainBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
-class AdminType extends AbstractType
+class AdminUpdateType extends AbstractType
 {
     protected $options;
 
@@ -16,19 +15,28 @@ class AdminType extends AbstractType
     }
 
     public function buildForm ( FormBuilderInterface $builder, array $options ) {
-        $builder
-            ->add('firstname')
-            ->add('middlename')
-            ->add('lastname')
-            ->add('email','email')
-            ->add('phone');
+
+        $builder->add('firstname','text',array(
+            'required' => true
+        ));
+
+        //$builder->add('middlename');
+
+        $builder->add('lastname','text',array(
+            'required' => true
+        ));
+
+        //$builder->add('email','email');
+
+        //$builder->add('phone');
 
         $builder->add('username');
+
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
-            'first_options' => array('label' => 'form.new_password'),
-            'second_options' => array('label' => 'form.new_password_confirmation'),
+            'first_options' => array('label' => 'form.new_password','attr'=> array('autocomplete'=>'off')),
+            'second_options' => array('label' => 'Re-enter Password','attr'=> array('autocomplete'=>'off')),
             'invalid_message' => 'fos_user.password.mismatch',
         ));
 
@@ -49,6 +57,6 @@ class AdminType extends AbstractType
     }
 
     public function getName() {
-        return 'cssr_mainbundle_admintype';
+        return 'cssr_mainbundle_admin_update_type';
     }
 }

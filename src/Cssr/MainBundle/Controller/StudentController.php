@@ -10,7 +10,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use Cssr\MainBundle\Entity\User;
-use Cssr\MainBundle\Form\StudentType;
+use Cssr\MainBundle\Form\StudentCreateType;
+use Cssr\MainBundle\Form\StudentUpdateType;
 use Cssr\MainBundle\Model\Center;
 use Cssr\MainBundle\Model\Student;
 
@@ -74,7 +75,6 @@ class StudentController extends Controller
             $result = $stmt->fetchAll();
         }
 
-
         return array(
             'students' => $result
         );
@@ -99,7 +99,7 @@ class StudentController extends Controller
 
         $centerCourses = Center::getCourses($em,$center);
 
-        $form = $this->createForm(new StudentType(array(
+        $form = $this->createForm(new StudentCreateType(array(
             'date' => new \DateTime(),
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
@@ -132,7 +132,7 @@ class StudentController extends Controller
 
         $centerCourses = Center::getCourses($em,$center);
 
-        $form = $this->createForm(new StudentType(array(
+        $form = $this->createForm(new StudentCreateType(array(
             'date' => new \DateTime(),
             'studentCourses' => array(),
             'centerCourses' => $centerCourses,
@@ -144,6 +144,7 @@ class StudentController extends Controller
 
         if ( $form->isValid() ) {
 
+            $student->setEmail(time().'@fake.com');
             $student->setEnabled(true);
             $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6));
             $student->setCenter($center);
@@ -154,7 +155,7 @@ class StudentController extends Controller
             $em->flush();
 
             // take care of courses
-            $data = $request->request->get('cssr_mainbundle_studenttype');
+            $data = $request->request->get('cssr_mainbundle_student_create_type');
 
             if ( isset($data['courses']) ) {
                 $courseList = array();
@@ -177,44 +178,6 @@ class StudentController extends Controller
         return array(
             'student' => $student,
             'form'   => $form->createView(),
-        );
-    }
-
-    /**
-     * Finds and displays a Student entity.
-     *
-     * @Route("/{id}", name="student_show")
-     * @Method("GET")
-     * @Template()
-     */
-    public function showAction ( $id )
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $student = $em->getRepository('CssrMainBundle:User')->find($id);
-
-        if ( !$student ) {
-            throw $this->createNotFoundException('Unable to find Student.');
-        }
-
-        $sql  = 'SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ';
-        $sql .= 'FROM cssr_student_course SC ';
-        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
-        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
-        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
-        $sql .= 'WHERE SC.student_id = :userId AND SC.enrolled = :enrolled AND C.active = :active ';
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('userId', $id);
-        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
-        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
-        $stmt->execute();
-
-        $courses = $stmt->fetchAll();
-
-        return array(
-            'student' => $student,
-            'courses' => $courses
         );
     }
 
@@ -243,7 +206,7 @@ class StudentController extends Controller
         $studentCourses = Student::getCourses($em,$student);
         $centerCourses = Center::getCourses($em,$center);
 
-        $editForm = $this->createForm(new StudentType(array(
+        $editForm = $this->createForm(new StudentUpdateType(array(
             'date' => $student->getEntry(),
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
@@ -283,7 +246,7 @@ class StudentController extends Controller
         $studentCourses = Student::getCourses($em,$student);
         $centerCourses = Center::getCourses($em,$center);
 
-        $editForm = $this->createForm(new StudentType(array(
+        $editForm = $this->createForm(new StudentUpdateType(array(
             'date' => $student->getEntry(),
             'studentCourses' => $studentCourses,
             'centerCourses' => $centerCourses,
@@ -299,7 +262,7 @@ class StudentController extends Controller
             $em->flush();
 
             // take care of courses
-            $data = $request->request->get('cssr_mainbundle_studenttype');
+            $data = $request->request->get('cssr_mainbundle_student_update_type');
 
             if ( isset($data['courses']) ) {
                 $courseList = array();
@@ -350,6 +313,7 @@ class StudentController extends Controller
             }
         }
 
+        Student::unEnroll($em,$user);
         $user->setEnabled(0); // logical delete
 
         $em->flush();
@@ -370,6 +334,44 @@ class StudentController extends Controller
         } else {
             return $this->redirect($this->generateUrl('student'));
         }
+    }
+
+    /**
+     * Finds and displays a Student entity.
+     *
+     * @Route("/{id}", name="student_show")
+     * @Method("GET")
+     * @Template()
+     */
+    public function showAction ( $id )
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if ( !$student ) {
+            throw $this->createNotFoundException('Unable to find Student.');
+        }
+
+        $sql  = 'SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ';
+        $sql .= 'FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'WHERE SC.student_id = :userId AND SC.enrolled = :enrolled AND C.active = :active ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('userId', $id);
+        $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        $courses = $stmt->fetchAll();
+
+        return array(
+            'student' => $student,
+            'courses' => $courses
+        );
     }
 
     /**

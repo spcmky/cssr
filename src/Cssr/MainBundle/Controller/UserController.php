@@ -11,7 +11,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\UserType;
-use Cssr\MainBundle\Form\AdminType;
+use Cssr\MainBundle\Form\AdminCreateType;
+use Cssr\MainBundle\Form\AdminUpdateType;
 use Cssr\MainBundle\Model\Group;
 
 /**
@@ -188,7 +189,7 @@ class UserController extends Controller {
             $user->setCenter($center);
         }
 
-        $form = $this->createForm(new AdminType(array(
+        $form = $this->createForm(new AdminCreateType(array(
             'group' => $group
         )), $user);
 
@@ -270,7 +271,7 @@ class UserController extends Controller {
             $user->setCenter($center);
         }
 
-        $form = $this->createForm(new AdminType(array(
+        $form = $this->createForm(new AdminCreateType(array(
             'group' => $group
         )), $user);
 
@@ -386,7 +387,7 @@ class UserController extends Controller {
 
         $group = $user->getFirstGroup();
 
-        $editForm = $this->createForm(new AdminType(array(
+        $editForm = $this->createForm(new AdminUpdateType(array(
             'group' => $group
         )), $user);
 
@@ -471,7 +472,7 @@ class UserController extends Controller {
 
         $group = $user->getFirstGroup();
 
-        $editForm = $this->createForm(new AdminType(array(
+        $editForm = $this->createForm(new AdminUpdateType(array(
             'group' => $group
         )), $user);
 
@@ -490,20 +491,6 @@ class UserController extends Controller {
 
             return $this->redirect($this->generateUrl('user_admin'));
         }
-
-        return array(
-            'user' => $user,
-            'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
-        );
-
-        $group = $user->getFirstGroup();
-
-        $editForm = $this->createForm(new AdminType(array(
-            'group' => $group
-        )), $user);
-
-        $deleteForm = $this->createDeleteForm($id);
 
         return array(
             'group' => $group,

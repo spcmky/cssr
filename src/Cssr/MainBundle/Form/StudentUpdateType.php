@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Cssr\MainBundle\Form\Type\FieldsetType;
 
 
-class StudentType extends AbstractType
+class StudentUpdateType extends AbstractType
 {
     protected $options;
 
@@ -19,11 +19,15 @@ class StudentType extends AbstractType
 
     public function buildForm ( FormBuilderInterface $builder, array $options )
     {
-        $builder->add('firstname');
+        $builder->add('firstname','text',array(
+            'required' => true
+        ));
 
         //$builder->add('middlename');
 
-        $builder->add('lastname');
+        $builder->add('lastname','text',array(
+            'required' => true
+        ));
 
         //$builder->add('email','email');
 
@@ -34,12 +38,13 @@ class StudentType extends AbstractType
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
-            'first_options' => array('label' => 'form.new_password'),
-            'second_options' => array('label' => 'Re-enter Password'),
+            'first_options' => array('label' => 'form.new_password','attr'=> array('autocomplete'=>'off')),
+            'second_options' => array('label' => 'Re-enter Password','attr'=> array('autocomplete'=>'off')),
             'invalid_message' => 'fos_user.password.mismatch',
             'required' => false
         ));
 
+        /*
         $builder->add('entry','date',array(
             'widget' => 'text',
             'format' => 'MM / dd / yyyy',
@@ -47,6 +52,7 @@ class StudentType extends AbstractType
             'data'  => $this->options['date'],
             'label' => 'Entry Date'
         ));
+        */
 
         $builder->add('dorm', 'entity', array(
             'class' => 'CssrMainBundle:Dorm',
@@ -120,6 +126,6 @@ class StudentType extends AbstractType
     }
 
     public function getName() {
-        return 'cssr_mainbundle_studenttype';
+        return 'cssr_mainbundle_student_update_type';
     }
 }

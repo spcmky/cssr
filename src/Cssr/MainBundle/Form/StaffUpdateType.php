@@ -2,12 +2,11 @@
 
 namespace Cssr\MainBundle\Form;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class StaffType extends AbstractType {
+class StaffUpdateType extends AbstractType {
 
     public function __construct ( $options = array() ) {
         $this->options = $options;
@@ -15,11 +14,15 @@ class StaffType extends AbstractType {
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('firstname');
+        $builder->add('firstname','text',array(
+            'required' => true
+        ));
 
         //$builder->add('middlename');
 
-        $builder->add('lastname');
+        $builder->add('lastname','text',array(
+            'required' => true
+        ));
 
         //$builder->add('email','email');
 
@@ -30,8 +33,8 @@ class StaffType extends AbstractType {
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
-            'first_options' => array('label' => 'form.new_password'),
-            'second_options' => array('label' => 'Re-enter Password'),
+            'first_options' => array('label' => 'form.new_password','attr'=> array('autocomplete'=>'off')),
+            'second_options' => array('label' => 'Re-enter Password','attr'=> array('autocomplete'=>'off')),
             'invalid_message' => 'fos_user.password.mismatch',
             'required' => false
         ));
@@ -71,6 +74,6 @@ class StaffType extends AbstractType {
 
     public function getName()
     {
-        return 'cssr_mainbundle_stafftype';
+        return 'cssr_mainbundle_staff_update_type';
     }
 }

@@ -18,6 +18,32 @@ class Staff {
         return $stmt->fetchAll();
     }
 
+    public static function cancelCourses ( $em, $staff, $courses = null ) {
+        $students = self::getStudents($em,$staff->getId());
+
+        if ( $courses === null ) {
+            $courses = self::getCourses($em,$staff);
+        }
+
+        if ( !empty($courses) ) {
+            foreach ( $courses as $course ) {
+                $sql  = 'UPDATE cssr_course ';
+                $sql .= 'SET active = :active, updated = :updated ';
+                $sql .= 'WHERE id = :id ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('active', 0, \PDO::PARAM_INT);
+                $stmt->bindValue('updated', new \DateTime(), 'datetime');
+                $stmt->bindValue('id', $course['id'], \PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            foreach ( $students as $student ) {
+                $user = $em->getRepository('CssrMainBundle:User')->find($student['id']);
+                Student::unEnroll($em,$user,$courses);
+            }
+        }
+    }
+
     public static function updateCourses ( $em, $staff, $courses ) {
         $currentCourses = array();
         foreach ( self::getCourses($em,$staff) as $c ) {
@@ -26,17 +52,17 @@ class Staff {
 
         // what to remove
         $removed = array_diff($currentCourses,$courses);
-        foreach ( $removed as $areaId ) {
-            $sql  = 'UPDATE cssr_course ';
-            $sql .= 'SET active = :active, updated = :updated ';
-            $sql .= 'WHERE user_id = :staffId AND area_id = :areaId ';
-            $stmt = $em->getConnection()->prepare($sql);
-            $stmt->bindValue('active', 0, \PDO::PARAM_INT);
-            $stmt->bindValue('updated', new \DateTime(), 'datetime');
-            $stmt->bindValue('staffId', $staff->getId(), \PDO::PARAM_INT);
-            $stmt->bindValue('areaId', $areaId, \PDO::PARAM_INT);
-            $stmt->execute();
-        }
+        $sql  = 'SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname ';
+        $sql .= 'FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'WHERE C.user_id = :userId AND C.active = :active AND C.area_id IN ('.implode(',',array_values($removed)).') ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('userId', $staff->getId());
+        $stmt->bindValue('active', 1, \PDO::PARAM_INT);
+        $stmt->execute();
+        $toRemove = $stmt->fetchAll();
+        self::cancelCourses($em,$staff,$toRemove);
 
         // what to add
         $added = array_diff($courses, $currentCourses);

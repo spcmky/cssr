@@ -8,9 +8,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 use Cssr\MainBundle\Entity\User;
-use Cssr\MainBundle\Form\StaffType;
+use Cssr\MainBundle\Form\StaffCreateType;
+use Cssr\MainBundle\Form\StaffUpdateType;
 use Cssr\MainBundle\Model\Staff;
+
 
 /**
  * Staff controller.
@@ -156,7 +159,7 @@ class StaffController extends Controller {
 
         $staff = new User();
 
-        $form = $this->createForm(new StaffType(array(
+        $form = $this->createForm(new StaffCreateType(array(
             'group' => $group,
             'centerCourses' => $areas,
             'staffCourses' => Staff::getCourses($em,$staff)
@@ -168,7 +171,7 @@ class StaffController extends Controller {
             'center' => $center,
             'group' => $group,
             'staff' => $staff,
-            'form'   => $form->createView(),
+            'form' => $form->createView()
         );
     }
 
@@ -191,7 +194,7 @@ class StaffController extends Controller {
 
         $staff = new User();
 
-        $form = $this->createForm(new StaffType(array(
+        $form = $this->createForm(new StaffCreateType(array(
             'center' => $center,
             'group' => $group,
             'centerCourses' => $areas,
@@ -202,6 +205,7 @@ class StaffController extends Controller {
 
         if ( $form->isValid() ) {
 
+            $staff->setEmail(time().'@fake.com');
             $staff->setCenter($center);
             $staff->setEnabled(true);
             $staff->addGroup($group);
@@ -209,7 +213,7 @@ class StaffController extends Controller {
             $em->persist($staff);
             $em->flush();
 
-            $data = $request->request->get('cssr_mainbundle_stafftype');
+            $data = $request->request->get('cssr_mainbundle_staff_create_type');
             Staff::updateCourses($em,$staff,array($data['area']));
 
             $this->get('session')->getFlashBag()->add(
@@ -223,36 +227,6 @@ class StaffController extends Controller {
         return array(
             'entity' => $staff,
             'form'   => $form->createView(),
-        );
-    }
-
-    /**
-     * Finds and displays a Staff entity.
-     *
-     * @Route("/{id}", name="staff_show")
-     * @Method("GET")
-     * @Template()
-     */
-    public function showAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Staff entity.');
-        }
-
-        $courses = Staff::getCourses($em,$entity);
-        $students = Staff::getStudents($em,$entity->getId());
-
-        $deleteForm = $this->createDeleteForm($id);
-
-        return array(
-            'entity'      => $entity,
-            'delete_form' => $deleteForm->createView(),
-            'courses' => $courses,
-            'students' => $students
         );
     }
 
@@ -279,7 +253,7 @@ class StaffController extends Controller {
 
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
 
-        $editForm = $this->createForm(new StaffType(array(
+        $editForm = $this->createForm(new StaffUpdateType(array(
             'center' => $center,
             'group' => $user->getGroups()->first(),
             'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
@@ -321,7 +295,7 @@ class StaffController extends Controller {
 
         $deleteForm = $this->createDeleteForm($id);
 
-        $editForm = $this->createForm(new StaffType(array(
+        $editForm = $this->createForm(new StaffUpdateType(array(
             'center' => $center,
             'group' => $user->getGroups()->first(),
             'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
@@ -335,7 +309,7 @@ class StaffController extends Controller {
 
             $em->flush();
 
-            $data = $request->request->get('cssr_mainbundle_stafftype');
+            $data = $request->request->get('cssr_mainbundle_staff_update_type');
             Staff::updateCourses($em,$user,array($data['area']));
 
             $this->get('session')->getFlashBag()->add(
@@ -378,6 +352,8 @@ class StaffController extends Controller {
             }
         }
 
+        // cancel courses
+        Staff::cancelCourses($em,$user);
         $user->setEnabled(0); // logical delete
 
         $em->flush();
@@ -398,6 +374,36 @@ class StaffController extends Controller {
         } else {
             return $this->redirect($this->generateUrl('staff'));
         }
+    }
+
+    /**
+     * Finds and displays a Staff entity.
+     *
+     * @Route("/{id}", name="staff_show")
+     * @Method("GET")
+     * @Template()
+     */
+    public function showAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$entity) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        $courses = Staff::getCourses($em,$entity);
+        $students = Staff::getStudents($em,$entity->getId());
+
+        $deleteForm = $this->createDeleteForm($id);
+
+        return array(
+            'entity'      => $entity,
+            'delete_form' => $deleteForm->createView(),
+            'courses' => $courses,
+            'students' => $students
+        );
     }
 
     /**

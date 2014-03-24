@@ -21,6 +21,27 @@ class Student {
         return $stmt->fetchAll();
     }
 
+    public static function unEnroll ( $em, $student, $courses = null ) {
+
+        if ( $courses === null ) {
+            $courses = self::getCourses($em,$student);
+        }
+
+        if ( !empty($courses) ) {
+            foreach ( $courses as $course ) {
+                $sql  = 'UPDATE cssr_student_course ';
+                $sql .= 'SET enrolled = :enrolled, updated = :updated ';
+                $sql .= 'WHERE student_id = :student AND course_id = :course ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('enrolled', 0, \PDO::PARAM_INT);
+                $stmt->bindValue('updated', new \DateTime(), 'datetime');
+                $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
+                $stmt->bindValue('course', $course['id'], \PDO::PARAM_INT);
+                $stmt->execute();
+            }
+        }
+    }
+
     public static function enroll ( $em, $student, $courses ) {
 
         if ( $courses === null ) {
