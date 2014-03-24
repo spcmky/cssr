@@ -150,7 +150,7 @@ class UserController extends Controller {
         $form->submit($request);
 
         if ( $form->isValid() ) {
-
+            $user->setEmail(time().'@fake.com');
             $user->setEnabled(true);
             $userManager->updateUser($user);
 
@@ -172,7 +172,7 @@ class UserController extends Controller {
      */
     public function createAdminAction ( Request $request )
     {
-        $params = $request->request->get('cssr_mainbundle_admintype');
+        $params = $request->request->get('cssr_mainbundle_admin_create_type');
 
         $em = $this->getDoctrine()->getManager();
 
@@ -197,6 +197,7 @@ class UserController extends Controller {
 
         if ( $form->isValid() ) {
 
+            $user->setEmail(time().'@fake.com');
             $user->setEnabled(true);
 
             $em->persist($user);
