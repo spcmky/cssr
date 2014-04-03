@@ -92,16 +92,14 @@ class StudentUpdateType extends AbstractType
                 $courseStaff[$course['name']] = array();
 
                 $courseStudent[$course['name']] = null;
-                foreach ( $studentCourses as $sc ) {
-                    if ( $course['id'] === $sc['id'] ) {
-                        $courseStudent[$course['name']] = $course['id'];
-                    }
+            }
+            foreach ( $studentCourses as $sc ) {
+                if ( $course['id'] === $sc['id'] ) {
+                    $courseStudent[$course['name']] = $course['id'];
                 }
             }
             $courses[$course['name']] = $course['name'];
             $courseStaff[$course['name']][$course['id']] = $course['lastname'].', '.$course['firstname'];
-
-
         }
 
         $forms = array();
