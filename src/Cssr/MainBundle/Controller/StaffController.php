@@ -205,7 +205,6 @@ class StaffController extends Controller {
 
         if ( $form->isValid() ) {
 
-            $staff->setEmail(time().'@fake.com');
             $staff->setCenter($center);
             $staff->setEnabled(true);
             $staff->addGroup($group);

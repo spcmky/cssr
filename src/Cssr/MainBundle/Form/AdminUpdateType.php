@@ -30,7 +30,9 @@ class AdminUpdateType extends AbstractType
 
         //$builder->add('phone');
 
-        $builder->add('username');
+        $builder->add('username','text',array(
+            'disabled' => true
+        ));
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',

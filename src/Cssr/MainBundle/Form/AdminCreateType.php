@@ -26,11 +26,13 @@ class AdminCreateType extends AbstractType
             'required' => true
         ));
 
-        //$builder->add('email','email');
+        $builder->add('email','hidden',array(
+            'data' => time().'@fake.com'
+        ));
 
         //$builder->add('phone');
 
-        $builder->add('username');
+        $builder->add('username','text');
 
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
@@ -48,7 +50,8 @@ class AdminCreateType extends AbstractType
 
     public function setDefaultOptions ( OptionsResolverInterface $resolver ) {
         $resolver->setDefaults(array(
-            'data_class' => 'Cssr\MainBundle\Entity\User'
+            'data_class' => 'Cssr\MainBundle\Entity\User',
+            'validation_groups' => array('Registration')
         ));
     }
 

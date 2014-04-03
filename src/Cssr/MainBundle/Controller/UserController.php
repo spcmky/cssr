@@ -197,7 +197,6 @@ class UserController extends Controller {
 
         if ( $form->isValid() ) {
 
-            $user->setEmail(time().'@fake.com');
             $user->setEnabled(true);
 
             $em->persist($user);

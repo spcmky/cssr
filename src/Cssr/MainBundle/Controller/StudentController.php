@@ -144,7 +144,6 @@ class StudentController extends Controller
 
         if ( $form->isValid() ) {
 
-            $student->setEmail(time().'@fake.com');
             $student->setEnabled(true);
             $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6));
             $student->setCenter($center);
