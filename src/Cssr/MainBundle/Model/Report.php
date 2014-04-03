@@ -876,6 +876,9 @@ class Report {
 
 
             // populate scores
+            $totalScore = 0;
+            $scoreCount = 0;
+            $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
             foreach ( $scores as $score ) {
 
                 if ( $score['student_id'] == $student['id'] ) {
@@ -951,8 +954,6 @@ class Report {
 
         }
 
-        //echo '<pre>'.print_r($student_scores,true).'</pre>'; die();
-
         return $student_scores;
     }
 
@@ -1018,7 +1019,9 @@ class Report {
         $student_scores = array();
         foreach ( $students as $student ) {
 
-
+            $totalScore = 0;
+            $scoreCount = 0;
+            $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
             // populate scores
             foreach ( $scores as $score ) {
 
@@ -1151,6 +1154,9 @@ class Report {
             $commentStandards = $stmt->fetchAll();
         }
 
+        $totalScore = 0;
+        $scoreCount = 0;
+        $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
         // populate scores
         foreach ( $scores as $score ) {
 
@@ -1213,8 +1219,6 @@ class Report {
                 }
             }
         }
-
-        //echo '<pre>'.print_r($studentScores,true).'</pre>'; die();
 
         return $studentScores;
     }
