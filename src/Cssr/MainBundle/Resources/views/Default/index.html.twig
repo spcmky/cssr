@@ -29,9 +29,9 @@
             </div>
             <div class="panel-footer">
                 {% if message.updated %}
-                    Last updated by {% if message.updatedBy.id|length > 0 %}<a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ message.updated|date('m/d/Y') }}
+                    Last updated by {% if message.getUpdatedBy.getId > 0 %}<a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ message.updated|date('m/d/Y') }}
                 {% else %}
-                    Posted by {% if message.createdBy.id|length > 0 %}<a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a>% else %}Unknown{% endif %} on {{ message.created|date('m/d/Y') }}
+                    Posted by {% if message.getCreatedBy.getId > 0 %}<a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a>% else %}Unknown{% endif %} on {{ message.created|date('m/d/Y') }}
                 {% endif %}</td>
             </div>
         </div>
