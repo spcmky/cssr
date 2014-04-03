@@ -21,7 +21,7 @@
                         {% endif %}
                     {% else %}
                         {% if user_is_granted(user,'center update') %}
-                            <a class="btn btn-primary" href="{{ path('center_show', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> {{ center.name }}</a>
+                            <a class="btn btn-primary" href="{{ path('center_show', { 'id': center.id }) }}"><span class="glyphicon glyphicon-home pull-left"></span> Center Setup</a>
                         {% endif %}
 
                         {% if admin %}
