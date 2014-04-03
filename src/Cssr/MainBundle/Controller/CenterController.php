@@ -220,6 +220,12 @@ class CenterController extends Controller
             foreach ( array_diff($originalDorms,$newDorms) as $dormId ) {
                 $dorm = $em->getRepository('CssrMainBundle:Dorm')->find($dormId);
                 $em->remove($dorm);
+
+                // remove relationship between Dorm and users
+                $sql = 'UPDATE cssr_user SET dorm_id = NULL WHERE dorm_id = :dormId ';
+                $stmt = $em->getConnection()->prepare($sql);
+                $stmt->bindValue('dormId', $dormId);
+                $stmt->execute();
             }
 
             // filter $originalVocations to contain Vocations no longer present

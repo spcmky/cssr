@@ -16,8 +16,8 @@
 {% block body %}
 
     <h3>Dorm</h3>
-    {% if student.dorm.name is defined  %}
-        {{ student.getDorm().getName() }} <br />
+    {% if dorm is defined and dorm is not empty %}
+        {{ dorm }}
     {% endif %}
 
     <h3>Courses</h3>

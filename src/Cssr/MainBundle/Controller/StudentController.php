@@ -5,9 +5,12 @@ namespace Cssr\MainBundle\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
+use Doctrine\ORM\EntityNotFoundException;
 
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StudentCreateType;
@@ -352,6 +355,17 @@ class StudentController extends Controller
             throw $this->createNotFoundException('Unable to find Student.');
         }
 
+        $dormName = null;
+        try {
+            $dorm = $student->getDorm();
+
+            if ( $dorm ) {
+                $dormName = $dorm->getName();
+            }
+        } catch ( EntityNotFoundException $e ) {
+            $dormName = null;
+        }
+
         $sql  = 'SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ';
         $sql .= 'FROM cssr_student_course SC ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
@@ -369,6 +383,7 @@ class StudentController extends Controller
 
         return array(
             'student' => $student,
+            'dorm' => $dormName,
             'courses' => $courses
         );
     }

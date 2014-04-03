@@ -23,7 +23,7 @@ class User extends BaseUser
 
     /**
      * @ORM\ManyToOne(targetEntity="Center")
-     * @ORM\JoinColumn(name="center_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="center_id", referencedColumnName="id",nullable=true)
      */
     protected $center;
 
@@ -63,7 +63,7 @@ class User extends BaseUser
 
     /**
      * @ORM\ManyToOne(targetEntity="Dorm")
-     * @ORM\JoinColumn(name="dorm_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="dorm_id", referencedColumnName="id", nullable=true)
      */
     protected $dorm;
 
