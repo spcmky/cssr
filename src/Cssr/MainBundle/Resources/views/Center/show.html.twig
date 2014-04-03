@@ -28,7 +28,7 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="col-mid-6">
+        <div class="col-md-6">
             <h3>Vocations</h3>
             <ul class="list-unstyled">
                 {% for vocation in center.vocations %}
@@ -37,6 +37,7 @@
             </ul>
         </div>
     </div>
+
 
     <p>Created on {{ center.created | date('m/d/Y') }} by {{ center.createdBy.username }}</p>
     <p>Last Updated on {{ center.updated | date('m/d/Y') }} by {{ center.updatedBy.username }}</p>
@@ -52,6 +53,7 @@
             {% endif %}
         </div>
     </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="modal-center-delete" tabindex="-1" role="dialog" aria-labelledby="centerDeleteModal" aria-hidden="true">
