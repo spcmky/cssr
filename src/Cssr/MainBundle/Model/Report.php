@@ -1246,7 +1246,7 @@ class Report {
         );
 
         if ( empty($scores) ) {
-            return $studentScores;
+            return array('reports'=>array(),'overallAverage'=>0.0);
         }
 
         $scoreIds = array();
@@ -1270,6 +1270,10 @@ class Report {
             $stmt->execute();
             $commentStandards = $stmt->fetchAll();
         }
+
+        $totalScore = 0;
+        $scoreCount = 0;
+        $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
 
         foreach ( $scores as $score ) {
 
