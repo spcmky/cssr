@@ -4,7 +4,7 @@
     {% if center.id > 0 %}
         <h1>Welcome to the {{ center.name }} Center</h1>
     {% else %}
-        <h1>Welcome</h1>
+        <h1>Welcome, Please select a center to continue.</h1>
     {% endif %}
 {% endblock %}
 
@@ -14,7 +14,10 @@
 
 {% block body -%}
 
-    <p>Hi {{ user.firstname|capitalize }} {{ user.lastname|capitalize }}, you last logged in on {{ user.lastLogin|date('m/d/Y') }}</p>
+    <p>Hi {{ user.firstname|capitalize }} {{ user.lastname|capitalize }}, you last logged in on {{ user.lastLogin|date('n/d/Y g:i:s A') }}</p>
+
+    <img src="/bundles/cssrmain/images/centers/Centers.jpg" alt="Center Photos" />
+
     <h3>Latest Messages</h3>
     {% if messages|length == 0 %}
         <p>There are no new messages</p>
@@ -32,7 +35,7 @@
                     Last updated by {% if message.getUpdatedBy.getId > 0 %}<a href="{{ path('user_show', { 'id': message.updatedBy.id }) }}">{{ message.updatedBy.firstname|capitalize }} {{ message.updatedBy.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ message.updated|date('m/d/Y') }}
                 {% else %}
                     Posted by {% if message.getCreatedBy.getId > 0 %}<a href="{{ path('user_show', { 'id': message.createdBy.id }) }}">{{ message.createdBy.firstname|capitalize }} {{ message.createdBy.lastname|capitalize }}</a>% else %}Unknown{% endif %} on {{ message.created|date('m/d/Y') }}
-                {% endif %}</td>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
