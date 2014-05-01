@@ -42,6 +42,7 @@
             <th style="text-align: center;">Score</th>
             <th style="text-align: center;">Career Success Standards</th>
             <th style="width: 300px; text-align: center;">Comments</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -97,6 +98,9 @@
                         <small>Last updated by <a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a> on {{ score.comment.updated|date('m/d/Y') }}</small>
                     {% endif %}
                 </td>
+                <td>
+                    <input data-scoreId="{{ score_id }}" data-studentId="{{ score.student.id }}" data-courseId="{{ score.course.id }}" type="button" class="btn btn-primary score-action" value="{% if score_id < 1 %}Save{% else %}Update{% endif %}" />
+                </td>
             </tr>
 
         {% endfor %}
@@ -104,61 +108,184 @@
     </table>
     </form>
 
+    <div id="scoreValidationModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header alert alert-danger">
+                    <h4 class="modal-title">Score Validation Error</h4>
+                </div>
+                <div class="modal-body">
+                    <p>You must select a score value.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="commentValidationModal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header alert alert-danger">
+                    <h4 class="modal-title">Score Validation Error</h4>
+                </div>
+                <div class="modal-body">
+                    <p>For scores of 2 and lower and scores of 5, there must be a comment.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <script type="text/javascript">
         // Get the ul that holds the collection of tags
         (function() {
 
-            $(function() {
+            var isValidScore = function (score,comment) {
 
-                // check for value change
-                $('select.score-value').on('change', function(){
+                if ( score == 'N/A' ) {
+                    $('#scoreValidationModal').modal();
+                    return false;
+                }
 
-                    var _this = this;
-                    var scoreId = $(this).parent().parent().data('scoreid');
+                if ( (score <= 2 || score == 5) && !comment ) {
+                    $('#commentValidationModal').modal();
+                    return false;
+                }
 
-                    if ( scoreId < 0 ) {
+                return true;
+            };
 
+            var sendScore = function ( button, container, scoreId, scoreValue ) {
+                if ( scoreId < 0 ) {
+
+                    var data = {
+                        value: scoreValue,
+                        student: container.data('studentid'),
+                        course: container.data('courseid'),
+                        period: $('#periodSelector').val()
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: '{{ path("score_create") }}',
+                        data: data,
+                        success: function(data,textStatus){
+                            if ( textStatus == 'success' && data.status == 'success' ) {
+
+                                container.data('scoreid',data.scoreId);
+
+                                sendComment(container,data.scoreId);
+
+                                button.val('Update');
+
+                                $('#student-scores').find('.alert-success').html('Score created successfully!').show();
+                                setTimeout(function(){
+                                    $('#student-scores').find('.alert-success').hide();
+                                },3000);
+
+                            } else {
+                                $('#student-scores').find('.alert-danger').html('Score creation failed!').show();
+                                setTimeout(function(){
+                                    $('#student-scores').find('.alert-danger').hide();
+                                },3000);
+                            }
+                        },
+                        dataType: 'json'
+                    });
+
+                } else {
+
+                    var data = {
+                        value: scoreValue,
+                        _method: 'PUT'
+                    };
+
+                    var url = '{{ path("score_update", {'id': 'score_id'}) }}';
+                    url = url.replace("score_id", scoreId);
+
+                    $.ajax({
+                        type: "PUT",
+                        url: url,
+                        data: data,
+                        success: function(data,textStatus){
+                            if ( textStatus == 'success' && data.status == 'success' ) {
+
+                                sendComment(container,scoreId);
+
+                                $('#staff-student-scores').find('.alert-success').html('Score updated successfully!').show();
+                                setTimeout(function(){
+                                    $('#staff-student-scores').find('.alert-success').hide();
+                                },3000);
+
+                            } else {
+                                $('#staff-student-scores').find('.alert-danger').html('Score update failed!').show();
+                                setTimeout(function(){
+                                    $('#staff-student-scores').find('.alert-danger').hide();
+                                },3000);
+                            }
+                        },
+                        dataType: 'json'
+                    });
+                }
+            };
+
+            var sendComment = function ( container, scoreId ) {
+
+                if ( scoreId > 0 ) {
+                    // need a score id before we can submit
+
+                    var commentContainer = container.find('td textarea');
+                    var commentId = commentContainer.data('commentid');
+                    var commentValue = commentContainer.val();
+
+                    if ( !commentValue ) {
+                        return;
+                    }
+
+                    if ( commentId < 0 ) {
                         var data = {
-                            value: $(this).val(),
-                            student: $(this).parent().parent().data('studentid'),
-                            course: $(this).parent().parent().data('courseid'),
-                            period: $('#periodSelector').val()
+                            comment: commentValue,
+                            score: scoreId,
+                            standards: []
                         };
+
+                        var checked_standards = container.find('input:checked');
+                        $.each(checked_standards,function(){
+                            data.standards.push($(this).val());
+                        });
 
                         $.ajax({
                             type: "POST",
-                            url: '{{ path("score_create") }}',
+                            url: '{{ path("comment_create") }}',
                             data: data,
                             success: function(data,textStatus){
                                 if ( textStatus == 'success' && data.status == 'success' ) {
                                     //console.log('success');
-                                    $(_this).parent().parent().data('scoreid',data.scoreId);
-
-                                    $('#staff-student-scores').find('.alert-success').html('Score created successfully!').show();
-                                    setTimeout(function(){
-                                        $('#staff-student-scores').find('.alert-success').hide();
-                                    },3000);
-
+                                    commentContainer.data('commentid',data.commentId);
                                 } else {
-                                    $('#staff-student-scores').find('.alert-danger').html('Score creation failed!').show();
-                                    setTimeout(function(){
-                                        $('#staff-student-scores').find('.alert-danger').hide();
-                                    },3000);
                                     //console.log('failed');
                                 }
                             },
                             dataType: 'json'
                         });
-
                     } else {
-
                         var data = {
-                            value: $(this).val(),
+                            comment: commentValue,
+                            standards: [],
                             _method: 'PUT'
                         };
 
-                        var url = '{{ path("score_update", {'id': 'score_id'}) }}';
-                        url = url.replace("score_id", scoreId);
+                        var checked_standards = container.find('input:checked');
+                        $.each(checked_standards,function(){
+                            data.standards.push($(this).val());
+                        });
+
+                        var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
+                        url = url.replace("comment_id", commentId);
 
                         $.ajax({
                             type: "PUT",
@@ -167,16 +294,7 @@
                             success: function(data,textStatus){
                                 if ( textStatus == 'success' && data.status == 'success' ) {
                                     //console.log('success');
-                                    $('#staff-student-scores').find('.alert-success').html('Score updated successfully!').show();
-                                    setTimeout(function(){
-                                        $('#staff-student-scores').find('.alert-success').hide();
-                                    },3000);
-
                                 } else {
-                                    $('#staff-student-scores').find('.alert-danger').html('Score update failed!').show();
-                                    setTimeout(function(){
-                                        $('#staff-student-scores').find('.alert-danger').hide();
-                                    },3000);
                                     //console.log('failed');
                                 }
                             },
@@ -184,99 +302,27 @@
                         });
                     }
 
-                });
+                }
+            };
 
-                // check for comment
-                $('textarea.score-comment').on('focus', function(){
-                    var initialValue = $(this).val();
-                    var _this = this;
+            $(function() {
 
-                    function testForChange() {
-                        if ( $(_this).val() != initialValue ) {
-                            var scoreId = $(_this).parent().parent().data('scoreid');
-                            if ( scoreId > 0 ) {
-                                // need a score id before we can submit
+                $('input.score-action').on('click',function(){
 
-                                var commentId = $(_this).data('commentid');
+                    var parent = $(this).parent().parent();
+                    var scoreId = parent.data('scoreid');
 
-                                if ( commentId < 0 ) {
-                                    var data = {
-                                        comment: $(_this).val(),
-                                        score: scoreId,
-                                        standards: []
-                                    };
+                    var scoreValue = parent.find('td select').val();
+                    var commentValue = parent.find('td textarea').val();
 
-                                    var checked_standards = $(_this).parent().parent().find('input:checked');
-                                    $.each(checked_standards,function(){
-                                        data.standards.push($(this).val());
-                                    })
-
-                                    $.ajax({
-                                        type: "POST",
-                                        url: '{{ path("comment_create") }}',
-                                        data: data,
-                                        success: function(data,textStatus){
-                                            if ( textStatus == 'success' && data.status == 'success' ) {
-                                                console.log('success');
-                                                $(_this).data('commentid',data.commentId);
-
-
-                                            } else {
-                                                console.log('failed');
-                                            }
-                                        },
-                                        dataType: 'json'
-                                    });
-                                } else {
-                                    var data = {
-                                        comment: $(_this).val(),
-                                        standards: [],
-                                        _method: 'PUT'
-                                    };
-
-                                    var checked_standards = $(_this).parent().parent().find('input:checked');
-                                    $.each(checked_standards,function(){
-                                        data.standards.push($(this).val());
-                                    })
-
-                                    var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
-                                    url = url.replace("comment_id", commentId);
-
-                                    $.ajax({
-                                        type: "PUT",
-                                        url: url,
-                                        data: data,
-                                        success: function(data,textStatus){
-                                            if ( textStatus == 'success' && data.status == 'success' ) {
-                                                console.log('success');
-
-                                                //$(_this).data('commentid',data.commentId);
-
-
-                                            } else {
-                                                console.log('failed');
-                                            }
-                                        },
-                                        dataType: 'json'
-                                    });
-                                }
-
-
-                            }
-                        }
+                    if ( !isValidScore(scoreValue,commentValue) ) {
+                        return false;
                     }
 
-                    $(this).on('blur',function() {
-                        window.clearInterval(timer);
-                        testForChange();
-                        $(_this).unbind("blur");
-                    });
+                    // valid and continue
 
-                    var timer = window.setInterval(function() {
-                        //testForChange();
-                    }, 500);
+                    sendScore($(this), parent, scoreId, scoreValue );
                 });
-
 
             });
 
