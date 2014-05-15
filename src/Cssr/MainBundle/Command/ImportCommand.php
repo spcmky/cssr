@@ -30,7 +30,7 @@ class ImportCommand extends ContainerAwareCommand
         // create db connections
         try {
             $this->DB_Old = new \PDO('mysql:host=localhost;dbname=cssr_import', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
-            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr_2014_03_02', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
+            $this->DB_New = new \PDO('mysql:host=localhost;dbname=cssr_2014_04_28', 'root', '', array( \PDO::ATTR_PERSISTENT => false));
         } catch ( \Exception $e ) {
             $this->output->writeln($e.getMessage());
         }
@@ -39,22 +39,22 @@ class ImportCommand extends ContainerAwareCommand
         //$this->createStandards();
         //$this->createGroups();
 
-        //$this->createCenters();
-        //$this->createDorms();
-        //$this->createVocations();
+        $this->createCenters();
+        $this->createDorms();
+        $this->createVocations();
 
-        $this->createUsers();
-        $this->addUsersToGroups();
+        //$this->createUsers();
+        //$this->addUsersToGroups();
 
-        $this->createCourses();
+        //$this->createCourses();
 
-        $this->addCoursesToStudents();
+        //$this->addCoursesToStudents();
 
-        $this->addStudentScores();
+        //$this->addStudentScores();
 
-        $this->addStudentScoreComments();
+        //$this->addStudentScoreComments();
 
-        $this->createMessages();
+        //$this->createMessages();
 
     }
 
