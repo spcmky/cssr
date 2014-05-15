@@ -56,8 +56,28 @@
 
     //$('a.score-comment-popover').popover();
 
-    $('#friday-report').dataTable({
-        "bJQueryUI": true,
+    var reportTable = $('#friday-report').DataTable({
+        //"bJQueryUI": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": false,
+        "bSort": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "bProcessing": true
+
+    });
+
+    var reportTableTools = new $.fn.dataTable.TableTools(reportTable,{
+        "oTableTools": {
+            "sswfPath" : "/bundles/cssrmain/datatables/extensions/TableTools/swf/copy_cvs_xls_pdf.swf"
+        }
+    });
+
+    $( reportTableTools.fnContainer() ).insertBefore('div.dataTables_wrapper');
+
+    $('table.sortable-report').dataTable({
+        //"bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": false,
@@ -67,15 +87,16 @@
         "bProcessing": true
     });
 
-    $('table.sortable-report').dataTable({
-        "bJQueryUI": true,
+    $('table.student-list').dataTable({
+        //"bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,
-        "bFilter": false,
+        "bFilter": true,
         "bSort": true,
         "bInfo": false,
         "bAutoWidth": false,
-        "bProcessing": true
+        "bProcessing": true,
+        "sDom":"flrtip"
     });
 
     $('#admin-list').dataTable({

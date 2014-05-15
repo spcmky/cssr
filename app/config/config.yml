@@ -68,7 +68,7 @@ assetic:
 
         css_bootstrap_select:
             inputs:
-                -  "@CssrMainBundle/Resources/public/bootstrap/css/bootstrap-select.min.css"
+                -  "@CssrMainBundle/Resources/public/bootstrap-select/bootstrap-select.min.css"
             output: "css/bootstrap-select.min.css"
 
         js_bootstrap:
@@ -78,12 +78,12 @@ assetic:
 
         js_bootstrap_select:
             inputs:
-                -  "@CssrMainBundle/Resources/public/bootstrap/js/bootstrap-select.min.js"
+                -  "@CssrMainBundle/Resources/public/bootstrap-select/bootstrap-select.min.js"
             output: "js/bootstrap-select.min.js"
 
         js_jquery:
             inputs:
-                -  "@CssrMainBundle/Resources/public/jquery/jquery-1.10.1.min.js"
+                -  "@CssrMainBundle/Resources/public/jquery/jquery-1.11.1.min.js"
             output: "js/jquery.min.js"
 
         js_moment:
@@ -96,14 +96,19 @@ assetic:
                 -  "@CssrMainBundle/Resources/public/datatables/media/js/jquery.dataTables.min.js"
             output: "js/jquery.dataTables.min.js"
 
+        js_datatables_tools:
+            inputs:
+                -  "@CssrMainBundle/Resources/public/datatables/extensions/TableTools/js/dataTables.tableTools.js"
+            output: "js/jquery.dataTables.min.js"
+
         js_datatables_bootstrap:
             inputs:
-                -  "@CssrMainBundle/Resources/public/datatables/media/js/dataTables.bootstrap.js"
+                -  "@CssrMainBundle/Resources/public/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.js"
             output: "js/dataTables.bootstrap.js"
 
         css_datatables_bootstrap:
             inputs:
-                -  "@CssrMainBundle/Resources/public/datatables/media/css/dataTables.bootstrap.css"
+                -  "@CssrMainBundle/Resources/public/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css"
             output: "css/dataTables.bootstrap.css"
 
         css_cssr:

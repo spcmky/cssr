@@ -14,7 +14,7 @@
     <link href="{{ asset_url }}" rel="stylesheet" type="text/css"/>
     {% endstylesheets %}
 
-    <link href="/bundles/cssrmain/datatables/media/css/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="/bundles/cssrmain/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
 
     <link href="/bundles/cssrmain/css/cssr.css" rel="stylesheet" type="text/css"/>
 
@@ -35,6 +35,10 @@
     {% endjavascripts %}
 
     {% javascripts '@js_datatables' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
+
+    {% javascripts '@js_datatables_tools' %}
     <script src="{{ asset_url }}" type="text/javascript"></script>
     {% endjavascripts %}
 
