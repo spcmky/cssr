@@ -68,13 +68,14 @@
 
     });
 
+    /*
     var reportTableTools = new $.fn.dataTable.TableTools(reportTable,{
         "oTableTools": {
             "sswfPath" : "/bundles/cssrmain/datatables/extensions/TableTools/swf/copy_cvs_xls_pdf.swf"
         }
     });
-
     $( reportTableTools.fnContainer() ).insertBefore('div.dataTables_wrapper');
+    */
 
     $('table.sortable-report').dataTable({
         //"bJQueryUI": true,
@@ -88,6 +89,18 @@
     });
 
     $('table.student-list').dataTable({
+        //"bJQueryUI": true,
+        "bPaginate": false,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bSort": true,
+        "bInfo": false,
+        "bAutoWidth": false,
+        "bProcessing": true,
+        "sDom":"flrtip"
+    });
+
+    $('table.staff-list').dataTable({
         //"bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,
