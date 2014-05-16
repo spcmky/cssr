@@ -181,7 +181,8 @@ class UserController extends Controller {
 
         $group = $em->getRepository('CssrMainBundle:Group')->find($params['group']);
 
-        $user = new User();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $user = $userManager->createUser();
         $user->setEnabled(true);
         $user->addGroup($group);
 
@@ -198,9 +199,7 @@ class UserController extends Controller {
         if ( $form->isValid() ) {
 
             $user->setEnabled(true);
-
-            $em->persist($user);
-            $em->flush();
+            $userManager->updateUser($user);
 
             $this->get('session')->getFlashBag()->add(
                 'success',
@@ -228,7 +227,6 @@ class UserController extends Controller {
     public function newAction()
     {
         $userManager = $this->container->get('fos_user.user_manager');
-
         $user = $userManager->createUser();
         $user->setEnabled(true);
 
@@ -262,8 +260,8 @@ class UserController extends Controller {
 
         $group = $em->getRepository('CssrMainBundle:Group')->find($groupId);
 
-        //$userManager = $this->container->get('fos_user.user_manager');
-        $user = new User(); //$userManager->createUser();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $user = $userManager->createUser();
         $user->setEnabled(true);
         $user->addGroup($group);
 

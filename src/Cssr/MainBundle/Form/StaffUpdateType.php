@@ -18,7 +18,7 @@ class StaffUpdateType extends AbstractType {
             'required' => true
         ));
 
-        //$builder->add('middlename');
+        $builder->add('middlename');
 
         $builder->add('lastname','text',array(
             'required' => true

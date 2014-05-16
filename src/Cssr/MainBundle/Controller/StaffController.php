@@ -157,7 +157,8 @@ class StaffController extends Controller {
         $group = $em->getRepository('CssrMainBundle:Group')->find(5);
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
 
-        $staff = new User();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $staff = $userManager->createUser();
 
         $form = $this->createForm(new StaffCreateType(array(
             'group' => $group,
@@ -192,7 +193,8 @@ class StaffController extends Controller {
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
         $areas = $em->getRepository('CssrMainBundle:Area')->findAll();
 
-        $staff = new User();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $staff = $userManager->createUser();
 
         $form = $this->createForm(new StaffCreateType(array(
             'center' => $center,
@@ -209,8 +211,7 @@ class StaffController extends Controller {
             $staff->setEnabled(true);
             $staff->addGroup($group);
 
-            $em->persist($staff);
-            $em->flush();
+            $userManager->updateUser($staff);
 
             $data = $request->request->get('cssr_mainbundle_staff_create_type');
             Staff::updateCourses($em,$staff,array($data['area']));
@@ -240,7 +241,8 @@ class StaffController extends Controller {
     {
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('CssrMainBundle:User')->find($id);
+        $userManager = $this->container->get('fos_user.user_manager');
+        $user = $userManager->findUserBy(array('id'=>$id));
 
         if (!$user) {
             throw $this->createNotFoundException('Unable to find user.');
@@ -280,7 +282,8 @@ class StaffController extends Controller {
     {
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('CssrMainBundle:User')->find($id);
+        $userManager = $this->container->get('fos_user.user_manager');
+        $user = $userManager->findUserBy(array('id'=>$id));
 
         if (!$user) {
             throw $this->createNotFoundException('Unable to find user.');
@@ -306,7 +309,7 @@ class StaffController extends Controller {
 
         if ( $editForm->isValid() ) {
 
-            $em->flush();
+            $userManager->updateUser($user);
 
             $data = $request->request->get('cssr_mainbundle_staff_update_type');
             Staff::updateCourses($em,$user,array($data['area']));

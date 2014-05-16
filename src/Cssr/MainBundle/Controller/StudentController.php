@@ -94,7 +94,8 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $student = new User();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $student = $userManager->createUser();
 
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
@@ -127,7 +128,8 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $student = new User();
+        $userManager = $this->container->get('fos_user.user_manager');
+        $student = $userManager->createUser();
 
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
@@ -151,10 +153,7 @@ class StudentController extends Controller
             $student->addGroup($em->getRepository('CssrMainBundle:Group')->find(6));
             $student->setCenter($center);
 
-            $em->persist($student);
-            $em->flush();
-
-            $em->flush();
+            $userManager->updateUser($student);
 
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_student_create_type');
@@ -194,7 +193,8 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+        $userManager = $this->container->get('fos_user.user_manager');
+        $student = $userManager->findUserBy(array('id'=>$id));
 
         if (!$student) {
             throw $this->createNotFoundException('Unable to find Student.');
@@ -203,7 +203,6 @@ class StudentController extends Controller
         $session = $this->getRequest()->getSession();
         $activeCenter = $session->get('center');
         $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
-
 
         $studentCourses = Student::getCourses($em,$student);
         $centerCourses = Center::getCourses($em,$center);
@@ -234,7 +233,8 @@ class StudentController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $student = $em->getRepository('CssrMainBundle:User')->find($id);
+        $userManager = $this->container->get('fos_user.user_manager');
+        $student = $userManager->findUserBy(array('id'=>$id));
 
         if (!$student) {
             throw $this->createNotFoundException('Unable to find Student.');
@@ -261,7 +261,7 @@ class StudentController extends Controller
 
         if ( $editForm->isValid() ) {
 
-            $em->flush();
+            $userManager->updateUser($student);
 
             // take care of courses
             $data = $request->request->get('cssr_mainbundle_student_update_type');
