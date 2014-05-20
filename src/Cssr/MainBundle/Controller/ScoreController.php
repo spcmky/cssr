@@ -162,14 +162,24 @@ class ScoreController extends Controller
      * @Cache(maxage="0", smaxage="0", expires="now", public="false")
      * @Template()
      */
-    public function studentScoreAction($id)
+    public function studentScoreAction ( Request $request, $id )
     {
         $em = $this->getDoctrine()->getManager();
 
         $student = $em->getRepository('CssrMainBundle:User')->find($id);
 
         if ( !$student ) {
-            throw $this->createNotFoundException('Unable to find Student entity.');
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'failed';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                throw $this->createNotFoundException('Unable to find Student entity.');
+            }
         }
 
         $courses = Student::getCourses($em,$student);
@@ -303,7 +313,7 @@ class ScoreController extends Controller
             }
         }
 
-        return array(
+        $data = array(
             'period' => $period,
             'period_start' => $period_start,
             'period_end' => $period_end,
@@ -313,6 +323,21 @@ class ScoreController extends Controller
             'scores' => $student_scores,
             'user' => $this->getUser()
         );
+
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'success';
+
+            $view = $this->render('CssrMainBundle:Score:commentsModal.html.twig',$data);
+            $api_response->data = $view->getContent();
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        } else {
+            return $data;
+        }
     }
 
     /**

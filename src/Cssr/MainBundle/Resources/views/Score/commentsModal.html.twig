@@ -1,0 +1,41 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="commentModel-label">Comments for {{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</h4>
+</div>
+<div class="modal-body" style="font-size: 120%;">
+
+    {% for score in scores %}
+        {% if score is iterable %}
+            {% if score.comment is defined and score.comment is iterable %}
+
+                <div class="panel panel-default">
+                    <div class="panel-heading"><span class="panel-title" style="font-size: 120%; font-weight: bold;">{{ score.course.name }}</span></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-8" style="text-align: left;">
+                                <p style="font-size: 100%; margin-bottom: 20px;">{% if score.comment is iterable %}{{ score.comment.body }}{% endif %}</p>
+                                <div><strong>Standards</strong></div>
+                                {% if score.comment.standards is defined %}
+                                    {% for standard in score.comment.standards %}
+                                        {{ loop.index }}. {{ standard }}<br/>
+                                    {% endfor %}
+                                {% else  %}
+                                    None
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-4" style="text-align: center;">
+                                <div style="font-weight: bold; font-size: 480%;">{{ score.score.value }}</div>
+                                <div><strong>Score</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <p>Last updated by {% if score.comment.updater.id|length > 0 %}<a href="{{ path('staff_show', { 'id': score.comment.updater.id }) }}">{{ score.comment.updater.firstname|capitalize }} {{ score.comment.updater.lastname|capitalize }}</a>{% else %}Unknown{% endif %} on {{ score.comment.updated|date('m/d/Y') }}</p>
+                    </div>
+                </div>
+
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+</div>
