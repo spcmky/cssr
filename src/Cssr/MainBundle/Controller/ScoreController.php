@@ -320,43 +320,26 @@ class ScoreController extends Controller
 
         $centerCourses = Center::getCourses($em,$center);
 
-        $availableCourses = array();
+        $groupedCourses = array();
         foreach ( $centerCourses as $centerCourse ) {
-            if ( !empty($courses) ) {
-
-                foreach ( $courses as $studentCourse ) {
-                    if ( $centerCourse['area_id'] != $studentCourse['area_id'] ) {
-
-                        if ( !isset($availableCourses[$centerCourse['name']]) ) {
-                            $availableCourses[$centerCourse['name']] = array(
-                                'name' => $centerCourse['name'],
-                                'courses' => array()
-                            );
-                        }
-
-                        $availableCourses[$centerCourse['name']]['courses'][$centerCourse['id']] = array(
-                            'id' => $centerCourse['id'],
-                            'firstname' => $centerCourse['firstname'],
-                            'lastname' => $centerCourse['lastname']
-                        );
-
-                    }
-                }
-            } else {
-
-                if ( !isset($availableCourses[$centerCourse['name']]) ) {
-                    $availableCourses[$centerCourse['name']] = array(
-                        'name' => $centerCourse['name'],
-                        'courses' => array()
-                    );
-                }
-
-                $availableCourses[$centerCourse['name']]['courses'][$centerCourse['id']] = array(
-                    'id' => $centerCourse['id'],
-                    'firstname' => $centerCourse['firstname'],
-                    'lastname' => $centerCourse['lastname']
+            if ( !isset($groupedCourses[$centerCourse['name']]) ) {
+                $groupedCourses[$centerCourse['name']] = array(
+                    'name' => $centerCourse['name'],
+                    'courses' => array()
                 );
+            }
 
+            $groupedCourses[$centerCourse['name']]['courses'][$centerCourse['id']] = array(
+                'id' => $centerCourse['id'],
+                'firstname' => $centerCourse['firstname'],
+                'lastname' => $centerCourse['lastname']
+            );
+        }
+
+        // remove areas already enrolled in
+        foreach ( $courses as $studentCourse ) {
+            if ( isset($groupedCourses[$studentCourse['name']]) ) {
+                unset($groupedCourses[$studentCourse['name']]);
             }
         }
 
@@ -369,7 +352,7 @@ class ScoreController extends Controller
             'standards' => $standards,
             'scores' => $student_scores,
             'user' => $this->getUser(),
-            'availableCourses' => $availableCourses
+            'availableCourses' => $groupedCourses
         );
 
         if ( $request->isXmlHttpRequest() ) {

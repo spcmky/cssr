@@ -23,11 +23,24 @@
     </ul>
 
     <h3>Students</h3>
-    <ul class="list-unstyled">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
         {% for student in students %}
-            <li>{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</li>
+            <tr>
+                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                <td style="text-align: center;">
+                    <!-- <input data-studentId="{{ student.id }}" type="button" class="btn btn-primary enroll-action" value="Enroll" /> -->
+                </td>
+            </tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
 
     <div class="panel panel-default">
         <div class="panel-body">

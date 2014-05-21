@@ -3,12 +3,15 @@
 namespace Cssr\MainBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 use Cssr\MainBundle\Entity\Course;
 use Cssr\MainBundle\Form\CourseType;
+use Cssr\MainBundle\Model\Student;
 
 /**
  * Course controller.
@@ -32,33 +35,24 @@ class CourseController extends Controller
         $session = $this->getRequest()->getSession();
         $center = $session->get('center');
 
+        $sql  = 'SELECT U.*, A.name area_name ';
+        $sql .= 'FROM cssr_course C ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
+        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+
         if ( $center ) {
-            $sql = "SELECT U.*, A.name area_name
-            FROM cssr_course C
-            LEFT JOIN cssr_user U ON U.id = C.user_id
-            LEFT JOIN cssr_area A ON A.id = C.area_id
-            WHERE U.center_id = :centerId
-            ORDER BY A.id";
+            $sql .= 'WHERE U.center_id = :centerId ';
+            $sql .= 'ORDER BY A.id ';
 
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue('centerId', $center->id);
-
-            $stmt->execute();
-
-            $result = $stmt->fetchAll();
         } else {
-            $sql = "SELECT U.*, A.name area_name
-            FROM cssr_course C
-            LEFT JOIN cssr_user U ON U.id = C.user_id
-            LEFT JOIN cssr_area A ON A.id = C.area_id
-            ORDER BY A.id";
-
+            $sql .= 'ORDER BY A.id ';
             $stmt = $em->getConnection()->prepare($sql);
-
-            $stmt->execute();
-
-            $result = $stmt->fetchAll();
         }
+
+        $stmt->execute();
+        $result = $stmt->fetchAll();
 
         return array(
             'entities' => $result,
@@ -233,5 +227,48 @@ class CourseController extends Controller
             ->add('id', 'hidden')
             ->getForm()
         ;
+    }
+
+    /**
+     * Enroll student in a course ajax call
+     *
+     * @Route("/{id}/enroll", name="course_enroll")
+     * @Method("POST")
+     */
+    public function enrollAction ( $id ) {
+        $em = $this->getDoctrine()->getManager();
+
+        $course = $em->getRepository('CssrMainBundle:Course')->find($id);
+        if ( !$course ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        }
+
+        $student = null;
+        if ( !empty($_POST['student']) ) {
+            $student = $em->getRepository('CssrMainBundle:User')->find($_POST['student']);
+        }
+
+        if ( !$student ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'failed';
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        }
+
+        Student::enroll($em,$student->getId(),$course->getId());
+
+        $api_response = new \stdClass();
+        $api_response->status = 'success';
+
+        // create a JSON-response with a 200 status code
+        $response = new Response(json_encode($api_response));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }

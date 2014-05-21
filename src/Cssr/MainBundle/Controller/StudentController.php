@@ -165,7 +165,7 @@ class StudentController extends Controller
                         $courseList[] = (int) $cid;
                     }
                 }
-                Student::enroll($em,$student,$courseList);
+                Student::updateEnrollment($em,$student,$courseList);
             }
 
             $this->get('session')->getFlashBag()->add(
@@ -273,7 +273,7 @@ class StudentController extends Controller
                         $courseList[] = (int) $cid;
                     }
                 }
-                Student::enroll($em,$student,$courseList);
+                Student::updateEnrollment($em,$student,$courseList);
             }
 
             $this->get('session')->getFlashBag()->add(
@@ -366,6 +366,8 @@ class StudentController extends Controller
             $dormName = null;
         }
 
+        $courses = Student::getCourses($em,$student);
+
         $sql  = 'SELECT A.id area_id, A.name area_name, U.id user_id, U.firstname user_firstname, U.lastname user_lastname ';
         $sql .= 'FROM cssr_student_course SC ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
@@ -377,29 +379,14 @@ class StudentController extends Controller
         $stmt->bindValue('userId', $id);
         $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
         $stmt->bindValue('active', 1, \PDO::PARAM_INT);
-        $stmt->execute();
+        //$stmt->execute();
 
-        $courses = $stmt->fetchAll();
+        //$courses = $stmt->fetchAll();
 
         return array(
             'student' => $student,
             'dorm' => $dormName,
             'courses' => $courses
         );
-    }
-
-    /**
-     * Creates a form to delete a Student entity by id.
-     *
-     * @param mixed $id The entity id
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm($id)
-    {
-        return $this->createFormBuilder(array('id' => $id))
-            ->add('id', 'hidden')
-            ->getForm()
-        ;
     }
 }

@@ -42,7 +42,43 @@ class Student {
         }
     }
 
-    public static function enroll ( $em, $student, $courses ) {
+    public static function enroll ( $em, $studentId, $courseId ) {
+        // check if already or previously enrolled
+
+        // check for previous enrollment
+        $sql  = 'SELECT 1 ';
+        $sql .= 'FROM cssr_student_course ';
+        $sql .= 'WHERE student_id = :student AND course_id = :course ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('student', $studentId, \PDO::PARAM_INT);
+        $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
+        $stmt->execute();
+        $hasPrevious = $stmt->fetch();
+
+        if ( $hasPrevious ) {
+            $sql  = 'UPDATE cssr_student_course ';
+            $sql .= 'SET enrolled = :enrolled, updated = :updated ';
+            $sql .= 'WHERE student_id = :student AND course_id = :course ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+            $stmt->bindValue('updated', new \DateTime(), 'datetime');
+            $stmt->bindValue('student', $studentId, \PDO::PARAM_INT);
+            $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
+            $stmt->execute();
+        } else {
+            $sql  = 'INSERT INTO cssr_student_course ( course_id, student_id, enrolled, updated, created ) ';
+            $sql .= 'VALUES ( :course, :student, :enrolled, :updated, :created ) ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
+            $stmt->bindValue('updated', new \DateTime(), 'datetime');
+            $stmt->bindValue('created', new \DateTime(), 'datetime');
+            $stmt->bindValue('student', $studentId, \PDO::PARAM_INT);
+            $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
+            $stmt->execute();
+        }
+    }
+
+    public static function updateEnrollment ( $em, $student, $courses ) {
 
         if ( $courses === null ) {
             return;
@@ -70,36 +106,7 @@ class Student {
         // what to add
         $added = array_diff($courses, $currentCourses);
         foreach ( $added as $courseId ) {
-
-            // check for previous enrollment
-            $sql = 'SELECT 1 FROM cssr_student_course WHERE student_id = :student AND course_id = :course';
-            $stmt = $em->getConnection()->prepare($sql);
-            $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
-            $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
-            $stmt->execute();
-            $hasPrevious = $stmt->fetch();
-
-            if ( $hasPrevious ) {
-                $sql  = 'UPDATE cssr_student_course ';
-                $sql .= 'SET enrolled = :enrolled, updated = :updated ';
-                $sql .= 'WHERE student_id = :student AND course_id = :course ';
-                $stmt = $em->getConnection()->prepare($sql);
-                $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
-                $stmt->bindValue('updated', new \DateTime(), 'datetime');
-                $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
-                $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
-                $stmt->execute();
-            } else {
-                $sql  = 'INSERT INTO cssr_student_course ( course_id, student_id, enrolled, updated, created ) ';
-                $sql .= 'VALUES ( :course, :student, :enrolled, :updated, :created ) ';
-                $stmt = $em->getConnection()->prepare($sql);
-                $stmt->bindValue('enrolled', 1, \PDO::PARAM_INT);
-                $stmt->bindValue('updated', new \DateTime(), 'datetime');
-                $stmt->bindValue('created', new \DateTime(), 'datetime');
-                $stmt->bindValue('student', $student->getId(), \PDO::PARAM_INT);
-                $stmt->bindValue('course', $courseId, \PDO::PARAM_INT);
-                $stmt->execute();
-            }
+            Student::enroll($em,$student->getId(),$courseId);
         }
     }
 }

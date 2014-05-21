@@ -29,7 +29,7 @@
 
     <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
 
-    <p>If the area you wish to score is not in this list, use the <a href="#quick-score">Quick Score</a> below to add the area and score it in a single action.</p>
+    <p>If the area you wish to score is not in this list, use the <a href="#quick-enroll">Quick Enroll</a> below to add the student to a course..</p>
 
     <form id="student-scores" name="student-scores">
 
@@ -108,66 +108,31 @@
     </table>
     </form>
 
-    <h3 id="quick-score">Quick Score</h3>
+    <h3 id="quick-enroll" style="margin-top: 40px;">Quick Enroll</h3>
     <p>
-        Same as above except you'll need to select the exact area and staff.  This action will sign-up the student to the course and assign a score.
-        Once saved, the course will be moved above as part of a student's course load.
+        This provides the ability to enroll a student in a course without leaving the page. Once enrolled, the course will be made available to score above.
     </p>
-    <table class="table table-hover table-bordered">
+    <table class="table table-hover">
     <thead>
         <tr>
-            <th style="text-align: center;">Area</th>
-            <th style="text-align: left;">Staff</th>
-            <th style="text-align: center;">Score</th>
-            <th style="text-align: center;">Career Success Standards</th>
-            <th style="width: 300px; text-align: center;">Comments</th>
+            <th>Area</th>
+            <th>Staff</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
     {% for area in availableCourses %}
-
         <tr>
-            <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ area.name }}</td>
-            <td style="text-align: left;">
-                <select class="course-id">
+            <td>{{ area.name }}</td>
+            <td>
+                <select class="course-id"  style="font-size: 16px; width: 220px;">
                     {% for course in area.courses %}
-                    <option value="{{ course.id }}">{{ course.firstname }} {{ course.lastname }}</option>
+                    <option value="{{ course.id }}">{{ course.lastname|capitalize }}, {{ course.firstname|capitalize }}</option>
                     {% endfor %}}
                 </select>
             </td>
             <td style="text-align: center;">
-                <select class="score-value">
-                    <option>N/A</option>
-                    {% for i in 1..5 %}
-                    <option>{{ i }}</option>
-                    {% endfor %}}
-                </select>
-            </td>
-            <td style="font-size: 10px;">
-                <div class="row">
-                    {% for standard in standards %}
-                        {% if loop.index0 % 4 == 0 %}
-                            <div class="col-lg-6">
-                        {% endif %}
-
-                        {% set checked = '' %}
-
-                        <label class="checkbox">
-                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}" {{ checked }}> {{ standard.name }}
-                        </label>
-
-                        {% if loop.index0 % 4 == 3 %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </td>
-            <td>
-                <textarea class="form-control score-comment" rows="5"></textarea>
-            </td>
-            <td>
-                <input data-studentId="{{ student.id }}" type="button" class="btn btn-primary course-action" value="Save" />
+                <input data-studentId="{{ student.id }}" type="button" class="btn btn-primary enroll-action" value="Enroll" />
             </td>
         </tr>
     {% endfor %}
@@ -391,6 +356,44 @@
                     // valid and continue
 
                     sendScore($(this),parent, scoreId, scoreValue );
+
+                });
+
+                $('input.enroll-action').on('click',function(){
+
+                    $(this).prop('disabled', true);
+                    $(this).val('Enrolling...');
+
+                    var parent = $(this).parent().parent();
+
+                    var student = $(this).data('studentid');
+                    var course = parent.find('td select').val();
+
+                    // enroll
+                    var data = {
+                        student: student
+                    };
+
+                    var url = '{{ path("course_enroll", {'id': 'course_id'}) }}';
+                    url = url.replace("course_id", course);
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: data,
+                        success: function(data,textStatus){
+                            if ( textStatus == 'success' && data.status == 'success' ) {
+                                $(this).removeClass('btn-primary').addClass('btn-success').val('Enrollied');
+
+                                // refresh page
+                                location.reload(true);
+
+                            } else {
+                                $(this).removeClass('btn-primary').addClass('btn-danger').val('Failed');
+                            }
+                        },
+                        dataType: 'json'
+                    });
 
                 });
 
