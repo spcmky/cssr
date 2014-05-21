@@ -15,6 +15,7 @@ use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
 use Cssr\MainBundle\Model\Report;
 use Cssr\MainBundle\Model\Student;
+use Cssr\MainBundle\Model\Center;
 
 
 /**
@@ -313,6 +314,52 @@ class ScoreController extends Controller
             }
         }
 
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
+        $center = $em->getRepository('CssrMainBundle:Center')->find($activeCenter->id);
+
+        $centerCourses = Center::getCourses($em,$center);
+
+        $availableCourses = array();
+        foreach ( $centerCourses as $centerCourse ) {
+            if ( !empty($courses) ) {
+
+                foreach ( $courses as $studentCourse ) {
+                    if ( $centerCourse['area_id'] != $studentCourse['area_id'] ) {
+
+                        if ( !isset($availableCourses[$centerCourse['name']]) ) {
+                            $availableCourses[$centerCourse['name']] = array(
+                                'name' => $centerCourse['name'],
+                                'courses' => array()
+                            );
+                        }
+
+                        $availableCourses[$centerCourse['name']]['courses'][$centerCourse['id']] = array(
+                            'id' => $centerCourse['id'],
+                            'firstname' => $centerCourse['firstname'],
+                            'lastname' => $centerCourse['lastname']
+                        );
+
+                    }
+                }
+            } else {
+
+                if ( !isset($availableCourses[$centerCourse['name']]) ) {
+                    $availableCourses[$centerCourse['name']] = array(
+                        'name' => $centerCourse['name'],
+                        'courses' => array()
+                    );
+                }
+
+                $availableCourses[$centerCourse['name']]['courses'][$centerCourse['id']] = array(
+                    'id' => $centerCourse['id'],
+                    'firstname' => $centerCourse['firstname'],
+                    'lastname' => $centerCourse['lastname']
+                );
+
+            }
+        }
+
         $data = array(
             'period' => $period,
             'period_start' => $period_start,
@@ -321,7 +368,8 @@ class ScoreController extends Controller
             'student' => $student,
             'standards' => $standards,
             'scores' => $student_scores,
-            'user' => $this->getUser()
+            'user' => $this->getUser(),
+            'availableCourses' => $availableCourses
         );
 
         if ( $request->isXmlHttpRequest() ) {

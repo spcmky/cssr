@@ -29,6 +29,8 @@
 
     <h3><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.firstname|capitalize }} {{ student.lastname|capitalize }}</a></h3>
 
+    <p>If the area you wish to score is not in this list, use the <a href="#quick-score">Quick Score</a> below to add the area and score it in a single action.</p>
+
     <form id="student-scores" name="student-scores">
 
     <div style="display: none;" class="alert alert-success"></div>
@@ -105,6 +107,73 @@
         </tbody>
     </table>
     </form>
+
+    <h3 id="quick-score">Quick Score</h3>
+    <p>
+        Same as above except you'll need to select the exact area and staff.  This action will sign-up the student to the course and assign a score.
+        Once saved, the course will be moved above as part of a student's course load.
+    </p>
+    <table class="table table-hover table-bordered">
+    <thead>
+        <tr>
+            <th style="text-align: center;">Area</th>
+            <th style="text-align: left;">Staff</th>
+            <th style="text-align: center;">Score</th>
+            <th style="text-align: center;">Career Success Standards</th>
+            <th style="width: 300px; text-align: center;">Comments</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for area in availableCourses %}
+
+        <tr>
+            <td style="font-size: 14px; text-align: center; font-weight: bold;">{{ area.name }}</td>
+            <td style="text-align: left;">
+                <select class="course-id">
+                    {% for course in area.courses %}
+                    <option value="{{ course.id }}">{{ course.firstname }} {{ course.lastname }}</option>
+                    {% endfor %}}
+                </select>
+            </td>
+            <td style="text-align: center;">
+                <select class="score-value">
+                    <option>N/A</option>
+                    {% for i in 1..5 %}
+                    <option>{{ i }}</option>
+                    {% endfor %}}
+                </select>
+            </td>
+            <td style="font-size: 10px;">
+                <div class="row">
+                    {% for standard in standards %}
+                        {% if loop.index0 % 4 == 0 %}
+                            <div class="col-lg-6">
+                        {% endif %}
+
+                        {% set checked = '' %}
+
+                        <label class="checkbox">
+                            <input type="checkbox" name="score-standards[]" value="{{ standard.id }}" {{ checked }}> {{ standard.name }}
+                        </label>
+
+                        {% if loop.index0 % 4 == 3 %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </td>
+            <td>
+                <textarea class="form-control score-comment" rows="5"></textarea>
+            </td>
+            <td>
+                <input data-studentId="{{ student.id }}" type="button" class="btn btn-primary course-action" value="Save" />
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+
 
     <div id="scoreValidationModal" class="modal fade">
         <div class="modal-dialog">

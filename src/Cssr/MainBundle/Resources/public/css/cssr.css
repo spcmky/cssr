@@ -27,7 +27,7 @@ header .cssr-header {
 }
 
 header nav ul.nav {
-    margin: 10px 0 0 530px;
+    margin: 10px 0 0 550px;
 }
 
 header nav p {
@@ -214,3 +214,8 @@ table.dataTable thead > tr > th {
 
 div.DTTT { margin-bottom: 0.5em; float: right; }
 div.dataTables_wrapper { clear: both; }
+
+.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:hover, .navbar-inverse .navbar-nav>.open>a:focus {
+    background-color: transparent;
+    color: #fff;
+}

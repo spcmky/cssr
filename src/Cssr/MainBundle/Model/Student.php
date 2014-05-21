@@ -9,7 +9,7 @@ class Student {
         $sql  = 'SELECT C.id, C.area_id, C.user_id, A.name, U.firstname, U.lastname ';
         $sql .= 'FROM cssr_student_course SC ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
-        $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
+        $sql .= 'INNER JOIN cssr_area A ON A.id = C.area_id ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = C.user_id ';
         $sql .= 'WHERE SC.student_id = :userId AND SC.enrolled = :enrolled AND C.active = :active ';
         $sql .= 'ORDER BY A.name  ';
