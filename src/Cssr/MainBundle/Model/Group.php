@@ -83,8 +83,7 @@ class Group {
 
         } else if ( $groupPrecedent == 6 ) {
             return array(
-                'user update',
-                'reports'
+                'user update'
             );
         }
 

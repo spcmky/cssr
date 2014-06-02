@@ -44,6 +44,8 @@
         </tbody>
     </table>
 
+    {% if user_is_granted(user,'student update') %}
+
     <div class="panel panel-default">
         <div class="panel-body">
             <a class="btn btn-default btn-user-cancel" href="{{ path('student') }}">Cancel</a>
@@ -51,6 +53,8 @@
             <a class="btn btn-danger btn-user-delete" data-toggle="modal" data-target="#modal-user-delete">Delete</a>
         </div>
     </div>
+
+    {% endif %}
 
     <!-- Modal -->
     <div class="modal fade" id="modal-user-delete" tabindex="-1" role="dialog" aria-labelledby="userDeleteModal" aria-hidden="true">

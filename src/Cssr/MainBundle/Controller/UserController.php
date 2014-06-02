@@ -14,6 +14,7 @@ use Cssr\MainBundle\Form\UserType;
 use Cssr\MainBundle\Form\AdminCreateType;
 use Cssr\MainBundle\Form\AdminUpdateType;
 use Cssr\MainBundle\Model\Group;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * User controller.
@@ -129,7 +130,11 @@ class UserController extends Controller {
      */
     public function createAction(Request $request)
     {
-        $userManager = $this->container->get('fos_user.user_manager');
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
+            $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->createUser();
 
         $params = $request->request->get('cssr_mainbundle_usertype');
@@ -172,6 +177,10 @@ class UserController extends Controller {
      */
     public function createAdminAction ( Request $request )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $params = $request->request->get('cssr_mainbundle_admin_create_type');
 
         $em = $this->getDoctrine()->getManager();
@@ -226,6 +235,10 @@ class UserController extends Controller {
      */
     public function newAction()
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->createUser();
         $user->setEnabled(true);
@@ -253,6 +266,10 @@ class UserController extends Controller {
      */
     public function newAdminAction ( $groupId )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $session = $this->getRequest()->getSession();
@@ -336,6 +353,10 @@ class UserController extends Controller {
      */
     public function editAction($id)
     {
+        if ( $id != $this->getUser()->getId() && (!Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update')) ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $userManager = $this->container->get('fos_user.user_manager');
 
         $user = $userManager->findUserBy(array('id'=>$id));
@@ -358,6 +379,7 @@ class UserController extends Controller {
             'entity'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'user' => $this->getUser()
         );
     }
 
@@ -370,6 +392,10 @@ class UserController extends Controller {
      */
     public function editAdminAction ( $id )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $userManager = $this->container->get('fos_user.user_manager');
 
         $user = $userManager->findUserBy(array('id'=>$id));
@@ -409,6 +435,10 @@ class UserController extends Controller {
      */
     public function updateAction(Request $request, $id)
     {
+        if ( $id != $this->getUser()->getId() && (!Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update')) ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->findUserBy(array('id'=>$id));
 
@@ -444,6 +474,7 @@ class UserController extends Controller {
             'entity'      => $user,
             'edit_form'   => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
+            'user' => $this->getUser()
         );
     }
 
@@ -456,6 +487,10 @@ class UserController extends Controller {
      */
     public function updateAdminAction(Request $request, $id)
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->findUserBy(array('id'=>$id));
 
@@ -507,6 +542,10 @@ class UserController extends Controller {
      */
     public function deleteAction(Request $request, $id)
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $form = $this->createDeleteForm($id);
         $form->submit($request);
 
@@ -533,6 +572,10 @@ class UserController extends Controller {
      */
     public function deleteAdminAction ( Request $request, $id )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('CssrMainBundle:User')->find($id);
 

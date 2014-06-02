@@ -1,16 +1,29 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>User Edit</h1>
+    {% if entity.id != user.id %}
+        <h1>User Edit</h1>
+    {% else %}
+        <h1>Profile</h1>
+    {% endif %}
 {% endblock %}
 
 {% block breadcrumb %}
+
+    {% if entity.id != user.id %}
     <ol class="breadcrumb">
         <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
         <li><a href="{{ path('user_setup') }}">Users</a></li>
         <li><a href="{{ path('user_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></li>
         <li class="active">Edit</li>
     </ol>
+    {% else %}
+        <ol class="breadcrumb">
+            <li><a href="{{ path('cssr_main_default_index') }}"><span class="glyphicon glyphicon-home"></span></a></li>
+            <li class="active">Profile</li>
+        </ol>
+    {% endif %}
+
 {% endblock %}
 
 {% block body %}
@@ -24,7 +37,9 @@
 
             <div class="panel panel-default">
                 <div class="panel-body">
+                    {% if entity.id != user.id %}
                     <a class="btn btn-default btn-user-cancel" href="{{ path('user_setup') }}">Cancel</a>
+                    {% endif %}
                     <a class="btn btn-primary btn-user-save" href="javascript:void(0)">Save</a>
                 </div>
             </div>

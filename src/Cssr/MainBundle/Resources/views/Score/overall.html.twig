@@ -50,7 +50,15 @@
         {% for student in reports %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
+                <td>
+                    {% if not isStudent %}
+                    <a href="{{ path('student_show', { 'id': student.id }) }}">
+                    {% endif %}
+                        {{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}
+                    {% if isStudent %}
+                    </a>
+                    {% endif %}
+                </td>
                 <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for score in student.scores %}
                     {% if score is iterable %}

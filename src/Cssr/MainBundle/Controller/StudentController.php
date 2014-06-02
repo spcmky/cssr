@@ -11,13 +11,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use Doctrine\ORM\EntityNotFoundException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\StudentCreateType;
 use Cssr\MainBundle\Form\StudentUpdateType;
 use Cssr\MainBundle\Model\Center;
 use Cssr\MainBundle\Model\Student;
-
+use Cssr\MainBundle\Model\Group;
 
 
 /**
@@ -79,7 +80,8 @@ class StudentController extends Controller
         }
 
         return array(
-            'students' => $result
+            'students' => $result,
+            'user' => $this->getUser()
         );
     }
 
@@ -92,6 +94,10 @@ class StudentController extends Controller
      */
     public function newAction()
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $userManager = $this->container->get('fos_user.user_manager');
@@ -126,6 +132,10 @@ class StudentController extends Controller
      */
     public function createAction(Request $request)
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $userManager = $this->container->get('fos_user.user_manager');
@@ -191,6 +201,10 @@ class StudentController extends Controller
      */
     public function editAction($id)
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $userManager = $this->container->get('fos_user.user_manager');
@@ -231,6 +245,10 @@ class StudentController extends Controller
      */
     public function updateAction ( Request $request, $id )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $userManager = $this->container->get('fos_user.user_manager');
@@ -298,6 +316,10 @@ class StudentController extends Controller
      */
     public function deleteAction ( Request $request, $id )
     {
+        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('CssrMainBundle:User')->find($id);
 
@@ -386,7 +408,8 @@ class StudentController extends Controller
         return array(
             'student' => $student,
             'dorm' => $dormName,
-            'courses' => $courses
+            'courses' => $courses,
+            'user' => $this->getUser()
         );
     }
 }

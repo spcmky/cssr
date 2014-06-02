@@ -27,7 +27,7 @@
                         {% if admin %}
                             <a class="btn btn-primary" href="{{ path('user_setup') }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
                         {% else %}
-                            <a class="btn btn-primary" href="{{ path('user_edit',{ 'id': user.id }) }}"><span class="glyphicon glyphicon-user pull-left"></span> User Setup</a>
+                            <a class="btn btn-primary" href="{{ path('user_edit',{ 'id': user.id }) }}"><span class="glyphicon glyphicon-user pull-left"></span> Profile</a>
                         {% endif %}
 
                         {% if user_is_granted(user,'score admin') %}

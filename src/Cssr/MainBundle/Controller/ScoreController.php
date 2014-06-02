@@ -93,6 +93,14 @@ class ScoreController extends Controller
             $overallAverage = 0.0;
         }
 
+        $user = $this->getUser();
+        $isStudent = 0;
+        foreach ( $user->getGroups() as $group ) {
+            if ( $group->getId() == 6 ) {
+                $isStudent = 1;
+            }
+        }
+
         $vars = array(
             'period' => $period,
             'period_start' => $period_start,
@@ -101,7 +109,8 @@ class ScoreController extends Controller
             'areas' => $areas,
             'standards' => $standards,
             'reports' => $reports,
-            'overallAverage' => $overallAverage
+            'overallAverage' => $overallAverage,
+            'isStudent' => $isStudent
         );
 
         if ( isset($_GET['type']) ) {
@@ -343,6 +352,14 @@ class ScoreController extends Controller
             }
         }
 
+        $user = $this->getUser();
+        $isStudent = 0;
+        foreach ( $user->getGroups() as $group ) {
+            if ( $group->getId() == 6 ) {
+                $isStudent = 1;
+            }
+        }
+
         $data = array(
             'period' => $period,
             'period_start' => $period_start,
@@ -352,7 +369,8 @@ class ScoreController extends Controller
             'standards' => $standards,
             'scores' => $student_scores,
             'user' => $this->getUser(),
-            'availableCourses' => $groupedCourses
+            'availableCourses' => $groupedCourses,
+            'isStudent' => $isStudent
         );
 
         if ( $request->isXmlHttpRequest() ) {
