@@ -7,7 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 
-class UserType extends AbstractType {
+class StudentProfileType extends AbstractType {
 
     protected $options;
 
@@ -17,11 +17,17 @@ class UserType extends AbstractType {
 
     public function buildForm ( FormBuilderInterface $builder, array $options ) {
 
-        $builder->add('firstname');
+        $builder->add('firstname','text',array(
+            'disabled' => true
+        ));
 
-        $builder->add('middlename');
+        $builder->add('middlename','text',array(
+            'disabled' => true
+        ));
 
-        $builder->add('lastname');
+        $builder->add('lastname','text',array(
+            'disabled' => true
+        ));
 
         //$builder->add('email','email');
 
@@ -30,7 +36,7 @@ class UserType extends AbstractType {
         $builder->add('username','text',array(
             'disabled' => true
         ));
-
+        
         $builder->add('plainPassword', 'repeated', array(
             'type' => 'password',
             'options' => array('translation_domain' => 'FOSUserBundle'),
@@ -48,6 +54,6 @@ class UserType extends AbstractType {
     }
 
     public function getName() {
-        return 'cssr_mainbundle_usertype';
+        return 'cssr_mainbundle_studentprofiletype';
     }
 }

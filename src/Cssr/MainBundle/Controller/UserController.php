@@ -9,8 +9,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\UserType;
+use Cssr\MainBundle\Form\StudentProfileType;
 use Cssr\MainBundle\Form\AdminCreateType;
 use Cssr\MainBundle\Form\AdminUpdateType;
 use Cssr\MainBundle\Model\Group;
@@ -134,7 +136,7 @@ class UserController extends Controller {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
-            $userManager = $this->container->get('fos_user.user_manager');
+        $userManager = $this->container->get('fos_user.user_manager');
         $user = $userManager->createUser();
 
         $params = $request->request->get('cssr_mainbundle_usertype');
@@ -340,7 +342,7 @@ class UserController extends Controller {
         }
 
         return array(
-            'user'      => $user
+            'user' => $user
         );
     }
 
@@ -367,11 +369,26 @@ class UserController extends Controller {
 
         $em = $this->getDoctrine()->getManager();
 
-        $editForm = $this->createForm(new UserType(array(
+        $isStudent = false;
+        foreach ( $user->getGroups() as $group ) {
+            if ( $group->getId() == 6 ) {
+                $isStudent = true;
+            }
+        }
+
+        $formParams = array(
             'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll(),
             'group' => $user->getGroups()
-        )), $user);
+        );
+
+        if ( $isStudent ) {
+            $formType = new StudentProfileType($formParams);
+        } else {
+            $formType = new UserType($formParams);
+        }
+
+        $editForm = $this->createForm($formType, $user);
 
         $deleteForm = $this->createDeleteForm($id);
 
@@ -450,11 +467,26 @@ class UserController extends Controller {
 
         $em = $this->getDoctrine()->getManager();
 
-        $editForm = $this->createForm(new UserType(array(
+        $isStudent = false;
+        foreach ( $user->getGroups() as $group ) {
+            if ( $group->getId() == 6 ) {
+                $isStudent = true;
+            }
+        }
+
+        $formParams = array(
             'groups' => $em->getRepository('CssrMainBundle:Group')->findAll(),
             'centers' => $em->getRepository('CssrMainBundle:Center')->findAll(),
             'group' => $user->getGroups()
-        )), $user);
+        );
+
+        if ( $isStudent ) {
+            $formType = new StudentProfileType($formParams);
+        } else {
+            $formType = new UserType($formParams);
+        }
+
+        $editForm = $this->createForm($formType, $user);
 
         $editForm->submit($request);
 
