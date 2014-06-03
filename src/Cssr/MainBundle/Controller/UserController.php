@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Cssr\MainBundle\Entity\User;
 use Cssr\MainBundle\Form\UserType;
@@ -16,7 +17,6 @@ use Cssr\MainBundle\Form\StudentProfileType;
 use Cssr\MainBundle\Form\AdminCreateType;
 use Cssr\MainBundle\Form\AdminUpdateType;
 use Cssr\MainBundle\Model\Group;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * User controller.

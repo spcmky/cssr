@@ -10,12 +10,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Cssr\MainBundle\Entity\Score;
 use Cssr\MainBundle\Form\ScoreType;
 use Cssr\MainBundle\Model\Report;
 use Cssr\MainBundle\Model\Student;
 use Cssr\MainBundle\Model\Center;
+use Cssr\MainBundle\Model\Group;
 
 
 /**
@@ -645,6 +647,11 @@ class ScoreController extends Controller
      * @Template("CssrMainBundle:Score:new.html.twig")
      */
     public function createAction ( Request $request ) {
+
+        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $score  = new Score();
@@ -747,6 +754,10 @@ class ScoreController extends Controller
      */
     public function newAction()
     {
+        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $entity = new Score();
         $form   = $this->createForm(new ScoreType(), $entity);
 
@@ -790,6 +801,10 @@ class ScoreController extends Controller
      */
     public function editAction($id)
     {
+        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository('CssrMainBundle:Score')->find($id);
@@ -817,6 +832,10 @@ class ScoreController extends Controller
      */
     public function updateAction ( Request $request, $id ) {
 
+        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $score = $em->getRepository('CssrMainBundle:Score')->find($id);
@@ -824,7 +843,6 @@ class ScoreController extends Controller
         if (!$score) {
             throw $this->createNotFoundException('Unable to find Score entity.');
         }
-
 
         //$deleteForm = $this->createDeleteForm($id);
         //$editForm = $this->createForm(new ScoreType(), $score);
@@ -890,8 +908,12 @@ class ScoreController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
+        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
         $form = $this->createDeleteForm($id);
-        $form->bind($request);
+        $form->submit($request);
 
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();
