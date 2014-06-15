@@ -151,7 +151,7 @@ class StaffController extends Controller {
      */
     public function newAction ()
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'staff update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -192,7 +192,7 @@ class StaffController extends Controller {
      */
     public function createAction ( Request $request )
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'staff update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -250,7 +250,7 @@ class StaffController extends Controller {
      */
     public function editAction ( $id )
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'staff update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -295,7 +295,7 @@ class StaffController extends Controller {
      */
     public function updateAction(Request $request, $id)
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'staff update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -356,7 +356,7 @@ class StaffController extends Controller {
      */
     public function deleteAction ( Request $request, $id )
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'staff update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
