@@ -39,7 +39,7 @@ class StaffController extends Controller {
         $session = $this->getRequest()->getSession();
         $center = $session->get('center');
 
-        if ( $center ) {
+        if ( $center && $center->id > 0 ) {
 
             $sql  = "SELECT U.* ";
             $sql .= "FROM cssr_user_group UG ";
@@ -101,7 +101,7 @@ class StaffController extends Controller {
         $session = $this->getRequest()->getSession();
         $center = $session->get('center');
 
-        if ( $center && $group_id > 1 ) {
+        if ( $center && $center->id > 0 && $group_id > 1 ) {
 
             $sql = "SELECT U.*
             FROM cssr_user_group UG
@@ -357,7 +357,17 @@ class StaffController extends Controller {
     public function deleteAction ( Request $request, $id )
     {
         if ( !Group::isGranted($this->getUser(),'staff update') ) {
-            throw new AccessDeniedHttpException('Forbidden');
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'failed';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                throw new AccessDeniedHttpException('Forbidden');
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -383,11 +393,6 @@ class StaffController extends Controller {
 
         $em->flush();
 
-        $this->get('session')->getFlashBag()->add(
-            'success',
-            'Staff deleted successfully!'
-        );
-
         if ( $request->isXmlHttpRequest() ) {
             $api_response = new \stdClass();
             $api_response->status = 'success';
@@ -397,6 +402,11 @@ class StaffController extends Controller {
             $response->headers->set('Content-Type', 'application/json');
             return $response;
         } else {
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Staff deleted successfully!'
+            );
+
             return $this->redirect($this->generateUrl('staff'));
         }
     }

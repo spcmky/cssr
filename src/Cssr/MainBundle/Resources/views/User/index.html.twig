@@ -1,7 +1,7 @@
 {% extends '::base.html.twig' %}
 
 {% block page_header %}
-    <h1>Admin List</h1>
+    <h1>User List</h1>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -13,34 +13,23 @@
 
 {% block body -%}
 
-    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a></div>
-
     <table class="table table-striped table-bordered">
         <thead>
         <tr>
             <th>Name</th>
             <th>Title</th>
             <th>Center</th>
-            <th>Email</th>
-            <th>Phone</th>
         </tr>
         </thead>
         <tbody>
-        {% for entity in entities %}
+        {% for entity in users %}
             <tr>
                 <td><a href="{{ path('user_show', { 'id': entity.id }) }}">{{ entity.firstname }} {{ entity.lastname }}</a></td>
                 <td>{{ entity.group_name }}</td>
                 <td>{{ entity.center_name }}</td>
-                <td><a href="mailto:{{ entity.email }}">{{ entity.email }}</a></td>
-                <td>{{ entity.phone }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <div style="text-align: right; margin-bottom: 5px;"><a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a></div>
-
-
-    <a href="{{ path('user_new') }}" class="btn btn-primary">Add Admin</a>
 
 {% endblock %}

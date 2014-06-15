@@ -43,7 +43,7 @@ class StudentController extends Controller
         $session = $this->getRequest()->getSession();
         $center = $session->get('center');
 
-        if ( $center ) {
+        if ( $center && $center->id > 0 ) {
 
             $sql  = "SELECT U.* ";
             $sql .= "FROM cssr_user_group UG ";
@@ -94,7 +94,7 @@ class StudentController extends Controller
      */
     public function newAction()
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'student update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -132,7 +132,7 @@ class StudentController extends Controller
      */
     public function createAction(Request $request)
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'student update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -201,7 +201,7 @@ class StudentController extends Controller
      */
     public function editAction($id)
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'student update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -245,7 +245,7 @@ class StudentController extends Controller
      */
     public function updateAction ( Request $request, $id )
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
+        if ( !Group::isGranted($this->getUser(),'student update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
 
@@ -316,8 +316,18 @@ class StudentController extends Controller
      */
     public function deleteAction ( Request $request, $id )
     {
-        if ( !Group::isGranted($this->getUser(),'staff update') || !Group::isGranted($this->getUser(),'student update') ) {
-            throw new AccessDeniedHttpException('Forbidden');
+        if ( !Group::isGranted($this->getUser(),'student update') ) {
+            if ( $request->isXmlHttpRequest() ) {
+                $api_response = new \stdClass();
+                $api_response->status = 'failed';
+
+                // create a JSON-response with a 200 status code
+                $response = new Response(json_encode($api_response));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
+            } else {
+                throw new AccessDeniedHttpException('Forbidden');
+            }
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -339,13 +349,7 @@ class StudentController extends Controller
 
         Student::unEnroll($em,$user);
         $user->setEnabled(0); // logical delete
-
         $em->flush();
-
-        $this->get('session')->getFlashBag()->add(
-            'success',
-            'Student deleted successfully!'
-        );
 
         if ( $request->isXmlHttpRequest() ) {
             $api_response = new \stdClass();
@@ -356,6 +360,10 @@ class StudentController extends Controller
             $response->headers->set('Content-Type', 'application/json');
             return $response;
         } else {
+            $this->get('session')->getFlashBag()->add(
+                'success',
+                'Student deleted successfully!'
+            );
             return $this->redirect($this->generateUrl('student'));
         }
     }
