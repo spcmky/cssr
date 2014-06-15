@@ -14,10 +14,6 @@ doctrine:
 monolog:
     handlers:
         main:
-            type:         fingers_crossed
+            type:         error_log
             action_level: error
-            handler:      nested
-        nested:
-            type:  stream
-            path:  %kernel.logs_dir%/%kernel.environment%.log
-            level: debug
+
