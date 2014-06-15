@@ -648,11 +648,9 @@ class ScoreController extends Controller
      */
     public function createAction ( Request $request ) {
 
-        /* TODO investigate
-        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
-        */
 
         $em = $this->getDoctrine()->getManager();
 
@@ -756,11 +754,9 @@ class ScoreController extends Controller
      */
     public function newAction()
     {
-        /* TODO investigate
-        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
-        */
 
         $entity = new Score();
         $form   = $this->createForm(new ScoreType(), $entity);
@@ -805,11 +801,9 @@ class ScoreController extends Controller
      */
     public function editAction($id)
     {
-        /* TODO investigate
-        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
-        */
 
         $em = $this->getDoctrine()->getManager();
 
@@ -838,11 +832,9 @@ class ScoreController extends Controller
      */
     public function updateAction ( Request $request, $id ) {
 
-        /* TODO investigate
-        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
-        */
 
         $em = $this->getDoctrine()->getManager();
 
@@ -916,11 +908,9 @@ class ScoreController extends Controller
      */
     public function deleteAction(Request $request, $id)
     {
-        /* TODO investigate
-        if (  !Group::isGranted($this->getUser(),'score admin') || !Group::isGranted($this->getUser(),'score update') ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
             throw new AccessDeniedHttpException('Forbidden');
         }
-        */
 
         $form = $this->createDeleteForm($id);
         $form->submit($request);
