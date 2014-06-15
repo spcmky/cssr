@@ -89,4 +89,32 @@ class Group {
 
         return array();
     }
+    
+    public static function isGrantedGroupUpdate ( $user, $groupId ) {
+        if ( $groupId == 1 && Group::isGranted($user,'corp admin update') ) {
+            return true;
+        }
+
+        if ( $groupId == 2 && Group::isGranted($user,'center admin update') ) {
+            return true;
+        }
+
+        if ( $groupId == 3 && Group::isGranted($user,'center act update') ) {
+            return true;
+        }
+
+        if ( $groupId == 4 && Group::isGranted($user,'center mgr update') ) {
+            return true;
+        }
+
+        if ( $groupId == 5 && Group::isGranted($user,'staff update') ) {
+            return true;
+        }
+
+        if ( $groupId == 6 && Group::isGranted($user,'student update') ) {
+            return true;
+        }
+
+        return false;
+    }
 }
