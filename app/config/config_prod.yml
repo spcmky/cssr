@@ -15,5 +15,5 @@ monolog:
     handlers:
         main:
             type:         error_log
-            action_level: error
+            level: error
 
