@@ -362,25 +362,21 @@ class ReportController extends Controller
             throw $this->createNotFoundException('Unable to find Staff entity.');
         }
 
+        $result = Report::getCaseloadScores($staff,$em,$activeCenter,$areas,$period);
+        if ( empty($result) ) {
+            $reports = array();
+            $overallAverage = 0.0;
+        } else {
+            $reports = $result['reports'];
+            $overallAverage = $result['overallAverage'];
+        }
+
         if ( isset($_GET['comments']) || $comments ) {
-            $reports = Report::getCaseloadComments($staff,$em,$activeCenter,$areas,$period);
+            $comments = 1;
+            //$reports = Report::getCaseloadComments($staff,$em,$activeCenter,$areas,$period);
             $type = 'comments';
         } else {
-            $reports = Report::getCaseloadScores($staff,$em,$activeCenter,$areas,$period);
             $type = 'scores';
-        }
-
-        $total = 0.0;
-        $count = 0;
-        foreach ( $reports as $student_id => $report ) {
-            $total += $report['avgScore'];
-            $count++;
-        }
-
-        if ( $count ) {
-            $overallAverage = round($total/$count,2);
-        } else {
-            $overallAverage = 0.0;
         }
 
         $vars = array(
