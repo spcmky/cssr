@@ -205,29 +205,38 @@
                         type: "POST",
                         url: '{{ path("score_create") }}',
                         data: data,
-                        success: function(data,textStatus){
-                            if ( textStatus == 'success' && data.status == 'success' ) {
-                                //console.log('success');
-                                container.data('scoreid',data.scoreId);
-
-                                sendComment(container,data.scoreId);
-
-                                button.val('Update');
-
-                                $('#student-scores').find('.alert-success').html('Score created successfully!').show();
-                                setTimeout(function(){
-                                    $('#student-scores').find('.alert-success').hide();
-                                },3000);
-
-                            } else {
-                                $('#student-scores').find('.alert-danger').html('Score creation failed!').show();
-                                setTimeout(function(){
-                                    $('#student-scores').find('.alert-danger').hide();
-                                },3000);
-                                //console.log('failed');
-                            }
-                        },
                         dataType: 'json'
+                    }).done(function(data, textStatus, jqXHR) {
+                        if ( textStatus == 'success' && data.status == 'success' ) {
+                            //console.log('success');
+                            container.data('scoreid',data.scoreId);
+
+                            sendComment(container,data.scoreId);
+
+                            $('#student-scores').find('.alert-success').html('Score created successfully!').show();
+                            setTimeout(function(){
+                                $('#student-scores').find('.alert-success').hide();
+                            },3000);
+
+                        } else {
+                            $('#student-scores').find('.alert-danger').html('Score creation failed!').show();
+                            setTimeout(function(){
+                                $('#student-scores').find('.alert-danger').hide();
+                            },3000);
+                            //console.log('failed');
+                        }
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        $('#student-scores').find('.alert-danger').html(errorThrown).show();
+                        setTimeout(function(){
+                            $('#student-scores').find('.alert-danger').hide();
+                        },3000);
+                    }).always(function() {
+                        button.prop('disabled',false);
+                        if ( container.data('scoreid') < 0 ) {
+                            button.val('Save');
+                        } else {
+                            button.val('Update');
+                        }
                     });
 
                 } else {
@@ -244,25 +253,32 @@
                         type: "PUT",
                         url: url,
                         data: data,
-                        success: function(data,textStatus){
-                            if ( textStatus == 'success' && data.status == 'success' ) {
-                                //console.log('success');
-                                sendComment(container,scoreId);
-
-                                $('#student-scores').find('.alert-success').html('Score updated successfully!').show();
-                                setTimeout(function(){
-                                    $('#student-scores').find('.alert-success').hide();
-                                },3000);
-
-                            } else {
-                                $('#student-scores').find('.alert-danger').html('Score update failed!').show();
-                                setTimeout(function(){
-                                    $('#student-scores').find('.alert-danger').hide();
-                                },3000);
-                                //console.log('failed');
-                            }
-                        },
                         dataType: 'json'
+                    }).done(function(data, textStatus, jqXHR) {
+                        if ( textStatus == 'success' && data.status == 'success' ) {
+                            //console.log('success');
+                            sendComment(container,scoreId);
+
+                            $('#student-scores').find('.alert-success').html('Score updated successfully!').show();
+                            setTimeout(function(){
+                                $('#student-scores').find('.alert-success').hide();
+                            },3000);
+
+                        } else {
+                            $('#student-scores').find('.alert-danger').html('Score update failed!').show();
+                            setTimeout(function(){
+                                $('#student-scores').find('.alert-danger').hide();
+                            },3000);
+                            //console.log('failed');
+                        }
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        $('#student-scores').find('.alert-danger').html(errorThrown).show();
+                        setTimeout(function(){
+                            $('#student-scores').find('.alert-danger').hide();
+                        },3000);
+                    }).always(function() {
+                        button.prop('disabled',false);
+                        button.val('Update');
                     });
                 }
             };
@@ -342,14 +358,27 @@
             $(function() {
 
                 $('input.score-action').on('click',function(){
-
                     var parent = $(this).parent().parent();
                     var scoreId = parent.data('scoreid');
 
                     var scoreValue = parent.find('td select').val();
                     var commentValue = parent.find('td textarea').val();
 
+                    $(this).prop('disabled', true);
+                    if ( scoreId < 0 ) {
+                        $(this).val('Saving...');
+                    } else {
+                        $(this).val('Updating...');
+                    }
+
                     if ( !isValidScore(scoreValue,commentValue) ) {
+                        if ( scoreId < 0 ) {
+                            $(this).val('Save');
+                        } else {
+                            $(this).val('Update');
+                        }
+                        $(this).prop('disabled', false);
+
                         return false;
                     }
 
