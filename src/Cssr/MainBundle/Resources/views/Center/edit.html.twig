@@ -27,7 +27,7 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <a class="btn btn-default btn-center-cancel" href="{{ path('center_show',{ 'id': center.id }) }}">Cancel</a>
-                    <a class="btn btn-primary btn-center-save" href="javascript:void(0)">Save</a>
+                    <a class="btn btn-primary btn-center-save" data-loading-text="Saving..." href="javascript:void(0)">Save</a>
                     {% if activeCenterId and activeCenterId != center.id %}
                         <a class="btn btn-danger btn-center-delete" data-toggle="modal" data-target="#modal-center-delete">Delete</a>
                     {% endif %}
@@ -128,6 +128,37 @@
             });
 
             $('a.btn-center-save').on('click', function(e){
+                var btn = $(this).button('loading');
+
+                var dormInputs = $('#cssr_mainbundle_centertype_dorms').find('input');
+                var invalidDorms = 0;
+                $.each(dormInputs,function(){
+                    var input = $(this);
+                    if ( input.val() == '' ) {
+                        input.parent().addClass('has-error');
+                        invalidDorms++;
+                    } else {
+                        input.parent().removeClass('has-error');
+                    }
+                });
+
+                var vocationInputs = $('#cssr_mainbundle_centertype_vocations').find('input');
+                var invalidVocations = 0;
+                $.each(vocationInputs,function(){
+                    var input = $(this);
+                    if ( input.val() == '' ) {
+                        input.parent().addClass('has-error');
+                        invalidVocations++;
+                    } else {
+                        input.parent().removeClass('has-error');
+                    }
+                });
+
+                if ( invalidDorms || invalidVocations ) {
+                    btn.button('reset');
+                    return false;
+                }
+
                 $('form#form-center-update').submit();
             });
         })();
