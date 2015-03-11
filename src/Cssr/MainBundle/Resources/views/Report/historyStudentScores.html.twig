@@ -34,7 +34,7 @@
     <table id="friday-report" class="table table-hover table-bordered sortable" style="font-size:11px;">
         <thead>
         <tr>
-            <th>#</th>
+            <th style="text-align: center;">#</th>
             <th class="sortable">Date</th>
             {% for area in areas %}
                 <th class="sortable" style="font-size: 9px;">{{ area.name }}</th>
@@ -48,7 +48,7 @@
         <tbody>
         {% for period, report in history.periods %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td style="text-align: center;">{{ loop.index }}</td>
                 <td>{{ period|date("m/d/Y") }}</td>
                 {% for score in report.scores %}
                     {% if score is iterable %}

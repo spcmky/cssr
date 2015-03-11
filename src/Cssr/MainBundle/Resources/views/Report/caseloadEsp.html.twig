@@ -47,7 +47,7 @@
     <table id="caseload-esp-report" class="table table-hover table-bordered sortable-report" style="font-size:11px;">
         <thead>
             <tr>
-                <th>#</th>
+                <th style="text-align: center;">#</th>
                 <th class="sortable">Name</th>
                 <th class="sortable">DOE</th>
                 {% for ds in selectedPeriods %}
@@ -59,7 +59,7 @@
         <tbody>
         {% for student in students %}
             <tr>
-                <td>{{ loop.index }}</td>
+                <td style="text-align: center;">{{ loop.index }}</td>
                 <td><a href="{{ path('student_show', { 'id': student.id }) }}">{{ student.lastname|capitalize }}, {{ student.firstname|capitalize }} {{ student.middlename|capitalize }}</a></td>
                 <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for ds in selectedPeriods %}

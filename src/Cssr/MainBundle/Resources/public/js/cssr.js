@@ -53,40 +53,53 @@
         location.href = uri.href();
     });
 
-
-    //$('a.score-comment-popover').popover();
-
     var reportTable = $('#friday-report').DataTable({
-        //"bJQueryUI": true,
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": false,
         "bSort": true,
         "bInfo": false,
         "bAutoWidth": false,
-        "bProcessing": true
-
+        "bProcessing": true,
+        "columnDefs": [{
+            "searchable": false,
+            "orderable": false,
+            "targets": 0
+        }],
+        "order": [[ 1, 'asc' ]]
     });
 
-    /*
-    var reportTableTools = new $.fn.dataTable.TableTools(reportTable,{
-        "oTableTools": {
-            "sswfPath" : "/bundles/cssrmain/datatables/extensions/TableTools/swf/copy_cvs_xls_pdf.swf"
-        }
-    });
-    $( reportTableTools.fnContainer() ).insertBefore('div.dataTables_wrapper');
-    */
+    if ( typeof reportTable != "undefined" ) {
+        reportTable.on('order.dt search.dt', function () {
+            reportTable.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+            });
+        }).draw();
+    }
 
-    $('table.sortable-report').dataTable({
-        //"bJQueryUI": true,
+    var sortableReportTable = $('table.sortable-report').DataTable({
         "bPaginate": false,
         "bLengthChange": false,
         "bFilter": false,
         "bSort": true,
         "bInfo": false,
         "bAutoWidth": false,
-        "bProcessing": true
+        "bProcessing": true,
+        "columnDefs": [{
+            "searchable": false,
+            "orderable": false,
+            "targets": 0
+        }],
+        "order": [[ 1, 'asc' ]]
     });
+
+    if ( typeof sortableReportTable != "undefined" ) {
+        sortableReportTable.on('order.dt search.dt', function () {
+            sortableReportTable.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+            });
+        }).draw();
+    }
 
     $('table.student-list').dataTable({
         //"bJQueryUI": true,

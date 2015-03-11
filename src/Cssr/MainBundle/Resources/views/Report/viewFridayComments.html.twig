@@ -14,17 +14,21 @@
 
 {% block body -%}
 
-    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
+    <p>Scores for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>>
 
-    <select name="periodSelector" id="periodSelector">
-        {% for date in periods %}
-            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
-        {% endfor %}
-    </select>
+    <label for="periodSelector">
+        Week:
+        <select name="periodSelector" id="periodSelector">
+            {% for date in periods %}
+                <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+            {% endfor %}
+        </select>
+    </label>
 
     <table id="friday-report" class="table table-hover table-bordered">
         <thead>
             <tr>
+                <th style="text-align: center;">#</th>
                 <th class="sortable">Name</th>
                 <th class="sortable">Area</th>
                 <th class="sortable">Score</th>
@@ -38,6 +42,7 @@
             {% for score in row.scores %}
                 {% if score %}
                 <tr>
+                    <td style="text-align: center;">{{ loop.index }}</td>
                     <td width="150"><a href="{{ path('student_show', { 'id': row.id }) }}">{{ row.lastname|capitalize }}, {{ row.firstname|capitalize }} {{ row.middlename|capitalize }}</a></td>
                     <td style="text-align: center;">{{ score.name }}</td>
                     <td width="65"style="text-align: center;">{{ score.value }}</td>

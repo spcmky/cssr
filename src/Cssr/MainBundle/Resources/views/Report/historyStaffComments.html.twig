@@ -17,11 +17,14 @@
 
     <p>Comments for the week of {{period_start.format('m/d/Y')}} - {{period_end.format('m/d/Y')}}</p>
 
-    <select name="periodSelector" id="periodSelector">
-        {% for date in periods %}
-            <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
-        {% endfor %}
-    </select>
+    <label for="periodSelector">
+        Week:
+        <select name="periodSelector" id="periodSelector">
+            {% for date in periods %}
+                <option value="{{ date.format('Y-m-d') }}" {% if date.format('Y-m-d') == period.format('Y-m-d') %}selected="selected"{%endif%}>{{ date.format('m/d/Y') }}</option>
+            {% endfor %}
+        </select>
+    </label>
 
     <h3>Comments for <a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.lastname|capitalize }}, {{ staff.firstname|capitalize }} {{ staff.middlename|capitalize }}</a></h3>
 

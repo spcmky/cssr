@@ -23,7 +23,7 @@
             {% for period, report in student.periods %}
                 <thead>
                 <tr>
-                    <th>#</th>
+                    <th style="text-align: center;">#</th>
                     <th class="sortable">Date</th>
                     <th class="sortable">DOE</th>
                     {% for area in areas %}
@@ -37,7 +37,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td style="text-align: center;">{{ loop.index }}</td>
                     <td>{{ period|date("m/d/Y") }}</td>
                     {% for score in student.scores %}
                         {% if score is iterable %}
