@@ -192,10 +192,9 @@ class CommentController extends Controller
 
         if ($comment) {
             // remove the relationship between the tag and the Task
-            foreach ($comment->getStandards() as $standard) {
-                $standard->getComments()->removeElement($comment);
-                $em->persist($standard);
-            }
+            $sql = 'DELETE FROM cssr_comment_standard WHERE comment_id = '.$comment->getId();
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
 
             $em->remove($comment);
             $em->flush();
