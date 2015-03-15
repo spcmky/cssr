@@ -10,9 +10,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 use Cssr\MainBundle\Entity\Comment;
 use Cssr\MainBundle\Entity\Standard;
+use Cssr\MainBundle\Model\Group;
+
 
 
 /**
@@ -170,6 +173,44 @@ class CommentController extends Controller
             //'edit_form'   => $editForm->createView(),
             //'delete_form' => $deleteForm->createView(),
         );
+    }
 
+    /**
+     * Deletes an existing Comment entity.
+     *
+     * @Route("/{id}", name="comment_delete")
+     * @Method("DELETE")
+     * @Template("CssrMainBundle:Comment:delete.html.twig")
+     */
+    public function deleteAction ( Request $request, $id ) {
+        if (  !Group::isGranted($this->getUser(),'score admin') && !Group::isGranted($this->getUser(),'score update') ) {
+            throw new AccessDeniedHttpException('Forbidden');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $comment = $em->getRepository('CssrMainBundle:Comment')->find($id);
+
+        if ($comment) {
+            // remove the relationship between the tag and the Task
+            foreach ($comment->getStandards() as $standard) {
+                $standard->getComments()->removeElement($comment);
+                $em->persist($standard);
+            }
+
+            $em->remove($comment);
+            $em->flush();
+        }
+
+        if ( $request->isXmlHttpRequest() ) {
+            $api_response = new \stdClass();
+            $api_response->status = 'success';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
+        }
+
+        return $this->redirect($this->generateUrl('comment'));
     }
 }
