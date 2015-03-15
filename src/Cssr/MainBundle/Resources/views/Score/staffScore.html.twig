@@ -29,6 +29,8 @@
 
     <h3><a href="{{ path('staff_show', { 'id': staff.id }) }}">{{ staff.firstname|capitalize }} {{ staff.lastname|capitalize }}</a></h3>
 
+    <p>Selecting a score of "N/A" will delete an existing score.</p>
+
     <form id="staff-student-scores" name="staff-student-scores">
 
     <div style="display: none;" class="alert alert-success"></div>
