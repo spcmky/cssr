@@ -912,19 +912,22 @@ class ScoreController extends Controller
             throw new AccessDeniedHttpException('Forbidden');
         }
 
-        $form = $this->createDeleteForm($id);
-        $form->submit($request);
+        $em = $this->getDoctrine()->getManager();
+        $score = $em->getRepository('CssrMainBundle:Score')->find($id);
 
-        if ($form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $entity = $em->getRepository('CssrMainBundle:Score')->find($id);
-
-            if (!$entity) {
-                throw $this->createNotFoundException('Unable to find Score entity.');
-            }
-
-            $em->remove($entity);
+        if ( $score ) {
+            $em->remove($score);
             $em->flush();
+        }
+
+        if ($request->isXmlHttpRequest()) {
+            $api_response = new \stdClass();
+            $api_response->status = 'success';
+
+            // create a JSON-response with a 200 status code
+            $response = new Response(json_encode($api_response));
+            $response->headers->set('Content-Type', 'application/json');
+            return $response;
         }
 
         return $this->redirect($this->generateUrl('score'));
