@@ -99,7 +99,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <input data-scoreId="{{ score_id }}" data-studentId="{{ score.student.id }}" data-courseId="{{ score.course.id }}" type="button" class="btn btn-primary score-action" value="{% if score_id < 1 %}Save{% else %}Update{% endif %}" />
+                    <input type="button" class="btn btn-primary score-action" value="{% if score_id < 1 %}Save{% else %}Update{% endif %}" />
                 </td>
             </tr>
 
@@ -144,11 +144,13 @@
         // Get the ul that holds the collection of tags
         (function() {
 
-            var isValidScore = function (score,comment) {
+            var isValidScore = function (score,comment,scoreId) {
 
-                if ( score == 'N/A' ) {
-                    $('#scoreValidationModal').modal();
-                    return false;
+                if ( scoreId < 0 ) {
+                    if (score == 'N/A') {
+                        $('#scoreValidationModal').modal();
+                        return false;
+                    }
                 }
 
                 if ( (score <= 2 || score == 5) && !comment ) {
@@ -179,7 +181,7 @@
                             //console.log('success');
                             container.data('scoreid',data.scoreId);
 
-                            sendComment(container,data.scoreId);
+                            sendComment(container,data.scoreId,scoreValue);
 
                             $('#staff-student-scores').find('.alert-success').html('Score created successfully!').show();
                             setTimeout(function(){
@@ -209,49 +211,92 @@
 
                 } else {
 
-                    var data = {
-                        value: scoreValue,
-                        _method: 'PUT'
-                    };
+                    if ( scoreValue == 'N/A' ) {
+                        var data = {
+                            _method: 'DELETE'
+                        };
 
-                    var url = '{{ path("score_update", {'id': 'score_id'}) }}';
-                    url = url.replace("score_id", scoreId);
+                        var url = '{{ path("score_delete", {'id': 'score_id'}) }}';
+                        url = url.replace("score_id", scoreId);
 
-                    $.ajax({
-                        type: "PUT",
-                        url: url,
-                        data: data,
-                        dataType: 'json'
-                    }).done(function(data, textStatus, jqXHR) {
-                        if ( textStatus == 'success' && data.status == 'success' ) {
-                            //console.log('success');
-                            sendComment(container,scoreId);
+                        $.ajax({
+                            type: "DELETE",
+                            url: url,
+                            data: data,
+                            dataType: 'json'
+                        }).done(function (data, textStatus, jqXHR) {
+                            if (textStatus == 'success' && data.status == 'success') {
+                                //console.log('success');
+                                container.data('scoreid',-1);
+
+                                sendComment(container, scoreId, scoreValue);
+
+                                $('#staff-student-scores').find('.alert-success').html('Score deleted successfully!').show();
+                                setTimeout(function () {
+                                    $('#staff-student-scores').find('.alert-success').hide();
+                                }, 3000);
+
+                            } else {
+                                $('#staff-student-scores').find('.alert-danger').html('Score delete failed!').show();
+                                setTimeout(function () {
+                                    $('#staff-student-scores').find('.alert-danger').hide();
+                                }, 3000);
+                                //console.log('failed');
+                            }
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            $('#staff-student-scores').find('.alert-danger').html(errorThrown).show();
+                            setTimeout(function () {
+                                $('#staff-student-scores').find('.alert-danger').hide();
+                            }, 3000);
+                        }).always(function () {
+                            button.prop('disabled', false);
+                            button.val('Save');
+                        });
+                    } else {
+                        var data = {
+                            value: scoreValue,
+                            _method: 'PUT'
+                        };
+
+                        var url = '{{ path("score_update", {'id': 'score_id'}) }}';
+                        url = url.replace("score_id", scoreId);
+
+                        $.ajax({
+                            type: "PUT",
+                            url: url,
+                            data: data,
+                            dataType: 'json'
+                        }).done(function (data, textStatus, jqXHR) {
+                            if (textStatus == 'success' && data.status == 'success') {
+                                //console.log('success');
+                                sendComment(container, scoreId, scoreValue);
 
                                 $('#staff-student-scores').find('.alert-success').html('Score updated successfully!').show();
-                            setTimeout(function(){
+                                setTimeout(function () {
                                     $('#staff-student-scores').find('.alert-success').hide();
-                            },3000);
+                                }, 3000);
 
-                        } else {
+                            } else {
                                 $('#staff-student-scores').find('.alert-danger').html('Score update failed!').show();
-                            setTimeout(function(){
+                                setTimeout(function () {
                                     $('#staff-student-scores').find('.alert-danger').hide();
-                            },3000);
-                            //console.log('failed');
-                        }
-                    }).fail(function(jqXHR, textStatus, errorThrown) {
-                        $('#staff-student-scores').find('.alert-danger').html(errorThrown).show();
-                        setTimeout(function(){
-                            $('#staff-student-scores').find('.alert-danger').hide();
-                        },3000);
-                    }).always(function() {
-                        button.prop('disabled',false);
-                        button.val('Update');
-                    });
+                                }, 3000);
+                                //console.log('failed');
+                            }
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            $('#staff-student-scores').find('.alert-danger').html(errorThrown).show();
+                            setTimeout(function () {
+                                $('#staff-student-scores').find('.alert-danger').hide();
+                            }, 3000);
+                        }).always(function () {
+                            button.prop('disabled', false);
+                            button.val('Update');
+                        });
+                    }
                 }
             };
 
-            var sendComment = function ( container, scoreId ) {
+            var sendComment = function ( container, scoreId, scoreValue ) {
 
                 if ( scoreId > 0 ) {
                     // need a score id before we can submit
@@ -291,33 +336,65 @@
                             dataType: 'json'
                         });
                     } else {
-                        var data = {
-                            comment: commentValue,
-                            standards: [],
-                            _method: 'PUT'
-                        };
 
-                        var checked_standards = container.find('input:checked');
-                        $.each(checked_standards,function(){
-                            data.standards.push($(this).val());
-                        });
+                        if ( scoreValue == 'N/A' ) {
+                            var data = {
+                                _method: 'DELETE'
+                            };
 
-                        var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
-                        url = url.replace("comment_id", commentId);
+                            var url = '{{ path("comment_delete", {'id': 'comment_id'}) }}';
+                            url = url.replace("comment_id", commentId);
 
-                        $.ajax({
-                            type: "PUT",
-                            url: url,
-                            data: data,
-                            success: function(data,textStatus){
-                                if ( textStatus == 'success' && data.status == 'success' ) {
-                                    //console.log('success');
-                                } else {
-                                    //console.log('failed');
-                                }
-                            },
-                            dataType: 'json'
-                        });
+                            $.ajax({
+                                type: "DELETE",
+                                url: url,
+                                data: data,
+                                success: function (data, textStatus) {
+                                    if (textStatus == 'success' && data.status == 'success') {
+                                        //console.log('success');
+                                        commentContainer.data('commentid',-1);
+                                        commentContainer.val('');
+                                        container.find('td small').empty();
+                                        var checked_standards = container.find('input:checked');
+                                        $.each(checked_standards, function () {
+                                            $(this).attr("checked", false);
+                                        });
+                                    } else {
+                                        //console.log('failed');
+                                    }
+                                },
+                                dataType: 'json'
+                            });
+                        } else {
+                            var data = {
+                                comment: commentValue,
+                                standards: [],
+                                _method: 'PUT'
+                            };
+
+                            var checked_standards = container.find('input:checked');
+                            $.each(checked_standards, function () {
+                                data.standards.push($(this).val());
+                            });
+
+                            var url = '{{ path("comment_update", {'id': 'comment_id'}) }}';
+                            url = url.replace("comment_id", commentId);
+
+                            $.ajax({
+                                type: "PUT",
+                                url: url,
+                                data: data,
+                                success: function (data, textStatus) {
+                                    if (textStatus == 'success' && data.status == 'success') {
+                                        //console.log('success');
+
+                                    } else {
+                                        //console.log('failed');
+                                    }
+                                },
+                                dataType: 'json'
+                            });
+                        }
                     }
 
                 }
@@ -340,7 +417,7 @@
                         $(this).val('Updating...');
                     }
 
-                    if ( !isValidScore(scoreValue,commentValue) ) {
+                    if ( !isValidScore(scoreValue,commentValue,scoreId) ) {
                         if ( scoreId < 0 ) {
                             $(this).val('Save');
                         } else {
@@ -352,10 +429,8 @@
                     }
 
                     // valid and continue
-
                     sendScore($(this), parent, scoreId, scoreValue );
                 });
-
             });
 
         })();
