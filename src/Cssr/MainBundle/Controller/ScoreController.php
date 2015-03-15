@@ -707,10 +707,29 @@ class ScoreController extends Controller
 
         if ( $isValid ) {
 
+            // search for an existing score based on student, course, and period
+            $sql = 'SELECT S.id ';
+            $sql .= 'FROM cssr_score S ';
+            $sql .= 'WHERE S.period = :period AND S.student_id = :studentId AND S.course_id = :courseId ';
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue('studentId', $student->getId(), \PDO::PARAM_INT);
+            $stmt->bindValue('courseId', $course->getId(), \PDO::PARAM_INT);
+            $stmt->bindValue('period', $period, "datetime");
+            $stmt->execute();
+            $existingScore = $stmt->fetch(\PDO::FETCH_OBJ);
+
+            // if score exists, update it
+            if ( $existingScore ) {
+                $score = $em->getRepository('CssrMainBundle:Score')->find($existingScore->id);
+                $score->setValue($value);
+            }
+
             $score->setCreatedBy($this->getUser());
             $score->setUpdatedBy($this->getUser());
 
-            $em->persist($score);
+            if ( !$existingScore ) {
+                $em->persist($score);
+            }
             $em->flush();
 
             if ( $request->isXmlHttpRequest() ) {
