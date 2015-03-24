@@ -1039,13 +1039,11 @@ class Report {
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
-        $sql .= 'LEFT JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
-        $sql .= 'WHERE C.user_id = :staff AND S.student_id IN ('.implode(',',$studentIds).') ';
-        $sql .= 'ORDER BY S.student_id, S.period ';
-
+        $sql .= 'WHERE S.student_id IN ('.implode(',',$studentIds).') ';
+        $sql .= 'ORDER BY S.student_id ';
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
         $stmt->execute();
         $scores = $stmt->fetchAll();
 
@@ -1053,11 +1051,11 @@ class Report {
             return array();
         }
 
+        $scoreIds = array();
         $commentIds = array();
         foreach ( $scores as $score ) {
-            if ( $score['comment_id'] ) {
-                $commentIds[] = $score['comment_id'];
-            }
+            $scoreIds[] = $score['id'];
+            $commentIds[] = $score['comment_id'];
         }
 
         $commentStandards = array();
@@ -1079,6 +1077,7 @@ class Report {
             $totalScore = 0;
             $scoreCount = 0;
             $scoreStats = array('1'=>0,'2'=>0,'3'=>0,'4'=>0,'5'=>0);
+
             // populate scores
             foreach ( $scores as $score ) {
 
@@ -1086,7 +1085,6 @@ class Report {
 
                     if ( empty($student_scores[$student['id']]) ) {
                         $student_scores[$student['id']] = $student;
-
                         $student_scores[$student['id']]['periods'] = array();
                     }
 
@@ -1124,8 +1122,8 @@ class Report {
 
                     // calculate average
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['avgScore'] = round($totalScore/$scoreCount,2);
-                    $student_scores[$student['id']]['scoreCount'] = $scoreCount;
-                    $student_scores[$student['id']]['scoreTotal'] = $totalScore;
+                    $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scoreCount'] = $scoreCount;
+                    $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scoreTotal'] = $totalScore;
 
                     // score stats
                     $student_scores[$student['id']]['periods'][$period->format('Y-m-d')]['scoreStats'] = $scoreStats;
