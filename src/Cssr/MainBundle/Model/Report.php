@@ -1039,7 +1039,7 @@ class Report {
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
         $sql .= 'LEFT JOIN cssr_area A ON A.id = C.area_id ';
-        $sql .= 'INNER JOIN cssr_comment CM ON CM.score_id = S.id ';
+        $sql .= 'LEFT JOIN cssr_comment CM ON CM.score_id = S.id ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = CM.updated_by ';
         $sql .= 'WHERE S.student_id IN ('.implode(',',$studentIds).') ';
         $sql .= 'ORDER BY S.student_id ';
@@ -1055,7 +1055,9 @@ class Report {
         $commentIds = array();
         foreach ( $scores as $score ) {
             $scoreIds[] = $score['id'];
-            $commentIds[] = $score['comment_id'];
+            if ( !empty($score['comment_id']) ) {
+                $commentIds[] = $score['comment_id'];
+            }
         }
 
         $commentStandards = array();

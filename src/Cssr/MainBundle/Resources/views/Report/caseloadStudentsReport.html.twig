@@ -41,7 +41,7 @@
                 <td style="text-align: center;">{{ student.entry|date('m/d/Y') }}</td>
                 {% for score in report.scores %}
                     {% if score is iterable %}
-                        {% if score.comment is defined %}
+                        {% if score.comment is defined and score.comment.body %}
                             <td style="text-align: center;">
 
                                 <a class="score-comment-value" data-toggle="modal" data-target="#score-comment-model-{{ score.id }}">{{ score.value }}</a>
