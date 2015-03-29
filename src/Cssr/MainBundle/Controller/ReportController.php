@@ -479,10 +479,62 @@ class ReportController extends Controller
     {
         $type = 'average';
 
-        $vars = $this->caseloadEspAction($id);
+        $session = $this->getRequest()->getSession();
+        $activeCenter = $session->get('center');
 
-        $vars['type_name'] = Report::getCaseloadReportName($type);
-        $vars['type'] = $type;
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT DISTINCT(period) period FROM cssr_score ORDER BY period";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = new \DateTime($p['period']);
+        }
+
+        if ( isset($_GET['periodStart']) && isset($_GET['periodEnd']) ) {
+            $periodStart = new \DateTime($_GET['periodStart']);
+            $periodEnd = new \DateTime($_GET['periodEnd']);
+        } else {
+            $periodStart = $periods[count($periods)-1];
+            $periodEnd = $periods[count($periods)-1];
+        }
+
+        $staff = $em->getRepository('CssrMainBundle:User')->find($id);
+
+        if (!$staff) {
+            throw $this->createNotFoundException('Unable to find Staff entity.');
+        }
+
+        $students = Report::getCaseloadAverage($staff,$em,$activeCenter,array('start'=>$periodStart,'end'=>$periodEnd));
+
+        $selectedPeriods = array();
+        foreach ( $students as $student ) {
+            foreach ( $student['periods'] as $period ) {
+                if ( !in_array($period['date'],$selectedPeriods) ) {
+                    $selectedPeriods[] = $period['date'];
+                }
+            }
+        }
+
+        // sorting
+        usort($students,function($a,$b){
+            if (strtolower($a['lastname']) === strtolower($b['lastname'])){
+                return strnatcmp($a['lastname'],$b['lastname']);
+            }
+            return strnatcasecmp($a['lastname'],$b['lastname']);
+        });
+
+        $vars = array(
+            'type_name' => Report::getCaseloadReportName($type),
+            'type' => $type,
+            'periodStart' => $periodStart,
+            'periodEnd' => $periodEnd,
+            'periods' => $periods,
+            'selectedPeriods' => $selectedPeriods,
+            'students' => $students,
+            'staff' => $staff
+        );
 
         return $vars;
     }
