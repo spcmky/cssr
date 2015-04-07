@@ -515,6 +515,7 @@ class ReportController extends Controller
                     $selectedPeriods[] = $period['date'];
                 }
             }
+            break;
         }
 
         // sorting

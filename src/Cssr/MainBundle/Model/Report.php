@@ -881,20 +881,14 @@ class Report {
 
     public static function getCaseloadAverage ( $staff, $em, $activeCenter, $periods ) {
 
-        // find students
-        $sql  = 'SELECT S.student_id id, U.firstname, U.lastname, U.middlename, U.entry ';
-        $sql .= 'FROM cssr_score S ';
-        $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
-        $sql .= 'LEFT JOIN cssr_course C ON C.id = S.course_id ';
-        $sql .= 'WHERE C.user_id = :staff AND U.center_id = :center AND S.period BETWEEN :periodStart AND :periodEnd ';
-        $sql .= 'ORDER BY S.student_id ';
-
+        // find all students
+        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, U.entry ';
+        $sql .= 'FROM cssr_student_course SC ';
+        $sql .= 'LEFT JOIN cssr_course C ON C.id = SC.course_id ';
+        $sql .= 'LEFT JOIN cssr_user U ON U.id = SC.student_id ';
+        $sql .= 'WHERE C.user_id = :staff';
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue('staff', $staff->getId(), \PDO::PARAM_INT);
-        $stmt->bindValue('center', $activeCenter->id, \PDO::PARAM_INT);
-        $stmt->bindValue('periodStart', $periods['start'], 'datetime');
-        $stmt->bindValue('periodEnd', $periods['end'], 'datetime');
-
         $stmt->execute();
         $students = $stmt->fetchAll();
 
@@ -908,7 +902,7 @@ class Report {
         }
 
         // find scores
-        $sql  = 'SELECT U.id, U.firstname, U.lastname, U.middlename, U.entry, AVG(S.value) as value, S.period ';
+        $sql  = 'SELECT U.id, AVG(S.value) as value, S.period ';
         $sql .= 'FROM cssr_score S ';
         $sql .= 'LEFT JOIN cssr_user U ON U.id = S.student_id ';
         $sql .= 'WHERE U.center_id = :center AND S.student_id IN ('.implode(',',$studentIds).') AND S.period BETWEEN :periodStart AND :periodEnd ';
@@ -926,40 +920,78 @@ class Report {
             return array();
         }
 
-        $students = array();
-        $previous = null;
-
-        foreach ( $scores as $score ) {
-            if ( !isset($students[$score['id']] ) ) {
-                $students[$score['id']] = array(
-                    'id' => $score['id'],
-                    'firstname' => $score['firstname'],
-                    'lastname' => $score['lastname'],
-                    'middlename' => $score['middlename'],
-                    'entry' => $score['entry'],
-                    'periods' => array()
-                );
-            }
-
-            $students[$score['id']]['periods'][] = array(
-                'date' => $score['period'],
-                'score' => ($score['value']) ? round($score['value'],2) : 0
-            );
-
+        // get periods
+        $sql  = 'SELECT DISTINCT(S.period) period ';
+        $sql .= 'FROM cssr_score S ';
+        $sql .= 'WHERE S.period BETWEEN :periodStart AND :periodEnd ';
+        $sql .= 'ORDER BY period ';
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue('periodStart', $periods['start'], 'datetime');
+        $stmt->bindValue('periodEnd', $periods['end'], 'datetime');
+        $stmt->execute();
+        $periods = array();
+        foreach ( $stmt->fetchAll() as $p ) {
+            $periods[] = $p['period'];
         }
+
+        $previous = null;
+        $result = array();
 
         foreach ( $students as $student ) {
-            $total = 0;
-            $count = 0;
-            foreach ( $student['periods'] as $period ) {
-                $count++;
-                $total += $period['score'];
+
+            if ( !isset($result[$student['id']]) ) {
+                $result[$student['id']] = array(
+                    'id' => $student['id'],
+                    'firstname' => $student['firstname'],
+                    'lastname' => $student['lastname'],
+                    'middlename' => $student['middlename'],
+                    'entry' => $student['entry'],
+                    'periods' => array()
+                );
+
+                foreach ( $periods as $date ) {
+                    $result[$student['id']]['periods'][] = array(
+                        'date' => $date
+                    );
+                }
             }
-            $students[$student['id']]['avgScore'] = ($count) ? round($total/$count,2) : 0;
-            $students[$student['id']]['rating'] = self::getRating($students[$student['id']]['avgScore']);
+
+            foreach ( $scores as $score ) {
+                if ( $score['id'] != $student['id'] ){
+                    continue;
+                }
+
+                foreach ( $result[$student['id']]['periods'] as $key => $period ) {
+                    if ( $period['date'] == $score['period'] ) {
+                        $result[$student['id']]['periods'][$key]['score'] = ($score['value']) ? round($score['value'],2) : 0;
+                    }
+                }
+            }
         }
 
-        return $students;
+        foreach ( $result as $record ) {
+
+            $total = 0;
+            $count = 0;
+            foreach ( $record['periods'] as $key => $period ) {
+                if ( isset($period['score']) ) {
+                    $count++;
+                    $total += $period['score'];
+                } else {
+                    $result[$record['id']]['periods'][$key]['score'] = ' - ';
+                }
+            }
+
+            if ( $count ) {
+                $result[$record['id']]['avgScore'] = ($count) ? round($total / $count, 2) : 0;
+                $result[$record['id']]['rating'] = self::getRating($result[$record['id']]['avgScore']);
+            } else {
+                $result[$record['id']]['avgScore'] = 'N/A';
+                $result[$record['id']]['rating'] = 'N/A';
+            }
+        }
+
+        return $result;
     }
 
     public static function getStudentRecord ( $em, $areas, $studentId ) {
